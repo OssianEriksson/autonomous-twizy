@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<launch>
+    <arg
+        name="world"
+        default="$(find twizy_webots)/worlds/flat.wbt"
+        doc="Path to the world to load" />
+    <arg
+        name="mode"
+        default="realtime"
+        doc="Startup mode" />
+    <arg
+        name="no_gui"
+        default="false"
+        doc="Start Webots with minimal GUI" />
+    <arg
+        name="use_sim_time"
+        default="true"
+        doc="Synchronize ROS time with simulation" />
+
+    <param name="/use_sim_time" value="$(arg use_sim_time)" />
+
+    <node
+        pkg="twizy_webots"
+        type="twizy_webots"
+        name="twizy_webots"
+        args="--world $(arg world) --mode $(arg mode) --no-gui $(arg no_gui)"
+        required="true" />
+</launch>

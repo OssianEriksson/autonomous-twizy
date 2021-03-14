@@ -1,0 +1,85 @@
+#!/usr/bin/python3
+
+import rospkg
+import rospy
+import roslaunch
+import argparse
+from math import pi, sqrt
+
+from pathlib import Path
+import subprocess
+
+
+def install_executable(src, dst, args=[]):
+    process = subprocess.run([src] + args, stdout=subprocess.PIPE)
+    content = process.stdout.decode('utf-8')
+
+    out = dst / src.stem
+    if out.suffix.lower() != '.proto':
+        out = out.parent / (out.name + '.proto')
+
+    out.write_text(content)
+
+
+def install_protos():
+    src = Path(rospkg.RosPack().get_path('twizy_description')) / 'protos'
+    dst = Path(__file__).parent.parent / 'protos'
+
+    sim_time = rospy.get_param('/use_sim_time', False)
+
+    l = 1.0 / sqrt(3)
+    controller_args = ['--name=twizy_webots']
+    if sim_time:
+        controller_args += ['--use-sim-time', '--clock']
+
+    install_executable(src / 'Twizy.proto.py', dst, [
+        f'--rotation={l} {l} {l} {4 * pi / 3}',
+        '--controller=ros',
+        *(f'--controller-args={a}' for a in controller_args)
+    ])
+
+
+def get_launch_entry(pkg, launch, args):
+    path = roslaunch.rlutil.resolve_launch_arguments([pkg, launch])[0]
+    return (path, [f'{k}:={v}' for k, v in args.items()])
+
+
+def main():
+    parser = argparse.ArgumentParser(description='Start simulation of Twizy.')
+
+    parser.add_argument('--mode',
+                        type=str,
+                        default=None,
+                        help='startup mode')
+    parser.add_argument('--no-gui',
+                        type=bool,
+                        default=None,
+                        help='start Webots with minimal GUI')
+    parser.add_argument('--world',
+                        type=str,
+                        default=None,
+                        help='path to the world to load')
+
+    args, _ = parser.parse_known_args()
+
+    wbts_args = {k.replace('_', '-'): str(v) for k, v in vars(args).items()}
+    if 'no-gui' in wbts_args:
+        wbts_args['no-gui'] = wbts_args['no-gui'].lower()
+
+    install_protos()
+
+    uuid = roslaunch.rlutil.get_or_generate_uuid(None, False)
+    roslaunch.configure_logging(uuid)
+    launch_list = [get_launch_entry('webots_ros', 'webots.launch', wbts_args)]
+    launch = roslaunch.parent.ROSLaunchParent(uuid, launch_list)
+    launch.start()
+
+    try:
+        launch.spin()
+    finally:
+        # After Ctrl+C, stop all nodes from running
+        launch.shutdown()
+
+
+if __name__ == '__main__':
+    main()
