@@ -1,0 +1,21 @@
+<launch>
+    <arg
+        name="rvizconfig"
+        default="$(find twizy_description)/rviz/full.rviz"
+        doc="rviz configuration file" />
+    <arg
+        name="robot"
+        default="$(find twizy_description)/robot/twizy.py"
+        doc="Executable which outputs urdf representation of robot" />
+
+    <node
+        pkg="rviz"
+        type="rviz"
+        name="rviz"
+        args="-d $(arg rvizconfig)"
+        required="true" />
+
+    <include file="$(find twizy_description)/launch/description.launch">
+        <arg name="robot" value="$(arg robot)" />
+    </include>
+</launch>

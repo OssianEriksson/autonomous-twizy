@@ -51,6 +51,9 @@
   <buildtool_depend>catkin</buildtool_depend>
   <exec_depend>urdf</exec_depend>
   <exec_depend>rviz</exec_depend>
+  <exec_depend>python-numpy</exec_depend>
+  <exec_depend>python-transforms3d-pip</exec_depend>
+  <exec_depend>python3-collada-pip</exec_depend>
 
 
   <!-- The export tag contains other, unspecified, tags -->

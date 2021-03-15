@@ -5,6 +5,7 @@ rear_track: 1.08  # According to datasheet
 
 max_steering_angle: 0.6981317007977318  # 40 degrees
 max_steering_torque: 10000.0  # Max steering motor torque around pivot axis
+max_drive_torque: 10000.0  # Max drive motor torque
 
 
 front_wheel_width: 0.125  # According to datasheet
