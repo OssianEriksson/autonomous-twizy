@@ -120,11 +120,11 @@ class _URDFJoint:
             joint.setAttribute('name', self.name)
 
             parent = doc.createElement('parent')
-            parent.appendChild(doc.createTextNode(self.parent.name))
+            parent.setAttribute('link', self.parent.name)
             joint.appendChild(parent)
 
             child = doc.createElement('child')
-            child.appendChild(doc.createTextNode(self.child.name))
+            child.setAttribute('link', self.child.name)
             joint.appendChild(child)
 
             xyz, rpy = xyz_rpy(self.trans)

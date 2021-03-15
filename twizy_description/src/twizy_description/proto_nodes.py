@@ -100,5 +100,5 @@ class Collada(Node):
 
     def _urdf(self, trans, parent):
         return Node('Mesh', {
-            'url': self.path
+            'url': Path(self.path).as_uri()
         })._urdf(trans, parent)
