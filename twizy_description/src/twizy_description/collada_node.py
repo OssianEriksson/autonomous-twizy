@@ -49,7 +49,10 @@ class Collada(Node):
         })
 
     def _appearance(self, e):
-        fields = {}
+        fields = {
+            'metalness': 0
+        }
+
         if e.emission and isinstance(e.emission, tuple):
             fields['emissiveColor'] = ' '.join(str(a) for a in e.emission[:3])
         if e.specular and isinstance(e.specular, tuple):

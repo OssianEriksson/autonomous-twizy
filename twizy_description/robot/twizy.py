@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 
 from twizy_description.robot_description import Node
-from twizy_description.proto_nodes import Collada
+from twizy_description.collada_node import Collada
 
 import argparse
 import yaml
