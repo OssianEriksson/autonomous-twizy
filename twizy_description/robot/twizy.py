@@ -197,6 +197,7 @@ def twizy():
         }, True),
 
         'synchronization': 'FALSE',
+        'supervisor': 'TRUE',
         'model': '"Autonomous Twizy"',
         'translation': 'IS translation',
         'rotation': 'IS rotation',

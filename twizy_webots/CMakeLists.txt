@@ -162,6 +162,9 @@ include_directories(
 ## in contrast to setup.py, you can choose the destination
 catkin_install_python(PROGRAMS
   nodes/twizy_webots
+  nodes/twizy_controller
+  nodes/gnss
+  nodes/color_depth_sensor
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
