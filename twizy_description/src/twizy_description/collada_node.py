@@ -50,7 +50,8 @@ class Collada(Node):
 
     def _appearance(self, e):
         fields = {
-            'metalness': 0
+            'metalness': 0.0,
+            'roughness': 1.0
         }
 
         if e.emission and isinstance(e.emission, tuple):
@@ -58,9 +59,9 @@ class Collada(Node):
         if e.specular and isinstance(e.specular, tuple):
             s = e.specular
             roughness = 1.0 - s[3] * (s[0] + s[1] + s[2]) / 3.0
-            if e.shininess:
-                roughness *= (1.0 - 0.5 * e.shininess)
             fields['roughness'] = roughness
+        if e.shininess:
+            fields['roughness'] *= (1.0 - 0.5 * e.shininess)
         if e.diffuse:
             if isinstance(e.diffuse, collada.material.Map):
                 texture_path = Path(e.diffuse.sampler.surface.image.path)
