@@ -167,8 +167,8 @@ def twizy():
                     ],
                     'translation': f'{physical["front_overhang"] - (physical["chassis_length"] - physical["wheelbase"]) * 0.5} 0.0 {physical["chassis_height"] * 0.5}'
                 }),
-                'translation': f'0.0 0.0 {(physical["rear_wheel_radius"] + physical["front_wheel_radius"]) * 0.5}',
-                'rotation': f'0.0 1.0 0.0 {atan2(physical["rear_wheel_radius"] - physical["front_wheel_radius"], physical["wheelbase"])}'
+                'translation': f'0.0 0.0 {physical["ground_clearance"]}',
+                'rotation': f'0.0 1.0 0.0 {physical["rake"]}'
             })
         ],
 

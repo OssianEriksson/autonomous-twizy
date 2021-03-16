@@ -1,6 +1,8 @@
 wheelbase: 1.686  # According to datasheet
 front_track: 1.094  # According to datasheet
 rear_track: 1.08  # According to datasheet
+ground_clearance: 0.12  # At chassis center, according to datasheet
+rake: 0.0
 
 
 max_steering_angle: 0.6981317007977318  # 40 degrees
