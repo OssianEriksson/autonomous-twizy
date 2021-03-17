@@ -3,6 +3,7 @@ front_track: 1.094  # According to datasheet
 rear_track: 1.08  # According to datasheet
 ground_clearance: 0.12  # At chassis center, according to datasheet
 rake: 0.0
+front_overhang: 0.313  # According to datasheet
 
 
 max_steering_angle: 0.6981317007977318  # 40 degrees
@@ -12,51 +13,53 @@ max_steering_torque: 10000.0  # Max steering motor torque around pivot axis
 max_drive_torque: 10000.0  # Max drive motor torque
 
 
-front_wheel_width: 0.125  # According to datasheet
-front_wheel_radius:  0.265  # According to datasheet
-front_wheel_mass: 6.0
-front_wheel_com:  # With respect to wheel center, y along axis of wheel
-  x: 0.0
-  y: 0.0
-  z: 0.0
-front_wheel_inertial:  # With respect to COM
-  xx: 0.11315
-  xy: 0.0
-  xz: 0.0
-  yy: 0.11315
-  yz: 0.0
-  zz: 0.210675
-
-rear_wheel_width: 0.125  # According to datasheet
-rear_wheel_radius:  0.265  # According to datasheet
-rear_wheel_mass: 6.0
-rear_wheel_com:  # With respect to wheel center, y along axis of wheel
-  x: 0.0
-  y: 0.0
-  z: 0.0
-rear_wheel_inertial:  # With respect to COM
-  xx: 0.11315
-  xy: 0.0
-  xz: 0.0
-  yy: 0.11315
-  yz: 0.0
-  zz: 0.210675
+front_wheel:
+  width: 0.125  # According to datasheet
+  radius:  0.265  # According to datasheet
+  mass: 6.0
+  com:  # With respect to wheel center, y along axis of wheel
+    x: 0.0
+    y: 0.0
+    z: 0.0
+  inertial:  # With respect to COM
+    xx: 0.11315
+    xy: 0.0
+    xz: 0.0
+    yy: 0.11315
+    yz: 0.0
+    zz: 0.210675
 
 
-front_overhang: 0.313  # According to datasheet
+rear_wheel:
+  width: 0.125  # According to datasheet
+  radius:  0.265  # According to datasheet
+  mass: 6.0
+  com:  # With respect to wheel center, y along axis of wheel
+    x: 0.0
+    y: 0.0
+    z: 0.0
+  inertial:  # With respect to COM
+    xx: 0.11315
+    xy: 0.0
+    xz: 0.0
+    yy: 0.11315
+    yz: 0.0
+    zz: 0.210675
 
-chassis_width: 1.381  # According to datasheet
-chassis_length: 2.338  # According to datasheet
-chassis_height: 1.189  # Overall height is 1.454 according to datasheet, subtract wheel radius
-chassis_mass: 450.0  # Curb mass is 474 kg from datasheet. Subtract weight of wheels from this
-chassis_com:  # From center of wheel centers, z up x forward
-  x: 0.0
-  y: 0.0
-  z: 0.3
-chassis_intertial:  # With respect to COM
-  xx: 150.79789
-  xy: 0.0
-  xz: 0.0
-  yy: 284.2635
-  yz: 0.0
-  zz: 276.50269
+
+chassis:
+  width: 1.381  # According to datasheet
+  length: 2.338  # According to datasheet
+  height: 1.189  # Overall height is 1.454 according to datasheet, subtract wheel radius
+  mass: 450.0  # Curb mass is 474 kg from datasheet. Subtract weight of wheels from this
+  com:  # From center of wheel centers, z up x forward
+    x: 0.0
+    y: 0.0
+    z: 0.3
+  intertial:  # With respect to COM
+    xx: 150.79789
+    xy: 0.0
+    xz: 0.0
+    yy: 284.2635
+    yz: 0.0
+    zz: 276.50269
