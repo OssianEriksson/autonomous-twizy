@@ -1,7 +1,32 @@
 #!/usr/bin/python3
 
+import rospy
+
+import twizy_webots.robot
+
+from sensor_msgs.msg import CameraInfo, Image
+
 def main():
-    pass
+    # Initialize ROS node. There might be multiple versions of this node
+    # running at once with the same name, anonymous=True allows this
+    rospy.init_node('color_depth_sensor', anonymous=True)
+
+    # Read parameters from ROS parameter server
+    color_device = rospy.get_param('~color_device')
+    depth_device = rospy.get_param('~depth_device')
+    frame_id = rospy.get_param('~frame_id', color_device)
+    fps = rospy.get_param('fps', 30.0)
+    model = rospy.get_param('model_name', None)
+
+    robot = twizy_webots.robot.Robot(model)
+
+    # Tell the webots ROS controller to images
+    for device in [color_device, depth_device]:
+        if not robot.call_enable(device, fps):
+            rospy.logfatal(f'Unable to enable device {device}')
+            return
+    
+    rospy.spin()
 
 if __name__ == '__main__':
     main()
