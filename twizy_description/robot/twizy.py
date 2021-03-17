@@ -166,7 +166,7 @@ def twizy():
                 'boundingObject': Node('Transform', {
                     'children': [
                         Node('Box', {
-                            'size': ' '.join(str(physical[f'chassis_{i}']) for i in ['length', 'height', 'width'])
+                            'size': ' '.join(str(physical[f'chassis_{i}']) for i in ['length', 'width', 'height'])
                         }, True),
                     ],
                     'translation': f'{physical["front_overhang"] - (physical["chassis_length"] - physical["wheelbase"]) * 0.5} 0.0 {physical["chassis_height"] * 0.5}'
