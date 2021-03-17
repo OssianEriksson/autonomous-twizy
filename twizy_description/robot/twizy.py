@@ -173,18 +173,18 @@ def twizy():
                                         'width': model['front_realsense']['depth']['width'],
                                         'height': model['front_realsense']['depth']['height'],
                                         'maxRange': model['front_realsense']['depth']['max_range']
-                                    }, True),
+                                    }),
                                     Node('Camera', {
                                         'name': '"front_realsense_aligned_depth_to_color_camera"',
                                         'fieldOfView': model['front_realsense']['depth']['fov'],
                                         'width': model['front_realsense']['depth']['width'],
                                         'height': model['front_realsense']['depth']['height'],
-                                    }, True)
+                                    })
                                 ],
 
                                 # Webots camera has -z forward, x right, y up
                                 'rotation': f'{1.0 / sqrt(3)} {-1.0 / sqrt(3)} {-1.0 / sqrt(3)} {2.0 * pi / 3}'
-                            }),
+                            }, True),
                             Node('Solid', {
                                 'name': '"front_realsense"',
 
