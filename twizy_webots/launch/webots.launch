@@ -54,7 +54,7 @@
         name="ackermann_controller"
         required="true">
         <param name="device" value="right_gnss" />
-        <remap from="~drive_wheel_radius" to="/physical/rear_wheel_radius" />
+        <remap from="~drive_wheel_radius" to="/physical/rear_wheel/radius" />
         <remap from="~max_forward_speed" to="/physical/max_forward_speed" />
         <remap from="~max_reverse_speed" to="/physical/max_reverse_speed" />
         <remap from="~max_steering_angle" to="/physical/max_steering_angle" />

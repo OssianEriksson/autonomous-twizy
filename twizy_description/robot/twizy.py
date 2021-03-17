@@ -49,7 +49,7 @@ def quote(s):
     return f'"{s}"'
 
 
-robot_mass = physical['chassis_mass'] / 2.0
+robot_mass = physical['chassis']['mass'] / 2.0
 
 mesh_path = description_pkg_path / 'meshes'
 
@@ -72,19 +72,19 @@ def wheel(fr, lr):
                 'children': [
                     Collada(str(mesh_path / 'wheel.dae'))
                 ],
-                'scale': f'{physical[f"{fr}_wheel_radius"]} {physical[f"{fr}_wheel_width"]} {physical[f"{fr}_wheel_radius"]}',
+                'scale': f'{physical[f"{fr}_wheel"]["radius"]} {physical[f"{fr}_wheel"]["width"]} {physical[f"{fr}_wheel"]["radius"]}',
                 'rotation': f'0.0 0.0 1.0 {0 if lr == "left" else pi}'
             })
         ],
         'physics': Node('Physics', {
-            'centerOfMass': vector(physical[f'{fr}_wheel_com']),
-            'inertiaMatrix': diagmat(physical[f'{fr}_wheel_inertial']),
+            'centerOfMass': vector(physical[f'{fr}_wheel']['com']),
+            'inertiaMatrix': diagmat(physical[f'{fr}_wheel']['inertial']),
             'density': -1,
-            'mass': physical[f'{fr}_wheel_mass']
+            'mass': physical[f'{fr}_wheel']['mass']
         }),
         'boundingObject': Node('Cylinder', {
-            'radius': physical[f'{fr}_wheel_radius'],
-            'height': physical[f'{fr}_wheel_width'],
+            'radius': physical[f'{fr}_wheel']['radius'],
+            'height': physical[f'{fr}_wheel']['width'],
             'subdivision': 24
         }, True),
         'name': f'"{fr}_{lr}_wheel"'
@@ -108,7 +108,7 @@ def rear_wheel(lr):
                 ]
             })
         ],
-        'translation': f'{-physical["wheelbase"] / 2.0} {(1 if lr == "left" else -1) * physical["rear_track"] / 2.0} {physical["rear_wheel_radius"]}'
+        'translation': f'{-physical["wheelbase"] / 2.0} {(1 if lr == "left" else -1) * physical["rear_track"] / 2.0} {physical["rear_wheel"]["radius"]}'
     })
 
 def front_wheel(lr):
@@ -131,7 +131,7 @@ def front_wheel(lr):
                 ]
             })
         ],
-        'translation': f'{physical["wheelbase"] / 2.0} {(1 if lr == "left" else -1) * physical["front_track"] / 2.0} {physical["front_wheel_radius"]}'
+        'translation': f'{physical["wheelbase"] / 2.0} {(1 if lr == "left" else -1) * physical["front_track"] / 2.0} {physical["front_wheel"]["radius"]}'
     })
 
 
@@ -144,32 +144,32 @@ def twizy():
                         'children': [
                             Collada(str(mesh_path / 'chassis.dae'))
                         ],
-                        'scale': ' '.join(str(physical[f'chassis_{i}']) for i in ['length', 'width', 'height'])
+                        'scale': ' '.join(str(physical['chassis'][i]) for i in ['length', 'width', 'height'])
                     }),
                     Node('GPS', {
                         'name': '"left_gnss"',
-                        'translation': f'0.0 {physical["chassis_width"] * 0.3} {physical["chassis_height"]}',
+                        'translation': f'0.0 {physical["chassis"]["width"] * 0.3} {physical["chassis"]["height"]}',
                         'accuracy': 0.005
                     }),
                     Node('GPS', {
                         'name': '"right_gnss"',
-                        'translation': f'0.0 {-physical["chassis_width"] * 0.3} {physical["chassis_height"]}',
+                        'translation': f'0.0 {-physical["chassis"]["width"] * 0.3} {physical["chassis"]["height"]}',
                         'accuracy': 0.005
                     })
                 ],
                 'physics': Node('Physics', {
-                    'centerOfMass': vector(physical['chassis_com']),
-                    'inertiaMatrix': diagmat(physical['chassis_intertial']),
+                    'centerOfMass': vector(physical['chassis']['com']),
+                    'inertiaMatrix': diagmat(physical['chassis']['intertial']),
                     'density': -1,
-                    'mass': physical['chassis_mass'] - robot_mass
+                    'mass': physical['chassis']['mass'] - robot_mass
                 }),
                 'boundingObject': Node('Transform', {
                     'children': [
                         Node('Box', {
-                            'size': ' '.join(str(physical[f'chassis_{i}']) for i in ['length', 'width', 'height'])
+                            'size': ' '.join(str(physical['chassis'][i]) for i in ['length', 'width', 'height'])
                         }, True),
                     ],
-                    'translation': f'{physical["front_overhang"] - (physical["chassis_length"] - physical["wheelbase"]) * 0.5} 0.0 {physical["chassis_height"] * 0.5}'
+                    'translation': f'{physical["front_overhang"] - (physical["chassis"]["length"] - physical["wheelbase"]) * 0.5} 0.0 {physical["chassis"]["height"] * 0.5}'
                 }),
                 'translation': f'0.0 0.0 {physical["ground_clearance"]}',
                 'rotation': f'0.0 1.0 0.0 {physical["rake"]}'
