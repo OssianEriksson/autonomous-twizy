@@ -43,6 +43,8 @@ description_pkg_path = Path(__file__).parent.parent
 
 with open(description_pkg_path / 'config' / 'physical.yaml', 'r') as f:
     physical = yaml.safe_load(f)
+with open(description_pkg_path / 'config' / 'model.yaml', 'r') as f:
+    model = yaml.safe_load(f)
 
 
 def quote(s):
@@ -55,7 +57,11 @@ mesh_path = description_pkg_path / 'meshes'
 
 
 def vector(v):
-    return [' '.join(str(v[a]) for a in ['x', 'y', 'z'])]
+    return ' '.join(str(v[a]) for a in ['x', 'y', 'z'])
+
+
+def rotation(r):
+    return ' '.join(str(r[a]) for a in ['x', 'y', 'z', 'angle'])
 
 
 def diagmat(M):
@@ -77,7 +83,7 @@ def wheel(fr, lr):
             })
         ],
         'physics': Node('Physics', {
-            'centerOfMass': vector(physical[f'{fr}_wheel']['com']),
+            'centerOfMass': [vector(physical[f'{fr}_wheel']['com'])],
             'inertiaMatrix': diagmat(physical[f'{fr}_wheel']['inertial']),
             'density': -1,
             'mass': physical[f'{fr}_wheel']['mass']
@@ -111,6 +117,7 @@ def rear_wheel(lr):
         'translation': f'{-physical["wheelbase"] / 2.0} {(1 if lr == "left" else -1) * physical["rear_track"] / 2.0} {physical["rear_wheel"]["radius"]}'
     })
 
+
 def front_wheel(lr):
     return Node('Transform', {
         'children': [
@@ -135,6 +142,14 @@ def front_wheel(lr):
     })
 
 
+def gnss(lr):
+    return Node('GPS', {
+        'name': f'"{lr}_gnss"',
+        'translation': vector(model[f'{lr}_gnss']['position']),
+        'accuracy': model[f'{lr}_gnss']['accuracy']
+    })
+
+
 def twizy():
     return Node('Robot', {
         'children': [
@@ -146,19 +161,43 @@ def twizy():
                         ],
                         'scale': ' '.join(str(physical['chassis'][i]) for i in ['length', 'width', 'height'])
                     }),
-                    Node('GPS', {
-                        'name': '"left_gnss"',
-                        'translation': f'0.0 {physical["chassis"]["width"] * 0.3} {physical["chassis"]["height"]}',
-                        'accuracy': 0.005
-                    }),
-                    Node('GPS', {
-                        'name': '"right_gnss"',
-                        'translation': f'0.0 {-physical["chassis"]["width"] * 0.3} {physical["chassis"]["height"]}',
-                        'accuracy': 0.005
+                    gnss('left'),
+                    gnss('right'),
+                    Node('Transform', {
+                        'children': [
+                            Node('Transform', {
+                                'children': [
+                                    Node('RangeFinder', {
+                                        'name': '"front_realsense_depth_camera"',
+                                        'fieldOfView': model['front_realsense']['depth']['fov'],
+                                        'width': model['front_realsense']['depth']['width'],
+                                        'height': model['front_realsense']['depth']['height'],
+                                        'maxRange': model['front_realsense']['depth']['max_range']
+                                    }, True),
+                                    Node('Camera', {
+                                        'name': '"front_realsense_aligned_depth_to_color_camera"',
+                                        'fieldOfView': model['front_realsense']['depth']['fov'],
+                                        'width': model['front_realsense']['depth']['width'],
+                                        'height': model['front_realsense']['depth']['height'],
+                                    }, True)
+                                ],
+
+                                # Webots camera has -z forward, x right, y up
+                                'rotation': f'{1.0 / sqrt(3)} {-1.0 / sqrt(3)} {-1.0 / sqrt(3)} {2.0 * pi / 3}'
+                            }),
+                            Node('Solid', {
+                                'name': '"front_realsense"',
+
+                                # ROS Image has z forward x right -y up
+                                'rotation': f'{-1.0 / sqrt(3)} {1.0 / sqrt(3)} {-1.0 / sqrt(3)} {2.0 * pi / 3}'
+                            }),
+                        ],
+                        'translation': vector(model['front_realsense']['position']),
+                        'rotation': rotation(model['front_realsense']['rotation'])
                     })
                 ],
                 'physics': Node('Physics', {
-                    'centerOfMass': vector(physical['chassis']['com']),
+                    'centerOfMass': [vector(physical['chassis']['com'])],
                     'inertiaMatrix': diagmat(physical['chassis']['intertial']),
                     'density': -1,
                     'mass': physical['chassis']['mass'] - robot_mass
@@ -211,6 +250,7 @@ def twizy():
         'controller': 'IS controller',
         'controllerArgs': 'IS controllerArgs'
     })
+
 
 header = f"""
 =============================================================================

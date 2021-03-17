@@ -33,7 +33,7 @@
     <node
         pkg="twizy_webots"
         type="gnss"
-        name="left_gnss_webots"
+        name="left_gnss"
         required="true">
         <param name="device" value="left_gnss" />
         <remap from="fix" to="/gnss/left/fix" />
@@ -42,7 +42,7 @@
     <node
         pkg="twizy_webots"
         type="gnss"
-        name="right_gnss_webots"
+        name="right_gnss"
         required="true">
         <param name="device" value="right_gnss" />
         <remap from="fix" to="/gnss/right/fix" />

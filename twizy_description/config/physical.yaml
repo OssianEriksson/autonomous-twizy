@@ -1,3 +1,8 @@
+# Physical attributes of the Twizy. This file is OK to load in as parameters
+# with e.g. the <rosparam> tag, as the information here can not be otherwise
+# elegantly accessed from within ROS nodes which might need the data
+
+
 wheelbase: 1.686  # According to datasheet
 front_track: 1.094  # According to datasheet
 rear_track: 1.08  # According to datasheet

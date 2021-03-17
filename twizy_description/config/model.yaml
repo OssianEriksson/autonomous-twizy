@@ -1,0 +1,37 @@
+# Additional attributes of the twizy used to generate models of the car in
+# various formats. This file should NOT be loaded as ROS parameters with e.g.
+# the <rosparam> tag since the information can be accessed in other ways,
+# for example as included in messages a ROS node can subscribe to
+
+
+left_gnss:
+  position:  # In chassis frame: x forward z up, (0, 0, 0) centered on chassis floor 
+    x: 0.0
+    y: 0.4
+    z: 1.2
+  accuracy: 0.005  # Standard deviation
+
+
+right_gnss:
+  position:  # In chassis frame: x forward z up, (0, 0, 0) centered on chassis floor 
+    x: 0.0
+    y: -0.4
+    z: 1.2
+  accuracy: 0.005  # Standard deviation
+
+
+front_realsense:
+  position:  # In chassis frame: x forward z up, (0, 0, 0) centered on chassis floor 
+    x: 1.2
+    y: 0.0
+    z: 1.2
+  rotation:  # Axis angle in chassis frame
+    x: 0.0
+    y: 1.0
+    z: 0.0
+    angle: 0.2  # Camera originally looking at x in chassis frame
+  depth:
+    width: 640  # (px)
+    height: 480  # (px)
+    fov: 1.5707963267948966
+    max_range: 10.0
