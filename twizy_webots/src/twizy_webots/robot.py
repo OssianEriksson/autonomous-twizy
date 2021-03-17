@@ -1,7 +1,7 @@
 import rospy
 
 from std_msgs.msg import String
-from webots_ros.srv import get_bool, set_int
+from webots_ros.srv import get_bool, set_int, set_float
 
 import twizy_webots.robot as robot
 
@@ -26,6 +26,18 @@ class Robot:
     def topic_name(self, topic):
         return f'{self.model}/{topic}'
 
-    def enable(self, device, ups):
+    def call_enable(self, device, ups):
         mspt = int(round(1000.0 / ups))
         return self.service(f'{device}/enable', set_int)(mspt)
+    
+    def set_position(self, device, wait=True, persistent=False):
+        srv_name = f'{device}/set_position'
+        return self.service(srv_name, set_float, wait, persistent)
+    
+    def set_velocity(self, device, wait=True, persistent=False, initial=0):
+        self.set_position(device)(float('inf'))
+        srv_name = f'{device}/set_velocity'
+        proxy = self.service(srv_name, set_float, wait, persistent)
+        if proxy and initial is not None:
+            proxy(initial)
+        return proxy

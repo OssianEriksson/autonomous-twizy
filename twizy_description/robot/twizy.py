@@ -125,8 +125,6 @@ def front_wheel(lr):
                 'device': [
                     Node('RotationalMotor', {
                         'name': f'"front_{lr}_steering_motor"',
-                        'minPosition': -physical['max_steering_angle'],
-                        'maxPosition': physical['max_steering_angle'],
                         'maxTorque': physical['max_steering_torque'],
                         'sound': '""'
                     })

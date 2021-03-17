@@ -46,7 +46,7 @@ def main():
     robot = twizy_webots.robot.Robot(model)
 
     # Tell the webots ROS controller to publish GNSS data
-    if not robot.enable(device, ups):
+    if not robot.call_enable(device, ups):
         rospy.logfatal(f'Unable to enable device {device}')
         return
 
