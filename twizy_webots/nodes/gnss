@@ -21,7 +21,7 @@ def main():
     # Read parameters from ROS parameter server
     device = rospy.get_param('~device')
     frame_id = rospy.get_param('~frame_id', device)
-    ups = rospy.get_param('ups', 30)
+    ups = rospy.get_param('ups', 30.0)
     status = rospy.get_param('status', None)
     service = rospy.get_param('service', None)
     model = rospy.get_param('model_name', None)
