@@ -108,7 +108,7 @@ def rear_wheel(lr):
                 ]
             })
         ],
-        'translation': f'{-physical["wheelbase"] / 2.0} {(1 if lr == "left" else -1) * physical["rear_track"] / 2.0} 0.0'
+        'translation': f'{-physical["wheelbase"] / 2.0} {(1 if lr == "left" else -1) * physical["rear_track"] / 2.0} {physical["rear_wheel_radius"]}'
     })
 
 def front_wheel(lr):
@@ -133,7 +133,7 @@ def front_wheel(lr):
                 ]
             })
         ],
-        'translation': f'{physical["wheelbase"] / 2.0} {(1 if lr == "left" else -1) * physical["front_track"] / 2.0} 0.0'
+        'translation': f'{physical["wheelbase"] / 2.0} {(1 if lr == "left" else -1) * physical["front_track"] / 2.0} {physical["front_wheel_radius"]}'
     })
 
 
@@ -148,10 +148,16 @@ def twizy():
                         ],
                         'scale': ' '.join(str(physical[f'chassis_{i}']) for i in ['length', 'width', 'height'])
                     }),
-                    front_wheel('left'),
-                    front_wheel('right'),
-                    rear_wheel('left'),
-                    rear_wheel('right')
+                    Node('GPS', {
+                        'name': '"left_gnss"',
+                        'translation': f'0.0 {physical["chassis_width"] * 0.3} {physical["chassis_height"]}',
+                        'accuracy': 0.005
+                    }),
+                    Node('GPS', {
+                        'name': '"right_gnss"',
+                        'translation': f'0.0 {-physical["chassis_width"] * 0.3} {physical["chassis_height"]}',
+                        'accuracy': 0.005
+                    })
                 ],
                 'physics': Node('Physics', {
                     'centerOfMass': vector(physical['chassis_com']),
@@ -169,7 +175,11 @@ def twizy():
                 }),
                 'translation': f'0.0 0.0 {physical["ground_clearance"]}',
                 'rotation': f'0.0 1.0 0.0 {physical["rake"]}'
-            })
+            }),
+            front_wheel('left'),
+            front_wheel('right'),
+            rear_wheel('left'),
+            rear_wheel('right'),
         ],
 
         # Dummy physics property. The robot solid is rigedly fixed to the
@@ -197,7 +207,6 @@ def twizy():
         }, True),
 
         'synchronization': 'FALSE',
-        'supervisor': 'TRUE',
         'model': '"Autonomous Twizy"',
         'translation': 'IS translation',
         'rotation': 'IS rotation',

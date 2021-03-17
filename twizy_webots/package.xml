@@ -50,9 +50,14 @@
   <!--   <doc_depend>doxygen</doc_depend> -->
   <buildtool_depend>catkin</buildtool_depend>
   <exec_depend>rospy</exec_depend>
+  <exec_depend>rostopic</exec_depend>
   <exec_depend>roslaunch</exec_depend>
   <exec_depend>twizy_description</exec_depend>
   <exec_depend>webots_ros</exec_depend>
+  <exec_depend>sensor_msgs</exec_depend>
+  <exec_depend>geometry_msgs</exec_depend>
+  <exec_depend>std_msgs</exec_depend>
+  <exec_depend>python-utm-pip</exec_depend>
 
 
   <!-- The export tag contains other, unspecified, tags -->

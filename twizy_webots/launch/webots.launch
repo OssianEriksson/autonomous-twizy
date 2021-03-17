@@ -25,4 +25,22 @@
         name="twizy_webots"
         args="--world $(arg world) --mode $(arg mode) --no-gui $(arg no_gui)"
         required="true" />
+
+    <node
+        pkg="twizy_webots"
+        type="gnss"
+        name="left_gnss"
+        required="true">
+        <param name="device" value="left_gnss" />
+        <remap from="fix" to="/gnss/left/fix" />
+    </node>
+
+    <node
+        pkg="twizy_webots"
+        type="gnss"
+        name="right_gnss"
+        required="true">
+        <param name="device" value="right_gnss" />
+        <remap from="fix" to="/gnss/right/fix" />
+    </node>
 </launch>
