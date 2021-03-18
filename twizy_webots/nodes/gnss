@@ -1,0 +1,112 @@
+#!/usr/bin/python3
+
+import rospy
+import rostopic
+
+import utm
+from math import isnan
+import twizy_webots.robot
+
+from sensor_msgs.msg import NavSatFix, NavSatStatus
+from geometry_msgs.msg import PointStamped
+from std_msgs.msg import Header
+
+
+def main():
+    # Initialize ROS node. There might be multiple versions of this node
+    # running at once with the same name, anonymous=True allows this
+    rospy.init_node('gnss', anonymous=True)
+
+    # Read parameters from ROS parameter server
+    device = rospy.get_param('~device')
+    frame_id = rospy.get_param('~frame_id', device)
+    ups = rospy.get_param('ups', 30.0)
+    status = rospy.get_param('status', None)
+    service = rospy.get_param('service', None)
+    model = rospy.get_param('model_name', None)
+    covariance = rospy.get_param('covariance', None)
+    covariance_type = rospy.get_param('covariance_type', None)
+    origin_llh = rospy.get_param('origin_llh', [0, 0, 0])
+
+    def populate_navsatfix(msg, source=NavSatFix()):
+        msg.status.status = (status or
+                             source.status.status or
+                             NavSatStatus.STATUS_FIX)
+        msg.status.service = (service or
+                              source.status.service or
+                              NavSatStatus.SERVICE_GALILEO)
+        msg.position_covariance = (covariance or
+                                   source.position_covariance)
+        msg.position_covariance_type = (covariance_type or
+                                        source.position_covariance_type or
+                                        NavSatFix.COVARIANCE_TYPE_UNKNOWN)
+        return msg
+
+    robot = twizy_webots.robot.Robot(model)
+
+    # Tell the webots ROS controller to publish GNSS data
+    if not robot.call_enable(device, ups):
+        rospy.logfatal(f'Unable to enable device {device}')
+        return
+
+    # Check type of GNSS messages
+    gnss_topic = rospy.resolve_name(robot.topic_name(f'{device}/values'))
+    gnss_type = rostopic.get_topic_type(gnss_topic, blocking=True)[0]
+    gnss_type = NavSatFix if gnss_type[-9:] == 'NavSatFix' else PointStamped
+
+    # Prepare outgoing NavSatFix message
+    navsatfix = populate_navsatfix(NavSatFix())
+
+    # Create publisher
+    pub_gnss = rospy.Publisher('fix', NavSatFix, queue_size=1)
+
+    x_origin, y_origin, zone_num, zone_letter = utm.from_latlon(origin_llh[0],
+                                                                origin_llh[1])
+
+    def cb_gnss(msg):
+        # Update frame_id of the incoming message's header
+        navsatfix.header = Header(msg.header.seq, msg.header.stamp, frame_id)
+
+        if isinstance(msg, PointStamped):
+            x = msg.point.x + x_origin
+            y = msg.point.y + y_origin
+            z = msg.point.z + origin_llh[2]
+
+            # Webots controller will output nan for the first few time steps
+            if isnan(x) or isnan(y) or isnan(z):
+                return
+
+            # Convert back to latitude, longitude
+            try:
+                # This function call will throw a OutOfRangeError if (x, y) are
+                # outside of the supported ranges
+                lat, lon = utm.to_latlon(x, y, zone_num, zone_letter)
+            except utm.OutOfRangeError as e:
+                # If the above fail, redo the calculation but without throwing
+                # the error ...
+                lat, lon = utm.to_latlon(
+                    x, y, zone_num, zone_letter, strict=False)
+
+                # ... then log what happened
+                rospy.logwarn(f'{e} (coordinates were [{x}; {y}])')
+
+            navsatfix.latitude = lat
+            navsatfix.longitude = lon
+            navsatfix.altitude = z
+
+            pub_gnss.publish(populate_navsatfix(navsatfix))
+        elif isinstance(msg, NavSatFix):
+            # Optionally update fields in recieved NavSatFix message, then
+            # republish it again
+            pub_gnss.publish(populate_navsatfix(navsatfix, msg))
+        else:
+            rospy.logwarn(f'Unrecognized message type {type(msg)}')
+
+    # Subscribe to messages published by webots ROS controller
+    rospy.Subscriber(gnss_topic, gnss_type, callback=cb_gnss, queue_size=1)
+
+    rospy.spin()
+
+
+if __name__ == '__main__':
+    main()

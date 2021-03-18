@@ -1,0 +1,121 @@
+#!/usr/bin/python3
+
+import rospy
+
+import copy
+from math import tan
+import twizy_webots.robot
+import message_filters
+
+from std_msgs.msg import Header
+from sensor_msgs.msg import CameraInfo, Image
+from webots_ros.srv import camera_get_info, range_finder_get_info
+
+
+class ImagePublisher():
+    def __init__(self, topic, webots_camera_info, distortion_model, D, R):
+        info_topic = '/'.join(topic.split('/')[:-1] + ['camera_info'])
+
+        self.pub_image = rospy.Publisher(topic, Image, queue_size=1)
+        self.pub_info = rospy.Publisher(info_topic, CameraInfo, queue_size=1)
+
+        self.info = CameraInfo()
+        self.info.distortion_model = distortion_model
+        self.info.D = D
+        self.info.R = R
+        self.info.width = webots_camera_info.width
+        self.info.height = webots_camera_info.height
+
+        # Calculate focal length
+        f = 0.5 * webots_camera_info.width / tan(0.5 * webots_camera_info.Fov)
+        # Calculate optical center
+        cx = webots_camera_info.width * 0.5
+        cy = webots_camera_info.height * 0.5
+        # Set matricies according to CameraInfo definition at
+        # http://docs.ros.org/en/api/sensor_msgs/html/msg/CameraInfo.html
+        self.info.K = [f,  0, cx,
+                       0,  f, cy,
+                       0,  0,  1]
+        self.info.P = [f,  0, cx, 0,
+                       0,  f, cy, 0,
+                       0,  0,  1, 0]
+
+        self.image = Image()
+
+    def republish(self, image, frame_id, stamp):
+        self.image.header = Header(image.header.seq, stamp, frame_id)
+        self.image.width = image.width
+        self.image.height = image.height
+        self.image.encoding = image.encoding
+        self.image.is_bigendian = image.is_bigendian
+        self.image.step = image.step
+        self.image.data = image.data
+
+        self.info.header = self.image.header
+
+        self.pub_image.publish(self.image)
+        self.pub_info.publish(self.info)
+
+
+def main():
+    # Initialize ROS node. There might be multiple versions of this node
+    # running at once with the same name, anonymous=True allows this
+    rospy.init_node('color_depth_sensor', anonymous=True)
+
+    # Read parameters from ROS parameter server
+    color_device = rospy.get_param('~color_device')
+    depth_device = rospy.get_param('~depth_device')
+    frame_id = rospy.get_param('~frame_id', color_device)
+    fps = rospy.get_param('fps', 30.0)
+    color_distortion_model = rospy.get_param('color_distortion_model',
+                                             'plumb_bob')
+    color_D = rospy.get_param('color_D', [0, 0, 0, 0, 0])
+    color_R = rospy.get_param('color_R', [1, 0, 0,
+                                          0, 1, 0,
+                                          0, 0, 1])
+    depth_distortion_model = rospy.get_param('depth_distortion_model',
+                                             'plumb_bob')
+    depth_D = rospy.get_param('depth_D', [0, 0, 0, 0, 0])
+    depth_R = rospy.get_param('depth_R', [1, 0, 0,
+                                          0, 1, 0,
+                                          0, 0, 1])
+    model = rospy.get_param('model_name', None)
+
+    robot = twizy_webots.robot.Robot(model)
+
+    # Tell the webots ROS controller to images
+    for device in [color_device, depth_device]:
+        if not robot.call_enable(device, fps):
+            rospy.logfatal(f'Unable to enable device {device}')
+            return
+
+    color_info = robot.service(f'{color_device}/get_info',
+                               camera_get_info)(1)
+    depth_info = robot.service(f'{depth_device}/get_info',
+                               range_finder_get_info)(1)
+
+    color_publisher = ImagePublisher('image_raw', color_info,
+                                     color_distortion_model, color_D, color_R)
+    depth_publisher = ImagePublisher('depth/image_raw', depth_info,
+                                     depth_distortion_model, depth_D, depth_R)
+
+    def cb(color, depth):
+        stamp_sum = color.header.stamp.to_sec() + depth.header.stamp.to_sec()
+        stamp = rospy.Time.from_sec(stamp_sum / 2.0)
+        color_publisher.republish(color, frame_id, stamp)
+        depth_publisher.republish(depth, frame_id, stamp)
+
+    color_sub = message_filters.Subscriber(
+        robot.topic_name(f'{color_device}/image'), Image, queue_size=1)
+    depth_sub = message_filters.Subscriber(
+        robot.topic_name(f'{depth_device}/range_image'), Image, queue_size=1)
+
+    ts = message_filters.ApproximateTimeSynchronizer(
+        [color_sub, depth_sub], 2, 2.0 / fps)
+    ts.registerCallback(cb)
+
+    rospy.spin()
+
+
+if __name__ == '__main__':
+    main()

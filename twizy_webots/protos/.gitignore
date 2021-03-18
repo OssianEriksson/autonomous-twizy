@@ -1,0 +1,5 @@
+# Auto generated protos
+Twizy.proto
+
+# Webots cache files
+*.cache
