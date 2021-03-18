@@ -26,7 +26,7 @@ def main():
     model = rospy.get_param('model_name', None)
     covariance = rospy.get_param('covariance', None)
     covariance_type = rospy.get_param('covariance_type', None)
-    origin_llh = rospy.get_param('origin_llh', [0, 0, 0])
+    origin_llh = rospy.get_param('origin_llh', [57.70716, 11.96679, 10.0])
 
     def populate_navsatfix(msg, source=NavSatFix()):
         msg.status.status = (status or

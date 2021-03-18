@@ -11,10 +11,10 @@ from math import degrees
 from ackermann_msgs.msg import AckermannDriveStamped
 
 controls = {
-    'forward': '\x41',   # Up arrow
-    'reverse': '\x42',   # Down arrow
-    'left': '\x44',      # Left arrow
-    'right': '\x43'      # Right arrow
+    'forward': '\x41',  # Up arrow
+    'reverse': '\x42',  # Down arrow
+    'left': '\x44',     # Left arrow
+    'right': '\x43'     # Right arrow
 }
 
 special = {
@@ -35,6 +35,12 @@ def main():
     msg = AckermannDriveStamped()
 
     pub = rospy.Publisher('ackermann_cmd', AckermannDriveStamped, queue_size=1)
+
+    print('**********************************************************')
+    print('* - Toggle forward, reverse and steering with arrow keys *')
+    print('* - Reset all controls to zero by hitting space          *')
+    print('* - Press Ctrl+C to exit                                 *')
+    print('**********************************************************')
 
     while not rospy.is_shutdown():
         old_attr = termios.tcgetattr(sys.stdin)
@@ -66,8 +72,8 @@ def main():
 
             pub.publish(msg)
 
-            rospy.loginfo(f'speed: {speed:6.2f} m/s, '
-                          f'steering angle: {degrees(angle):6.2f}°')
+            print(f'speed: {speed:6.2f} m/s, '
+                  f'steering angle: {degrees(angle):6.2f}°')
 
             if char == special['exit']:
                 break

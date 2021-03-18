@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<launch>
+    <include file="$(find twizy_webots)/launch/webots.launch">
+        <arg name="world" value="trees.wbt" />
+    </include>
+
+    <include file="$(find twizy_bringup)/launch/teleop.launch" />
+</launch>
