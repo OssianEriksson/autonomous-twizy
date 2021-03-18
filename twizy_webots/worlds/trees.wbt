@@ -3,19 +3,23 @@ WorldInfo {
   coordinateSystem "NUE"
 }
 Viewpoint {
-  orientation 0.6754551206090518 -0.604925785999172 -0.42169322199472803 5.887060459869173
-  position 10.99245405732631 23.314206663515748 77.04416249192336
+  orientation 0.34998732124436066 -0.8774242728394501 -0.3280785277953416 5.240820141030214
+  position 18.20824697922391 9.57679656672949 15.131445992813978
 }
 TexturedBackground {
+  texture "noon_cloudy_countryside"
 }
 TexturedBackgroundLight {
+  texture "noon_cloudy_countryside"
 }
-RectangleArena {
-  floorSize 50 50
-  floorTileSize 1 1
-  floorAppearance Parquetry {
-    colorOverride 0.447059 0.623529 0.811765
+UnevenTerrain {
+  translation 0 -2.5 0
+  appearance Soil {
+    textureTransform TextureTransform {
+      scale 100 100
+    }
   }
+  flatCenter TRUE
 }
 DEF Treegrp Solid {
   translation -22.33 0 14.06
@@ -99,7 +103,7 @@ DEF Treegrp Solid {
   name "solid(1)"
 }
 DEF Treegrp Solid {
-  translation -21.73 0 -17.17
+  translation -21.73 -0.09 -17.17
   children [
     SimpleTree {
       translation 1.29 0 -4.21
@@ -140,8 +144,8 @@ DEF Treegrp Solid {
   name "solid(2)"
 }
 DEF Treegrp Solid {
-  translation -8.44 0 -21.47
-  rotation 0 1 0 -1.5707953071795862
+  translation -8.44 -0.04 -21.47
+  rotation 0 -0.9999999999999999 0 1.5707953071795862
   children [
     SimpleTree {
       translation 1.29 0 -4.21
@@ -201,17 +205,17 @@ DEF Treegrp Solid {
       locked FALSE
     }
     Tree {
-      translation 0 0 3.75
+      translation 0 0.45 3.75
       name "tree(23)"
       locked FALSE
     }
     Tree {
-      translation 2.54 0 -0.9
+      translation 2.54 0.3 -0.9
       name "tree(24)"
       locked FALSE
     }
     Tree {
-      translation 0.25 0 0.61
+      translation 0.25 0.47 0.61
       name "tree(25)"
       locked FALSE
     }
@@ -224,7 +228,7 @@ DEF Treegrp Solid {
   name "solid(4)"
 }
 DEF Treegrp Solid {
-  translation 23.28 0 1.67
+  translation 23.28 0.26 1.67
   rotation 0 1 0 3.14159
   children [
     SimpleTree {
@@ -266,7 +270,7 @@ DEF Treegrp Solid {
   name "solid(5)"
 }
 DEF Treegrp Solid {
-  translation 23.28 0 17.77
+  translation 23.28 0.37 17.77
   rotation 0 1 0 3.14159
   children [
     SimpleTree {
@@ -320,7 +324,7 @@ Building {
   roofShape "flat roof"
 }
 DEF Palletgrp Solid {
-  translation 16.42 0 -14.89
+  translation 16.42 0.44 -14.89
   children [
     WoodenPalletStack {
     }
@@ -337,11 +341,35 @@ DEF Palletgrp Solid {
       name "wooden pallet stack(3)"
     }
   ]
+  name "pallets"
 }
-CrashBarrier {
-  translation -17.27 0 23.82
+Fence {
+  translation 0 0 24.19
   path [
-    0 0 0
-    37 0 0
+    -25 0 0
+    -20 -0.1 0
+    -15 -0.4 0
+    -10 -0.9 0
+    -5 -0.9 0
+    0 -0.5 0
+    5 -0.1 0
+    10 0.1 0
+    15 0.2 0
+    20 0.3 0
+    25 0 0
   ]
+}
+Twizy {
+  hidden position_0_0 -6.113320387668039e-06
+  hidden position2_0_0 0.04994371706147573
+  hidden position_0_1 -1.2651090136957053e-05
+  hidden position2_0_1 0.055713020615572977
+  hidden position_0_2 5.0511737323161915e-06
+  hidden position_0_3 7.32812080876905e-07
+  hidden rotation_7 3.0566601709401355e-06 0.9999999925070495 -0.00012237874763714355 0.049943717435545876
+  hidden rotation_8 6.325544905437051e-06 0.9999999742115753 -0.0002270172600435507 0.055713022051578305
+  hidden rotation_9 0 1 0 5.051207921155004e-06
+  hidden rotation_10 0 1 0 7.330402062087602e-07
+  translation 0.0006241326886550565 -2.560390122584797 0.014948114419545713
+  rotation 0.5782056294160663 0.5678501577559965 0.5858536066698409 -2.0929382196516033
 }
