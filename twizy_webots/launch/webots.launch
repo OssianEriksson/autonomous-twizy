@@ -2,7 +2,7 @@
 <launch>
     <arg
         name="world"
-        default="$(find twizy_webots)/worlds/flat.wbt"
+        default="flat.wbt"
         doc="Path to the world to load" />
     <arg
         name="mode"
@@ -27,7 +27,7 @@
         pkg="twizy_webots"
         type="twizy_webots"
         name="twizy_webots"
-        args="--world $(arg world) --mode $(arg mode) --no-gui $(arg no_gui)"
+        args="--world '$(find twizy_webots)/worlds/$(arg world)' --mode $(arg mode) --no-gui $(arg no_gui)"
         required="true" />
 
     <node
