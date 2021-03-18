@@ -4,13 +4,12 @@ import rospy
 import rostopic
 
 import utm
-
+from math import isnan
 import twizy_webots.robot
 
 from sensor_msgs.msg import NavSatFix, NavSatStatus
 from geometry_msgs.msg import PointStamped
 from std_msgs.msg import Header
-from webots_ros.srv import supervisor_get_from_def
 
 
 def main():
@@ -72,6 +71,10 @@ def main():
             x = msg.point.x + x_origin
             y = msg.point.y + y_origin
             z = msg.point.z + origin_llh[2]
+
+            # Webots controller will output nan for the first few time steps
+            if isnan(x) or isnan(y) or isnan(z):
+                return
 
             # Convert back to latitude, longitude
             try:
