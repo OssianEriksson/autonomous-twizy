@@ -17,6 +17,7 @@ find_package(catkin REQUIRED COMPONENTS
   geometry_msgs
   std_msgs
   ackermann_msgs
+  message_filters
 )
 
 ## System dependencies are found with CMake's conventions
@@ -111,7 +112,7 @@ catkin_python_setup()
 catkin_package(
 #  INCLUDE_DIRS include
 #  LIBRARIES twizy_webots
-#  CATKIN_DEPENDS rospy rostopic roslaunch twizy_description webots_ros sensor_msgs geometry_msgs std_msgs ackermann_msgs
+#  CATKIN_DEPENDS rospy rostopic roslaunch twizy_description webots_ros sensor_msgs geometry_msgs std_msgs ackermann_msgs message_filters
 #  DEPENDS system_lib
 )
 

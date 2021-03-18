@@ -16,15 +16,15 @@ class Robot:
     def service_name(self, srv):
         return f'{self.model}/{srv}'
 
+    def topic_name(self, topic):
+        return f'{self.model}/{topic}'
+
     def service(self, srv, srv_type, wait=True, persistent=False):
         srv_name = self.service_name(srv)
         proxy = rospy.ServiceProxy(srv_name, srv_type, persistent)
         if wait:
             proxy.wait_for_service()
         return proxy
-
-    def topic_name(self, topic):
-        return f'{self.model}/{topic}'
 
     def call_enable(self, device, ups):
         mspt = int(round(1000.0 / ups))
