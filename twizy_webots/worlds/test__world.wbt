@@ -1,0 +1,347 @@
+#VRML_SIM R2021a utf8
+WorldInfo {
+  coordinateSystem "NUE"
+}
+Viewpoint {
+  orientation 0.6754551206090518 -0.604925785999172 -0.42169322199472803 5.887060459869173
+  position 10.99245405732631 23.314206663515748 77.04416249192336
+}
+TexturedBackground {
+}
+TexturedBackgroundLight {
+}
+RectangleArena {
+  floorSize 50 50
+  floorTileSize 1 1
+  floorAppearance Parquetry {
+    colorOverride 0.447059 0.623529 0.811765
+  }
+}
+DEF Treegrp Solid {
+  translation -22.33 0 14.06
+  children [
+    SimpleTree {
+      translation 1.29 0 -4.21
+      name "tree(27)"
+      locked FALSE
+    }
+    SimpleTree {
+      translation 0 0 7.59
+      name "tree(28)"
+      locked FALSE
+    }
+    SimpleTree {
+      translation 3.24 0 5.1
+      name "tree(29)"
+      locked FALSE
+    }
+    Tree {
+      translation 0 0 3.75
+      name "tree(23)"
+      locked FALSE
+    }
+    Tree {
+      translation 2.54 0 -0.9
+      name "tree(24)"
+      locked FALSE
+    }
+    Tree {
+      translation 0.25 0 0.61
+      name "tree(25)"
+      locked FALSE
+    }
+    Tree {
+      translation 2.43 0 7.2
+      name "tree(26)"
+      locked FALSE
+    }
+  ]
+}
+DEF Treegrp Solid {
+  translation -22.1 0 -1.35
+  children [
+    SimpleTree {
+      translation 1.29 0 -4.21
+      name "tree(27)"
+      locked FALSE
+    }
+    SimpleTree {
+      translation 0 0 7.59
+      name "tree(28)"
+      locked FALSE
+    }
+    SimpleTree {
+      translation 3.24 0 5.1
+      name "tree(29)"
+      locked FALSE
+    }
+    Tree {
+      translation 0 0 3.75
+      name "tree(23)"
+      locked FALSE
+    }
+    Tree {
+      translation 2.54 0 -0.9
+      name "tree(24)"
+      locked FALSE
+    }
+    Tree {
+      translation 0.25 0 0.61
+      name "tree(25)"
+      locked FALSE
+    }
+    Tree {
+      translation 2.43 0 7.2
+      name "tree(26)"
+      locked FALSE
+    }
+  ]
+  name "solid(1)"
+}
+DEF Treegrp Solid {
+  translation -21.73 0 -17.17
+  children [
+    SimpleTree {
+      translation 1.29 0 -4.21
+      name "tree(27)"
+      locked FALSE
+    }
+    SimpleTree {
+      translation 0 0 7.59
+      name "tree(28)"
+      locked FALSE
+    }
+    SimpleTree {
+      translation 3.24 0 5.1
+      name "tree(29)"
+      locked FALSE
+    }
+    Tree {
+      translation 0 0 3.75
+      name "tree(23)"
+      locked FALSE
+    }
+    Tree {
+      translation 2.54 0 -0.9
+      name "tree(24)"
+      locked FALSE
+    }
+    Tree {
+      translation 0.25 0 0.61
+      name "tree(25)"
+      locked FALSE
+    }
+    Tree {
+      translation 2.43 0 7.2
+      name "tree(26)"
+      locked FALSE
+    }
+  ]
+  name "solid(2)"
+}
+DEF Treegrp Solid {
+  translation -8.44 0 -21.47
+  rotation 0 1 0 -1.5707953071795862
+  children [
+    SimpleTree {
+      translation 1.29 0 -4.21
+      name "tree(27)"
+      locked FALSE
+    }
+    SimpleTree {
+      translation 0 0 7.59
+      name "tree(28)"
+      locked FALSE
+    }
+    SimpleTree {
+      translation 3.24 0 5.1
+      name "tree(29)"
+      locked FALSE
+    }
+    Tree {
+      translation 0 0 3.75
+      name "tree(23)"
+      locked FALSE
+    }
+    Tree {
+      translation 2.54 0 -0.9
+      name "tree(24)"
+      locked FALSE
+    }
+    Tree {
+      translation 0.25 0 0.61
+      name "tree(25)"
+      locked FALSE
+    }
+    Tree {
+      translation 2.43 0 7.2
+      name "tree(26)"
+      locked FALSE
+    }
+  ]
+  name "solid(3)"
+}
+DEF Treegrp Solid {
+  translation 23.28 0 -13.8
+  rotation 0 1 0 3.14159
+  children [
+    SimpleTree {
+      translation 1.29 0 -4.21
+      name "tree(27)"
+      locked FALSE
+    }
+    SimpleTree {
+      translation 0 0 7.59
+      name "tree(28)"
+      locked FALSE
+    }
+    SimpleTree {
+      translation 3.24 0 5.1
+      name "tree(29)"
+      locked FALSE
+    }
+    Tree {
+      translation 0 0 3.75
+      name "tree(23)"
+      locked FALSE
+    }
+    Tree {
+      translation 2.54 0 -0.9
+      name "tree(24)"
+      locked FALSE
+    }
+    Tree {
+      translation 0.25 0 0.61
+      name "tree(25)"
+      locked FALSE
+    }
+    Tree {
+      translation 2.43 0 7.2
+      name "tree(26)"
+      locked FALSE
+    }
+  ]
+  name "solid(4)"
+}
+DEF Treegrp Solid {
+  translation 23.28 0 1.67
+  rotation 0 1 0 3.14159
+  children [
+    SimpleTree {
+      translation 1.29 0 -4.21
+      name "tree(27)"
+      locked FALSE
+    }
+    SimpleTree {
+      translation 0 0 7.59
+      name "tree(28)"
+      locked FALSE
+    }
+    SimpleTree {
+      translation 3.24 0 5.1
+      name "tree(29)"
+      locked FALSE
+    }
+    Tree {
+      translation 0 0 3.75
+      name "tree(23)"
+      locked FALSE
+    }
+    Tree {
+      translation 2.54 0 -0.9
+      name "tree(24)"
+      locked FALSE
+    }
+    Tree {
+      translation 0.25 0 0.61
+      name "tree(25)"
+      locked FALSE
+    }
+    Tree {
+      translation 2.43 0 7.2
+      name "tree(26)"
+      locked FALSE
+    }
+  ]
+  name "solid(5)"
+}
+DEF Treegrp Solid {
+  translation 23.28 0 17.77
+  rotation 0 1 0 3.14159
+  children [
+    SimpleTree {
+      translation 1.29 0 -4.21
+      name "tree(27)"
+      locked FALSE
+    }
+    SimpleTree {
+      translation 0 0 7.59
+      name "tree(28)"
+      locked FALSE
+    }
+    SimpleTree {
+      translation 3.24 0 5.1
+      name "tree(29)"
+      locked FALSE
+    }
+    Tree {
+      translation 0 0 3.75
+      name "tree(23)"
+      locked FALSE
+    }
+    Tree {
+      translation 2.54 0 -0.9
+      name "tree(24)"
+      locked FALSE
+    }
+    Tree {
+      translation 0.25 0 0.61
+      name "tree(25)"
+      locked FALSE
+    }
+    Tree {
+      translation 2.43 0 7.2
+      name "tree(26)"
+      locked FALSE
+    }
+  ]
+  name "solid(6)"
+}
+Building {
+  translation 3.11 0 -19
+  floorHeight 2
+  floorNumber 2
+  corners [
+    15 2
+    15 -5
+    -5 -5
+    -5 2
+  ]
+  roofShape "flat roof"
+}
+DEF Palletgrp Solid {
+  translation 16.42 0 -14.89
+  children [
+    WoodenPalletStack {
+    }
+    WoodenPalletStack {
+      translation 1.56 0 0
+      name "wooden pallet stack(1)"
+    }
+    WoodenPalletStack {
+      translation 0 0 1.65
+      name "wooden pallet stack(2)"
+    }
+    WoodenPalletStack {
+      translation 1.6 0 1.67
+      name "wooden pallet stack(3)"
+    }
+  ]
+}
+CrashBarrier {
+  translation -17.27 0 23.82
+  path [
+    0 0 0
+    37 0 0
+  ]
+}
