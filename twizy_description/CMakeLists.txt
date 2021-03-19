@@ -9,7 +9,6 @@ project(twizy_description)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
   urdf
-  rviz
 )
 
 ## System dependencies are found with CMake's conventions
@@ -104,7 +103,7 @@ catkin_python_setup()
 catkin_package(
 #  INCLUDE_DIRS include
 #  LIBRARIES twizy_description
-#  CATKIN_DEPENDS rviz
+#  CATKIN_DEPENDS urdf
 #  DEPENDS system_lib
 )
 
