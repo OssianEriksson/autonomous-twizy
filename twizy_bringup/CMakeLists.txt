@@ -11,6 +11,7 @@ find_package(catkin REQUIRED COMPONENTS
   ackermann_teleop
   twizy_description
   twizy_webots
+  rviz
 )
 
 ## System dependencies are found with CMake's conventions
@@ -105,7 +106,7 @@ find_package(catkin REQUIRED COMPONENTS
 catkin_package(
 #  INCLUDE_DIRS include
 #  LIBRARIES twizy_bringup
-#  CATKIN_DEPENDS ackermann_teleop twizy_description twizy_webots
+#  CATKIN_DEPENDS ackermann_teleop twizy_description twizy_webots rviz
 #  DEPENDS system_lib
 )
 
