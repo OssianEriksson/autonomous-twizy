@@ -23,7 +23,7 @@ def main():
     drive_motors = rospy.get_param('~drive_motors')
     steering_motor_left = rospy.get_param('~steering_motor_left')
     steering_motor_right = rospy.get_param('~steering_motor_right')
-    model = rospy.get_param('model_name', None)
+    model = rospy.get_param('twizy_webots/model_name', None)
 
     robot = twizy_webots.robot.Robot(model)
 

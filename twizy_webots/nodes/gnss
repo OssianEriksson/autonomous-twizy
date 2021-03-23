@@ -20,13 +20,13 @@ def main():
     # Read parameters from ROS parameter server
     device = rospy.get_param('~device')
     frame_id = rospy.get_param('~frame_id', device)
-    ups = rospy.get_param('ups', 30.0)
-    status = rospy.get_param('status', None)
-    service = rospy.get_param('service', None)
-    model = rospy.get_param('model_name', None)
-    covariance = rospy.get_param('covariance', None)
-    covariance_type = rospy.get_param('covariance_type', None)
-    origin_llh = rospy.get_param('origin_llh', [57.70716, 11.96679, 10.0])
+    ups = rospy.get_param('gnss/ups', 30.0)
+    status = rospy.get_param('gnss/status', None)
+    service = rospy.get_param('gnss/service', None)
+    model = rospy.get_param('twizy_webots/model_name', None)
+    covariance = rospy.get_param('gnss/covariance', None)
+    covariance_type = rospy.get_param('gnss/covariance_type', None)
+    origin_llh = rospy.get_param('gnss/origin_llh', [57.70716, 11.96679, 10.0])
 
     def populate_navsatfix(msg, source=NavSatFix()):
         msg.status.status = (status or
@@ -68,9 +68,10 @@ def main():
         navsatfix.header = Header(msg.header.seq, msg.header.stamp, frame_id)
 
         if isinstance(msg, PointStamped):
-            x = msg.point.x + x_origin
-            y = msg.point.y + y_origin
-            z = msg.point.z + origin_llh[2]
+            # Static convertion from NUE to ENU
+            x = msg.point.z + x_origin
+            y = msg.point.x + y_origin
+            z = msg.point.y + origin_llh[2]
 
             # Webots controller will output nan for the first few time steps
             if isnan(x) or isnan(y) or isnan(z):
