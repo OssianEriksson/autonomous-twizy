@@ -22,6 +22,10 @@
         command="load"
         param="physical"
         file="$(find twizy_description)/config/physical.yaml" />
+    <rosparam param="gnss/covariance">[0.01, 0.0, 0.0,
+                                       0.0, 0.01, 0.0,
+                                       0.0, 0.0, 0.01]</rosparam>
+    <param name="gnss/covariance_type" value="1" />
 
     <node
         pkg="twizy_webots"
