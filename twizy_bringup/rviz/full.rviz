@@ -4,6 +4,7 @@ Panels:
     Name: Displays
     Property Tree Widget:
       Expanded:
+        - /DepthCloud1/Status1
         - /DepthCloud1/Auto Size1
       Splitter Ratio: 0.5
     Tree Height: 221
@@ -25,7 +26,7 @@ Panels:
     Experimental: false
     Name: Time
     SyncMode: 0
-    SyncSource: ""
+    SyncSource: DepthCloud
 Preferences:
   PromptSaveOnExit: true
 Toolbars:
@@ -125,11 +126,11 @@ Visualization Manager:
       Channel Name: intensity
       Class: rviz/DepthCloud
       Color: 255; 255; 255
-      Color Image Topic: image_raw
+      Color Image Topic: /camera/front/aligned_depth_to_color/image_raw
       Color Transformer: RGB8
       Color Transport Hint: raw
       Decay Time: 0
-      Depth Map Topic: /depth/image_raw
+      Depth Map Topic: /camera/front/depth/image_raw
       Depth Map Transport Hint: raw
       Enabled: false
       Invert Rainbow: false
@@ -192,9 +193,9 @@ Visualization Manager:
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.5652024745941162
+      Pitch: 0.08020254969596863
       Target Frame: <Fixed Frame>
-      Yaw: 2.3953936100006104
+      Yaw: 2.8853931427001953
     Saved: ~
 Window Geometry:
   Displays:
@@ -213,4 +214,4 @@ Window Geometry:
     collapsed: false
   Width: 970
   X: 273
-  Y: 61
+  Y: 27
