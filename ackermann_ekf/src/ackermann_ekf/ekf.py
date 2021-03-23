@@ -88,10 +88,6 @@ class EKF:
 
         self.state.x, self.state.P, self.Q = self.correct(dt, measurement)
 
-    def extrapolate_state(self, time):
-        x = ekf_functions.f(self.state.x, dt=time - self.time)
-        return x
-
     def predict(self, dt):
         x = ekf_functions.f(self.state.x, dt=dt)
         F = ekf_functions.F(self.state.x, dt=dt)

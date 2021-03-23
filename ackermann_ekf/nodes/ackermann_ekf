@@ -88,9 +88,6 @@ class SensorArray:
             rospy.logwarn(str(e))
             return None
 
-    def extrapolate_state(self, time):
-        return self.filter.extrapolate_state(time.to_sec())
-
     def is_initialized(self):
         return self.initial_position is not None
 
@@ -140,15 +137,15 @@ class NavSatFixSensor:
             R[Measurement.IDX_Z, Measurement.IDX_Z] = 1e0
         else:
             cov = msg.position_covariance
-            R[Measurement.IDX_X, Measurement.IDX_X] = cov[0][0]
-            R[Measurement.IDX_X, Measurement.IDX_Y] = cov[0][1]
-            R[Measurement.IDX_X, Measurement.IDX_Z] = cov[0][2]
-            R[Measurement.IDX_Y, Measurement.IDX_X] = cov[1][0]
-            R[Measurement.IDX_Y, Measurement.IDX_Y] = cov[1][1]
-            R[Measurement.IDX_Y, Measurement.IDX_Z] = cov[1][2]
-            R[Measurement.IDX_Z, Measurement.IDX_X] = cov[2][0]
-            R[Measurement.IDX_Z, Measurement.IDX_Y] = cov[2][1]
-            R[Measurement.IDX_Z, Measurement.IDX_Z] = cov[2][2]
+            R[Measurement.IDX_X, Measurement.IDX_X] = cov[0]
+            R[Measurement.IDX_X, Measurement.IDX_Y] = cov[1]
+            R[Measurement.IDX_X, Measurement.IDX_Z] = cov[2]
+            R[Measurement.IDX_Y, Measurement.IDX_X] = cov[3]
+            R[Measurement.IDX_Y, Measurement.IDX_Y] = cov[4]
+            R[Measurement.IDX_Y, Measurement.IDX_Z] = cov[5]
+            R[Measurement.IDX_Z, Measurement.IDX_X] = cov[6]
+            R[Measurement.IDX_Z, Measurement.IDX_Y] = cov[7]
+            R[Measurement.IDX_Z, Measurement.IDX_Z] = cov[8]
 
         x, y, *_ = utm.from_latlon(msg.latitude, msg.longitude)
         z = np.zeros((Measurement.SIZE, 1))
@@ -173,10 +170,13 @@ def main():
     initial_P = rospy.get_param('~initial_P', None)
     Q = rospy.get_param('~Q', None)
     Q_cutoff = rospy.get_param('~Q_cutoff_frequency', None)
+    x_max = rospy.get_param('~x_max', None)
+    neg_x_max = [[-a[0]] for a in x_max]
+    x_min = rospy.get_param('~x_min', None if x_max is None else neg_x_max)
 
     initial_state = State(x=initial_x, P=initial_P)
     ekf = EKF(state=initial_state, Q=Q, Q_cutoff=Q_cutoff,
-              time=rospy.Time.now().to_sec())
+              time=rospy.Time.now().to_sec(), x_max=x_max, x_min=x_min)
     sensor_array = SensorArray(ekf, frequency, base_link)
 
     for sensor in sensors:
@@ -202,14 +202,13 @@ def main():
     last_time = ekf.time
     rate = rospy.Rate(frequency)
     while not rospy.is_shutdown():
-        time = rospy.Time.now()
-        if sensor_array.is_initialized() and time > last_time:
-            x = sensor_array.extrapolate_state(time)
+        if sensor_array.is_initialized() and ekf.time > last_time:
+            x = sensor_array.filter.state.x
 
             q = euler2quat(x[State.IDX_ROLL, 0],
                            x[State.IDX_PITCH, 0],
                            x[State.IDX_YAW, 0])
-            t.header.stamp = time
+            t.header.stamp = rospy.Time(ekf.time)
             t.transform.translation.x = x[State.IDX_X, 0]
             t.transform.translation.y = x[State.IDX_Y, 0]
             t.transform.translation.z = x[State.IDX_Z, 0]
@@ -220,7 +219,8 @@ def main():
 
             br.sendTransform(t)
 
-        last_time = time
+            last_time = ekf.time
+
         rate.sleep()
 
 
