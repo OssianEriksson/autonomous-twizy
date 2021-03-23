@@ -50,6 +50,7 @@
   <!--   <doc_depend>doxygen</doc_depend> -->
   <buildtool_depend>catkin</buildtool_depend>
   <depend>ackermann_teleop</depend>
+  <depend>ackermann_ekf</depend>
   <depend>twizy_description</depend>
   <depend>twizy_webots</depend>
   <depend>rviz</depend>

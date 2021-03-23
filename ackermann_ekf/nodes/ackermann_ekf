@@ -1,0 +1,228 @@
+#!/usr/bin/python3
+
+import numpy as np
+from transforms3d.euler import euler2quat
+import rospy
+import tf2_ros
+import utm
+import threading
+
+from geometry_msgs.msg import TransformStamped
+from sensor_msgs.msg import NavSatFix
+from ackermann_ekf.ekf import State, Measurement, EKF
+
+
+def _parse_covariance(covariance, specified_covariance=np.eye(State.SIZE)):
+    covariance = np.asarray(covariance)
+    for i in range(covariance.shape[0]):
+        if covariance[i, i] < 0 or specified_covariance[i, i] < 0:
+            covariance[i, :] = 0.0
+            covariance[:, i] = 0.0
+            covariance[i, i] = 1e6
+    return covariance
+
+
+class SensorArray:
+    def __init__(self, filter, frequency, base_link):
+        self.filter = filter
+        self.base_link = str(base_link)
+        self.update_delay = rospy.Duration(1.0 / frequency)
+        self.buffer = tf2_ros.Buffer()
+        self.listener = tf2_ros.TransformListener(self.buffer)
+        self.initial_position = None
+        self.lock = threading.Lock()
+
+    def empty_measurement(self):
+        state = self.filter.state
+
+        speed = state.x[State.IDX_speed, 0]
+        z = np.zeros((Measurement.SIZE, 1))
+        z[Measurement.IDX_X, 0] = state.x[State.IDX_X, 0]
+        z[Measurement.IDX_Y, 0] = state.x[State.IDX_Y, 0]
+        z[Measurement.IDX_Z, 0] = state.x[State.IDX_Z, 0]
+        z[Measurement.IDX_speed, 0] = speed
+        z[Measurement.IDX_accel, 0] = state.x[State.IDX_accel, 0]
+        z[Measurement.IDX_ROLL, 0] = state.x[State.IDX_ROLL, 0]
+        z[Measurement.IDX_PITCH, 0] = state.x[State.IDX_PITCH, 0]
+        z[Measurement.IDX_YAW, 0] = state.x[State.IDX_YAW, 0]
+        z[Measurement.IDX_droll_dt, 0] = state.x[State.IDX_droll_dx] * speed
+        z[Measurement.IDX_dpitch_dt, 0] = state.x[State.IDX_dpitch_dx] * speed
+        z[Measurement.IDX_dyaw_dt, 0] = state.x[State.IDX_dyaw_dx] * speed
+        z *= 0.9
+
+        R = np.eye(Measurement.SIZE)*1e6
+
+        return Measurement(z, R, 0, [0, 0, 0])
+
+    def process_measurement(self, measurement, fuse):
+        with self.lock:
+            if self.initial_position is None:
+                self.initial_position = [measurement.z[Measurement.IDX_X, 0],
+                                         measurement.z[Measurement.IDX_Y, 0],
+                                         measurement.z[Measurement.IDX_Z, 0]]
+
+            measurement.z[Measurement.IDX_X] -= self.initial_position[0]
+            measurement.z[Measurement.IDX_Y] -= self.initial_position[1]
+            measurement.z[Measurement.IDX_Z] -= self.initial_position[2]
+
+            if not all(fuse):
+                empty = self.empty_measurement()
+                for i, f in enumerate(fuse):
+                    if not f:
+                        measurement.z[i] = empty.z[i]
+                        measurement.R[i, :] = empty.R[i, :]
+                        measurement.R[:, i] = empty.R[:, i]
+
+            self.filter.process_measurement(measurement)
+
+    def get_transform(self, frame_id, stamp=None, timeout=0.5):
+        stamp = rospy.Time.now() if stamp is None else stamp
+
+        try:
+            return self.buffer.lookup_transform(
+                self.base_link, frame_id, stamp, rospy.Duration(timeout))
+        except (tf2_ros.LookupException,
+                tf2_ros.ConnectivityException,
+                tf2_ros.ExtrapolationException,
+                AttributeError) as e:
+            rospy.logwarn(str(e))
+            return None
+
+    def extrapolate_state(self, time):
+        return self.filter.extrapolate_state(time.to_sec())
+
+    def is_initialized(self):
+        return self.initial_position is not None
+
+
+class NavSatFixSensor:
+    def __init__(self,
+                 sensor_array,
+                 fuse,
+                 static_position):
+        self.last_observed = rospy.Time(0)
+        self.sensor_array = sensor_array
+        self.static_position = static_position
+        self.sensor_pos = None
+
+        self.fuse = fuse
+        self.fuse[Measurement.IDX_speed] = False
+        self.fuse[Measurement.IDX_accel] = False
+        self.fuse[Measurement.IDX_ROLL] = False
+        self.fuse[Measurement.IDX_PITCH] = False
+        self.fuse[Measurement.IDX_YAW] = False
+        self.fuse[Measurement.IDX_droll_dt] = False
+        self.fuse[Measurement.IDX_dpitch_dt] = False
+        self.fuse[Measurement.IDX_dyaw_dt] = False
+
+    def callback(self, msg):
+        measure_after = self.last_observed + self.sensor_array.update_delay
+        if msg.header.stamp < measure_after:
+            return
+        self.last_observed = msg.header.stamp
+
+        if not self.static_position or self.sensor_pos is None:
+            sensor_pos_vec = self.sensor_array.get_transform(
+                msg.header.frame_id, msg.header.stamp).transform.translation
+            if sensor_pos_vec is None:
+                return
+
+            self.sensor_pos = [[sensor_pos_vec.x],
+                               [sensor_pos_vec.y],
+                               [sensor_pos_vec.z]]
+
+        R = np.eye(State.SIZE)
+
+        cov_type = msg.position_covariance_type
+        if cov_type == NavSatFix.COVARIANCE_TYPE_UNKNOWN:
+            R[Measurement.IDX_X, Measurement.IDX_X] = 1e0
+            R[Measurement.IDX_Y, Measurement.IDX_Y] = 1e0
+            R[Measurement.IDX_Z, Measurement.IDX_Z] = 1e0
+        else:
+            cov = msg.position_covariance
+            R[Measurement.IDX_X, Measurement.IDX_X] = cov[0][0]
+            R[Measurement.IDX_X, Measurement.IDX_Y] = cov[0][1]
+            R[Measurement.IDX_X, Measurement.IDX_Z] = cov[0][2]
+            R[Measurement.IDX_Y, Measurement.IDX_X] = cov[1][0]
+            R[Measurement.IDX_Y, Measurement.IDX_Y] = cov[1][1]
+            R[Measurement.IDX_Y, Measurement.IDX_Z] = cov[1][2]
+            R[Measurement.IDX_Z, Measurement.IDX_X] = cov[2][0]
+            R[Measurement.IDX_Z, Measurement.IDX_Y] = cov[2][1]
+            R[Measurement.IDX_Z, Measurement.IDX_Z] = cov[2][2]
+
+        x, y, *_ = utm.from_latlon(msg.latitude, msg.longitude)
+        z = np.zeros((Measurement.SIZE, 1))
+        z[Measurement.IDX_X, 0] = x
+        z[Measurement.IDX_Y, 0] = y
+        z[Measurement.IDX_Z, 0] = msg.altitude
+
+        time = msg.header.stamp.to_sec()
+
+        measurement = Measurement(z, R, time, self.sensor_pos)
+        self.sensor_array.process_measurement(measurement, self.fuse)
+
+
+def main():
+    rospy.init_node('ackermann_ekf')
+
+    world_frame = rospy.get_param('~world_frame', 'map')
+    frequency = rospy.get_param('~frequency', 30)
+    base_link = rospy.get_param('~base_link', 'base_link')
+    sensors = rospy.get_param('~sensors', [])
+    initial_x = rospy.get_param('~initial_x', None)
+    initial_P = rospy.get_param('~initial_P', None)
+    Q = rospy.get_param('~Q', None)
+    Q_cutoff = rospy.get_param('~Q_cutoff_frequency', None)
+
+    initial_state = State(x=initial_x, P=initial_P)
+    ekf = EKF(state=initial_state, Q=Q, Q_cutoff=Q_cutoff,
+              time=rospy.Time.now().to_sec())
+    sensor_array = SensorArray(ekf, frequency, base_link)
+
+    for sensor in sensors:
+        queue_size = sensor.get('queue_size', 1)
+        fuse = sensor.get('fuse', [True] * Measurement.SIZE)
+        static_position = sensor.get('static_position', False)
+        type = sensor.get('type', None)
+
+        if type == 'sensor_msgs/NavSatFix':
+            device = NavSatFixSensor(sensor_array, fuse, static_position)
+        else:
+            rospy.logwarn(f'Unknown sensor type {type}, ignoring')
+            continue
+
+        rospy.Subscriber(sensor['topic'], NavSatFix,
+                         device.callback, queue_size=queue_size)
+
+    br = tf2_ros.TransformBroadcaster()
+    t = TransformStamped()
+    t.header.frame_id = world_frame
+    t.child_frame_id = base_link
+
+    last_time = ekf.time
+    rate = rospy.Rate(frequency)
+    while not rospy.is_shutdown():
+        time = rospy.Time.now()
+        if sensor_array.is_initialized() and time > last_time:
+            x = sensor_array.extrapolate_state(time)
+
+            q = euler2quat(x[State.IDX_ROLL, 0],
+                           x[State.IDX_PITCH, 0],
+                           x[State.IDX_YAW, 0])
+            t.header.stamp = time
+            t.transform.translation.x = x[State.IDX_X, 0]
+            t.transform.translation.y = x[State.IDX_Y, 0]
+            t.transform.translation.z = x[State.IDX_Z, 0]
+            t.transform.rotation.x = q[1]
+            t.transform.rotation.y = q[2]
+            t.transform.rotation.z = q[3]
+            t.transform.rotation.w = q[0]
+
+            br.sendTransform(t)
+
+        last_time = time
+        rate.sleep()
+
+
+if __name__ == '__main__':
+    main()

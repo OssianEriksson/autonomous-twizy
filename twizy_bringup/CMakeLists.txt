@@ -9,6 +9,7 @@ project(twizy_bringup)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
   ackermann_teleop
+  ackermann_ekf
   twizy_description
   twizy_webots
   rviz
