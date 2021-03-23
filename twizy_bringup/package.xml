@@ -49,10 +49,10 @@
   <!-- Use doc_depend for packages you need only for building documentation: -->
   <!--   <doc_depend>doxygen</doc_depend> -->
   <buildtool_depend>catkin</buildtool_depend>
-  <exec_depend>ackermann_teleop</exec_depend>
-  <exec_depend>twizy_description</exec_depend>
-  <exec_depend>twizy_webots</exec_depend>
-  <exec_depend>rviz</exec_depend>
+  <depend>ackermann_teleop</depend>
+  <depend>twizy_description</depend>
+  <depend>twizy_webots</depend>
+  <depend>rviz</depend>
 
 
   <!-- The export tag contains other, unspecified, tags -->
