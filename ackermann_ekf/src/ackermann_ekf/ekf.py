@@ -21,7 +21,7 @@ class State:
 
         if P is None:
             if x is None:
-                self.P = np.eye(State.SIZE)*1e6
+                self.P = np.eye(State.SIZE)*1e0
             else:
                 self.P = np.eye(State.SIZE)*1e-6
         else:
@@ -60,22 +60,22 @@ class EKF:
         self.time = time
         self.state = State() if state is None else state
         self.Q_cutoff = None
-        self.x_min = np.asarray(x_min)
-        self.x_max = np.asarray(x_max)
+        self.x_min = None if x_min is None else np.asarray(x_min)
+        self.x_max = None if x_max is None else np.asarray(x_max)
 
         if Q is None:
             self.Q = np.zeros((State.SIZE, State.SIZE))
-            self.Q[State.IDX_X, State.IDX_X] = 1e-4
-            self.Q[State.IDX_Y, State.IDX_Y] = 1e-4
-            self.Q[State.IDX_Z, State.IDX_Z] = 1e-4
+            self.Q[State.IDX_X, State.IDX_X] = 1e-3
+            self.Q[State.IDX_Y, State.IDX_Y] = 1e-3
+            self.Q[State.IDX_Z, State.IDX_Z] = 1e-3
             self.Q[State.IDX_speed, State.IDX_speed] = 1e-2
-            self.Q[State.IDX_accel, State.IDX_accel] = 1e-0
+            self.Q[State.IDX_accel, State.IDX_accel] = 1e-1
             self.Q[State.IDX_ROLL, State.IDX_ROLL] = 1e-2
             self.Q[State.IDX_PITCH, State.IDX_PITCH] = 1e-2
             self.Q[State.IDX_YAW, State.IDX_YAW] = 1e-2
-            self.Q[State.IDX_droll_dx, State.IDX_droll_dx] = 1e-0
-            self.Q[State.IDX_dpitch_dx, State.IDX_dpitch_dx] = 1e-0
-            self.Q[State.IDX_dyaw_dx, State.IDX_dyaw_dx] = 1e-0
+            self.Q[State.IDX_droll_dx, State.IDX_droll_dx] = 1e-1
+            self.Q[State.IDX_dpitch_dx, State.IDX_dpitch_dx] = 1e-1
+            self.Q[State.IDX_dyaw_dx, State.IDX_dyaw_dx] = 1e-1
         else:
             self.Q = np.asarray(Q)
 
@@ -118,6 +118,6 @@ class EKF:
         return self.validate(x), P, self.Q
 
     def validate(self, x):
-        if self.x_min or self.x_max:
+        if self.x_min is not None or self.x_max is not None:
             return np.clip(x, self.x_min, self.x_max)
         return x
