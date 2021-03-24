@@ -83,4 +83,6 @@
         <remap from="depth/image_raw" to="camera/front/depth/image_raw" />
         <remap from="depth/camera_info" to="camera/front/depth/camera_info" />
     </node>
+
+
 </launch>
