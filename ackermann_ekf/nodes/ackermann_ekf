@@ -173,8 +173,8 @@ def main():
     Q = rospy.get_param('~Q', None)
     Q_cutoff = rospy.get_param('~Q_cutoff_frequency', None)
     x_max = rospy.get_param('~x_max', None)
-    neg_x_max = [[-a[0]] for a in x_max]
-    x_min = rospy.get_param('~x_min', None if x_max is None else neg_x_max)
+    neg_x_max = None if x_max is None else [[-a[0]] for a in x_max]
+    x_min = rospy.get_param('~x_min', neg_x_max)
 
     initial_state = State(x=initial_x, P=initial_P)
     ekf = EKF(state=initial_state, Q=Q, Q_cutoff=Q_cutoff,
