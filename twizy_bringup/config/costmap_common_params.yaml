@@ -1,0 +1,13 @@
+obstacle_range: 8.5
+raytrace_range: 9.0
+
+# COuld move the parammeters to a launch will to be able to include physical.yaml
+footprint: [[1.169, 0.6905], [1.169, -0.6905],[-1.169, -0.6905], [-1.169, 0.6905]]
+#robot_radius: ir_of_robot
+inflation_radius: 1.05 #random number, very important!
+
+observation_sources: front_point_cloud_sensor
+
+#laser_scan_sensor: {sensor_frame: frame_name, data_type: LaserScan, topic: topic_name, marking: true, clearing: true}
+
+front_point_cloud_sensor: {sensor_frame: front_realsense, data_type: PointCloud2, topic: camera/front/depth/points, marking: true, clearing: true}

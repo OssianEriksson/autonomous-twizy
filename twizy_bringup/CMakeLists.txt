@@ -13,6 +13,10 @@ find_package(catkin REQUIRED COMPONENTS
   twizy_description
   twizy_webots
   rviz
+  move_base
+  teb_local_planner
+  global_planner
+  #amcl
 )
 
 ## System dependencies are found with CMake's conventions

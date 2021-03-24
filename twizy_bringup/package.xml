@@ -54,6 +54,11 @@
   <depend>twizy_description</depend>
   <depend>twizy_webots</depend>
   <depend>rviz</depend>
+  <depend>move_base</depend>
+  <depend>teb_local_planner</depend>
+  <depend>global_planner</depend>
+  <depend>amcl</depend>
+
 
 
   <!-- The export tag contains other, unspecified, tags -->
