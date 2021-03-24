@@ -6,7 +6,14 @@ global_costmap:
   robot_base_frame: base_link
   update_frequency: 1.0
   rolling_window: true
+
+  # The width, and height are needed so there aren't complaints when a goal
+  # outside the global map is selected (we increase the global map size so
+  # this never happens). This behavious has been labeled a bug in some planners
+  # (see https://answers.ros.org/question/89946/the-goal-sent-to-the-navfn-
+  # planner-is-off-the-global-costmap-how-to-send-a-goal-more-than-10-meters-
+  # away-from-the-robot/) but has apparently not been fixed for our case
   width: 500.0
   height: 500.0
-  resolution: 20.0
+  resolution: 500.0
   
