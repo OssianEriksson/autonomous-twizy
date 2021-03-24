@@ -61,6 +61,7 @@ class SensorArray:
                 self.initial_position = [measurement.z[Measurement.IDX_X, 0],
                                          measurement.z[Measurement.IDX_Y, 0],
                                          measurement.z[Measurement.IDX_Z, 0]]
+                self.initial_position -= measurement.sensor_position.T[0]
 
             measurement.z[Measurement.IDX_X] -= self.initial_position[0]
             measurement.z[Measurement.IDX_Y] -= self.initial_position[1]
