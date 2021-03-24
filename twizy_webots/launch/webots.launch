@@ -1,62 +1,40 @@
 <?xml version="1.0"?>
 <launch>
     <arg
-        name="world"
-        default="flat.wbt"
-        doc="Path to the world to load" />
+            name="world"
+            default="flat.wbt"
+            doc="Path to the world to load" />
     <arg
-        name="mode"
-        default="realtime"
-        doc="Startup mode" />
+            name="mode"
+            default="realtime"
+            doc="Startup mode" />
     <arg
-        name="no_gui"
-        default="false"
-        doc="Start Webots with minimal GUI" />
+            name="no_gui"
+            default="false"
+            doc="Start Webots with minimal GUI" />
     <arg
-        name="use_sim_time"
-        default="true"
-        doc="Synchronize ROS time with simulation" />
+            name="use_sim_time"
+            default="true"
+            doc="Synchronize ROS time with simulation" />
 
     <param name="/use_sim_time" value="$(arg use_sim_time)" />
     <rosparam
-        command="load"
-        param="physical"
-        file="$(find twizy_description)/config/physical.yaml" />
-    <rosparam param="gnss/covariance">[0.01, 0.0, 0.0,
-                                       0.0, 0.01, 0.0,
-                                       0.0, 0.0, 0.01]</rosparam>
-    <param name="gnss/covariance_type" value="1" />
+            command="load"
+            param="physical"
+            file="$(find twizy_description)/config/physical.yaml" />
+ 
+    <node
+            pkg="twizy_webots"
+            type="twizy_webots"
+            name="twizy_webots"
+            args="--world '$(find twizy_webots)/worlds/$(arg world)' --mode $(arg mode) --no-gui $(arg no_gui)"
+            required="true" />
 
     <node
-        pkg="twizy_webots"
-        type="twizy_webots"
-        name="twizy_webots"
-        args="--world '$(find twizy_webots)/worlds/$(arg world)' --mode $(arg mode) --no-gui $(arg no_gui)"
-        required="true" />
-
-    <node
-        pkg="twizy_webots"
-        type="gnss"
-        name="left_gnss"
-        required="true">
-        <param name="device" value="left_gnss" />
-        <remap from="fix" to="/gnss/left/fix" />
-    </node>
-
-    <node
-        pkg="twizy_webots"
-        type="gnss"
-        name="right_gnss"
-        required="true">
-        <param name="device" value="right_gnss" />
-        <remap from="fix" to="/gnss/right/fix" />
-    </node>
-
-    <node
-        pkg="twizy_webots"
-        type="ackermann_controller"
-        name="ackermann_controller"
-        required="true">
+            pkg="twizy_webots"
+            type="ackermann_controller"
+            name="ackermann_controller"
+            required="true">
         <param name="device" value="right_gnss" />
         <remap from="~drive_wheel_radius" to="/physical/rear_wheel/radius" />
         <remap from="~max_forward_speed" to="/physical/max_forward_speed" />
@@ -69,20 +47,7 @@
         <param name="~steering_motor_right" value="front_right_steering_motor" />
     </node>
 
-    <node
-        pkg="twizy_webots"
-        type="color_depth_sensor"
-        name="front_realsense"
-        required="true"
-        output="screen">
-        <param name="~color_device" value="front_realsense_aligned_depth_to_color_camera" />
-        <param name="~depth_device" value="front_realsense_depth_camera" />
-        <param name="~frame_id" value="front_realsense" />
-        <remap from="image_raw" to="camera/front/aligned_depth_to_color/image_raw" />
-        <remap from="camera_info" to="camera/front/aligned_depth_to_color/camera_info" />
-        <remap from="depth/image_raw" to="camera/front/depth/image_raw" />
-        <remap from="depth/camera_info" to="camera/front/depth/camera_info" />
-    </node>
-
+   <include file="$(find twizy_webots)/launch/include/sensors.launch" />
+   <include file="$(find twizy_webots)/launch/include/point_cloud.launch" />
 
 </launch>
