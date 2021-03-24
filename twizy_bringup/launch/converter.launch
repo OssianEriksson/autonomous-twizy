@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<launch>
+
+    <rosparam command="load" param="physical" file="$(find twizy_description)/config/physical.yaml" />
+    
+    <node pkg="twizy_control_converter" type="converter" name="converter" required="true">
+        <remap from="~max_steering_angle" to="/physical/max_steering_angle" />
+        <remap from="~wheelbase" to="/physical/wheelbase" />
+    </node>
+
+</launch>
