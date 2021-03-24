@@ -1,12 +1,19 @@
-obstacle_range: 8.5
-raytrace_range: 9.0
 transform_tolerance: 1.0
 
-# Potentially move the parammeters to a launch file to be able to include physical.yaml
-footprint: [[1.169, 0.6905], [1.169, -0.6905], [-1.169, -0.6905], [-1.169, 0.6905]]
+inflater_layer:
+  inflation_radius: 1.05 # Random number, very important!
 
-inflation_radius: 1.05 # Random number, very important!
+obstacle_layer:
+  obstacle_range: 8.5
+  raytrace_range: 9.0
+  max_obstacle_height: 2.0
 
-observation_sources: front_point_cloud_sensor
+  observation_sources: front_point_cloud_sensor
 
-front_point_cloud_sensor: {sensor_frame: front_realsense, data_type: PointCloud2, topic: camera/front/depth/points, marking: true, clearing: true}
+  front_point_cloud_sensor: 
+    sensor_frame: front_realsense
+    data_type: PointCloud2
+    topic: /camera/front/depth/color/points
+    min_obstacle_height: 0.3
+    marking: true
+    clearing: true
