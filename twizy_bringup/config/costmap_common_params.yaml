@@ -1,10 +1,11 @@
 obstacle_range: 8.5
 raytrace_range: 9.0
+transform_tolerance: 1.0
 
 # Potentially move the parammeters to a launch file to be able to include physical.yaml
-footprint: [[1.169, 0.6905], [1.169, -0.6905],[-1.169, -0.6905], [-1.169, 0.6905]]
+footprint: [[1.169, 0.6905], [1.169, -0.6905], [-1.169, -0.6905], [-1.169, 0.6905]]
 
-inflation_radius: 1.05 #random number, very important!
+inflation_radius: 1.05 # Random number, very important!
 
 observation_sources: front_point_cloud_sensor
 
