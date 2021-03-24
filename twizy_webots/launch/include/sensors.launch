@@ -1,34 +1,21 @@
 <?xml version="1.0"?>
 <launch>
-   <rosparam param="gnss/covariance">[0.01, 0.0, 0.0,
+    <rosparam param="gnss/covariance">[0.01, 0.0, 0.0,
                                        0.0, 0.01, 0.0,
                                        0.0, 0.0, 0.01]</rosparam>
     <param name="gnss/covariance_type" value="1" />
 
-    <node
-            pkg="twizy_webots"
-            type="gnss"
-            name="left_gnss"
-            required="true">
+    <node pkg="twizy_webots" type="gnss" name="left_gnss" required="true">
         <param name="device" value="left_gnss" />
         <remap from="fix" to="/gnss/left/fix" />
     </node>
 
-    <node
-            pkg="twizy_webots"
-            type="gnss"
-            name="right_gnss"
-            required="true">
+    <node pkg="twizy_webots" type="gnss" name="right_gnss" required="true">
         <param name="device" value="right_gnss" />
         <remap from="fix" to="/gnss/right/fix" />
     </node>
 
-    <node
-            pkg="twizy_webots"
-            type="color_depth_sensor"
-            name="front_realsense"
-            required="true"
-            output="screen">
+    <node pkg="twizy_webots" type="color_depth_sensor" name="front_realsense" required="true" output="screen">
         <param name="~color_device" value="front_realsense_aligned_depth_to_color_camera" />
         <param name="~depth_device" value="front_realsense_depth_camera" />
         <param name="~frame_id" value="front_realsense" />
