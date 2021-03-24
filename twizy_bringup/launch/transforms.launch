@@ -22,8 +22,7 @@
         pkg="ackermann_ekf"
         type="ackermann_ekf"
         name="ackermann_ekf"
-        required="true"
-        output="screen">
+        required="true">
         <rosparam
             command="load"
             file="$(find twizy_bringup)/config/ekf.yaml" />
