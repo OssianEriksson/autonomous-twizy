@@ -10,6 +10,7 @@ project(twizy_control)
 find_package(catkin REQUIRED COMPONENTS
   rospy
   ackermann_msgs
+  geometry_msgs
 )
 
 ## System dependencies are found with CMake's conventions
@@ -160,6 +161,7 @@ include_directories(
 ## in contrast to setup.py, you can choose the destination
 catkin_install_python(PROGRAMS
   nodes/twizy_can_control
+  nodes/twist_to_ackermann
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
