@@ -1,0 +1,70 @@
+#!/usr/bin/python3
+
+import math
+import rospy
+from canlib import canlib, Frame
+
+from ackermann_msgs.msg import AckermannDriveStamped
+
+import twizy_control.ackermann
+
+
+def byte_range(a):
+    return int(min(max(round(a * 255.0), 0, 255)))
+
+
+def main():
+    # Initialize ROS node
+    rospy.init_node('twizy_can_control')
+
+    # Read parameters from ROS parameter server
+    tout = rospy.get_param('~timeout', 150)
+    chan = rospy.get_param('~channel', 0)
+    max_steering_angle = rospy.get_param('~max_steering_angle')
+    max_forward_speed = rospy.get_param('~max_forward_speed')
+    max_reverse_speed = rospy.get_param('~max_reverse_speed')
+
+    # Open Kvaser CAN channel
+    channel = canlib.openChannel(chan, flags=canlib.Open.ACCEPT_VIRTUAL,
+                                 bitrate=canlib.canBITRATE_500K)
+    channel.setBusOutputControl(canlib.Driver.NORMAL)
+    channel.busOn()
+
+    def callback(msg):
+        """
+        Publishes control signals to CAN bus
+        """
+        angle = msg.drive.steering_angle
+        speed = msg.drive.speed
+
+        angle_scale, speed_scale = twizy_control.ackermann.cmd_scale(
+            angle,
+            speed,
+            max_steering_angle,
+            max_forward_speed,
+            max_reverse_speed
+        )
+
+        # Prepare and write reference steering angle data
+        angle_data = [byte_range(angle_scale), 0 if angle < 0 else 255]
+        channel.writeWait_raw(id_=150, msg=angle_data, dlc=8, timeout=tout)
+
+        # Prepare and write reference speed
+        speed_data = [byte_range(speed_scale), 0 if speed > 0 else 255]
+        channel.writeWait_raw(id_=154, msg=speed_data, dlc=8, timeout=tout)
+
+    # Subscribe to topic where reference control values will be published
+    rospy.Subscriber('ackermann_cmd', AckermannDriveStamped,
+                     callback, queue_size=1)
+
+    try:
+        # Wait for shutdown
+        rospy.spin()
+    except rospy.ROSInterruptException:
+        # Close can channel
+        channel.busOff()
+        channel.close()
+
+
+if __name__ == '__main__':
+    main()
