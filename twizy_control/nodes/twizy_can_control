@@ -10,7 +10,7 @@ import twizy_control.ackermann
 
 
 def byte_range(a):
-    return int(min(max(round(a * 255.0), 0, 255)))
+    return int(min(max(round(a * 255.0), 0), 255))
 
 
 def main():
