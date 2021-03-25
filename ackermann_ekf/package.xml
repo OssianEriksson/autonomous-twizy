@@ -52,6 +52,7 @@
   <depend>ackermann_msgs</depend>
   <depend>rospy</depend>
   <depend>sensor_msgs</depend>
+  <depend>nav_msgs</depend>
   <exec_depend>python-numpy</exec_depend>
   <exec_depend>python3-sympy</exec_depend>
   <depend>tf2_ros</depend>

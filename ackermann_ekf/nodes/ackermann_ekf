@@ -9,6 +9,7 @@ import threading
 
 from geometry_msgs.msg import TransformStamped
 from sensor_msgs.msg import NavSatFix
+from nav_msgs.msg import Odometry
 from ackermann_ekf.ekf import State, Measurement, EKF
 
 
@@ -60,6 +61,7 @@ class SensorArray:
                 self.initial_position = [measurement.z[Measurement.IDX_X, 0],
                                          measurement.z[Measurement.IDX_Y, 0],
                                          measurement.z[Measurement.IDX_Z, 0]]
+                self.initial_position -= measurement.sensor_position.T[0]
 
             measurement.z[Measurement.IDX_X] -= self.initial_position[0]
             measurement.z[Measurement.IDX_Y] -= self.initial_position[1]
@@ -171,8 +173,8 @@ def main():
     Q = rospy.get_param('~Q', None)
     Q_cutoff = rospy.get_param('~Q_cutoff_frequency', None)
     x_max = rospy.get_param('~x_max', None)
-    neg_x_max = [[-a[0]] for a in x_max]
-    x_min = rospy.get_param('~x_min', None if x_max is None else neg_x_max)
+    neg_x_max = None if x_max is None else [[-a[0]] for a in x_max]
+    x_min = rospy.get_param('~x_min', neg_x_max)
 
     initial_state = State(x=initial_x, P=initial_P)
     ekf = EKF(state=initial_state, Q=Q, Q_cutoff=Q_cutoff,
@@ -199,11 +201,22 @@ def main():
     t.header.frame_id = world_frame
     t.child_frame_id = base_link
 
+    odom_pub = rospy.Publisher('odom', Odometry, queue_size=10)
+    odom = Odometry()
+    odom.header.frame_id = world_frame
+    odom.child_frame_id = base_link
+
+    pose_idx = [State.IDX_X, State.IDX_Y, State.IDX_Z,
+                State.IDX_ROLL, State.IDX_PITCH, State.IDX_YAW]
+    pose_cov_idx = [(i, j) for i in pose_idx for j in pose_idx]
+
     last_time = ekf.time
     rate = rospy.Rate(frequency)
     while not rospy.is_shutdown():
         if sensor_array.is_initialized() and ekf.time > last_time:
             x = sensor_array.filter.state.x
+            P = sensor_array.filter.state.P
+            speed = x[State.IDX_speed, 0]
 
             q = euler2quat(x[State.IDX_ROLL, 0],
                            x[State.IDX_PITCH, 0],
@@ -218,6 +231,37 @@ def main():
             t.transform.rotation.w = q[0]
 
             br.sendTransform(t)
+
+            odom.pose.pose.position.x = x[State.IDX_X, 0]
+            odom.pose.pose.position.y = x[State.IDX_Y, 0]
+            odom.pose.pose.position.z = x[State.IDX_Z, 0]
+            odom.pose.pose.orientation.x = q[1]
+            odom.pose.pose.orientation.y = q[2]
+            odom.pose.pose.orientation.z = q[3]
+            odom.pose.pose.orientation.w = q[0]
+            odom.pose.covariance = [P[i, j] for i, j in pose_cov_idx]
+
+            odom.twist.twist.linear.x = speed
+            odom.twist.twist.angular.x = x[State.IDX_droll_dx, 0] * speed
+            odom.twist.twist.angular.y = x[State.IDX_dpitch_dx, 0] * speed
+            odom.twist.twist.angular.z = x[State.IDX_dyaw_dx, 0] * speed
+            # Math is hard... This covariance is just guessed and not rigorous
+            # in any way whatsoever: We e.g. use only a diagonal matrix
+            odom.twist.covariance = [0.0] * 36
+            odom.twist.covariance[0] = P[State.IDX_speed, State.IDX_speed]
+            odom.twist.covariance[7] = 1e-6
+            odom.twist.covariance[14] = 1e-6
+            odom.twist.covariance[21] = P[State.IDX_ROLL, State.IDX_ROLL] * \
+                speed**2 + P[State.IDX_speed, State.IDX_speed] * \
+                x[State.IDX_ROLL, 0]**2
+            odom.twist.covariance[28] = P[State.IDX_PITCH, State.IDX_PITCH] * \
+                speed**2 + P[State.IDX_speed, State.IDX_speed] * \
+                x[State.IDX_PITCH, 0]**2
+            odom.twist.covariance[35] = P[State.IDX_YAW, State.IDX_YAW] * \
+                speed**2 + P[State.IDX_speed, State.IDX_speed] * \
+                x[State.IDX_YAW, 0]**2
+
+            odom_pub.publish(odom)
 
             last_time = ekf.time
 
