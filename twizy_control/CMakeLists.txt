@@ -203,3 +203,12 @@ catkin_install_python(PROGRAMS
 
 ## Add folders to be run by python nosetests
 # catkin_add_nosetests(test)
+
+if(CATKIN_ENABLE_TESTING)
+  find_package(catkin REQUIRED COMPONENTS
+    rostest
+    roslaunch
+  )
+
+  add_rostest(tests/test_twizy_can_control.test)
+endif()
