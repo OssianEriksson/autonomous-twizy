@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <package format="2">
-  <name>twizy_control_converter</name>
+  <name>twizy_control</name>
   <version>0.0.0</version>
-  <description>The twizy_control_converter package, converts twist to ackermann</description>
+  <description>Nodes for processing control signals</description>
 
   <!-- One maintainer tag required, multiple allowed, one person per tag -->
   <!-- Example:  -->
@@ -20,7 +20,7 @@
   <!-- Url tags are optional, but multiple are allowed, one per tag -->
   <!-- Optional attribute type can be: website, bugtracker, or repository -->
   <!-- Example: -->
-  <!-- <url type="website">http://wiki.ros.org/twizy_control_converter</url> -->
+  <!-- <url type="website">http://wiki.ros.org/twizy_control</url> -->
 
 
   <!-- Author tags are optional, multiple are allowed, one per tag -->
@@ -38,7 +38,7 @@
   <!--   <build_depend>roscpp</build_depend> -->
   <!--   <exec_depend>roscpp</exec_depend> -->
   <!-- Use build_depend for packages you need at compile time: -->
-  <!--   <build_depend>message_generation</build_depend> -->
+  <!--    <build_depend>message_generation</build_depend> -->
   <!-- Use build_export_depend for packages you need in order to build against this package: -->
   <!--   <build_export_depend>message_generation</build_export_depend> -->
   <!-- Use buildtool_depend for build tool packages: -->
@@ -49,10 +49,13 @@
   <!--   <test_depend>gtest</test_depend> -->
   <!-- Use doc_depend for packages you need only for building documentation: -->
   <!--   <doc_depend>doxygen</doc_depend> -->
+
   <buildtool_depend>catkin</buildtool_depend>
+  <depend>rospy</depend>
   <depend>ackermann_msgs</depend>
   <depend>geometry_msgs</depend>
-  <depend>rospy</depend>
+  <test_depend>rostest</test_depend>
+  <test_depend>roslaunch</test_depend>
 
 
   <!-- The export tag contains other, unspecified, tags -->
