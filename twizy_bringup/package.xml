@@ -57,6 +57,8 @@
   <depend>move_base</depend>
   <depend>teb_local_planner</depend>
   <depend>global_planner</depend>
+  <depend>depth_image_proc</depend>
+  <depend>twizy_control_converter</depend>
 
 
 
