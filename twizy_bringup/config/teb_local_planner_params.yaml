@@ -29,7 +29,7 @@ TebLocalPlannerROS:
  # ********************** Carlike robot parameters ********************
  min_turning_radius: 2.5        # Min turning radius of the carlike robot (compute value using a model or adjust with rqt_reconfigure manually)
  wheelbase: 1.686               # Wheelbase of our robot
- cmd_angle_instead_rotvel: True # stage simulator takes the angle instead of the rotvel as input (twist message), this is needed by twizy_control_converter
+ cmd_angle_instead_rotvel: True # stage simulator takes the angle instead of the rotvel as input (twist message), this is needed by the twist_to_ackermann node
  # ********************************************************************
 
  footprint_model: # types: "point", "circular", "two_circles", "line", "polygon"

@@ -57,7 +57,6 @@
   <depend>teb_local_planner</depend>
   <depend>global_planner</depend>
   <depend>depth_image_proc</depend>
-  <depend>twizy_control_converter</depend>
   <depend>robot_state_publisher</depend>
   <depend>joint_state_publisher</depend>
   <depend>twizy_control</depend>

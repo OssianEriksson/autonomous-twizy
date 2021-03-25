@@ -17,7 +17,6 @@ find_package(catkin REQUIRED COMPONENTS
   global_planner
   robot_state_publisher
   joint_state_publisher
-  twizy_control_converter
   twizy_control
 )
 
