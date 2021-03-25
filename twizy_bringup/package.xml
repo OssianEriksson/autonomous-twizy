@@ -52,7 +52,6 @@
   <depend>ackermann_teleop</depend>
   <depend>ackermann_ekf</depend>
   <depend>twizy_description</depend>
-  <depend>twizy_webots</depend>
   <depend>rviz</depend>
   <depend>move_base</depend>
   <depend>teb_local_planner</depend>

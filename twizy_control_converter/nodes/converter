@@ -31,7 +31,6 @@ def main():
 
     try:
         rospy.spin()
-
     except rospy.ROSInterruptException:
         pass
 

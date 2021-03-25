@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<launch>
+    <include file="$(find twizy_webots)/launch/webots.launch" />
+    <include file="$(find twizy_bringup)/launch/converter.launch" />
+    <include file="$(find twizy_bringup)/launch/transforms.launch" />
+    <include file="$(find twizy_bringup)/launch/rviz.launch" />
+    <include file="$(find twizy_bringup)/launch/nav_stack.launch" />
+</launch>

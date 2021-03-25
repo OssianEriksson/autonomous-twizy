@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <package format="2">
-  <name>ackermann_ekf</name>
+  <name>twizy_examples</name>
   <version>0.0.0</version>
-  <description>Extended Kalman filter for Ackermann vehicle</description>
+  <description>Example launch files for the Twizy</description>
 
   <!-- One maintainer tag required, multiple allowed, one person per tag -->
   <!-- Example:  -->
@@ -19,7 +19,7 @@
   <!-- Url tags are optional, but multiple are allowed, one per tag -->
   <!-- Optional attribute type can be: website, bugtracker, or repository -->
   <!-- Example: -->
-  <!-- <url type="website">http://wiki.ros.org/ackermann_ekf</url> -->
+  <!-- <url type="website">http://wiki.ros.org/twizy_examples</url> -->
 
 
   <!-- Author tags are optional, multiple are allowed, one per tag -->
@@ -49,14 +49,8 @@
   <!-- Use doc_depend for packages you need only for building documentation: -->
   <!--   <doc_depend>doxygen</doc_depend> -->
   <buildtool_depend>catkin</buildtool_depend>
-  <depend>ackermann_msgs</depend>
-  <depend>rospy</depend>
-  <depend>sensor_msgs</depend>
-  <depend>nav_msgs</depend>
-  <exec_depend>python-numpy</exec_depend>
-  <depend>tf2_ros</depend>
-  <exec_depend>python-utm-pip</exec_depend>
-  <exec_depend>python-transforms3d-pip</exec_depend>
+  <depend>twizy_bringup</depend>
+  <depend>twizy_webots</depend>
 
 
   <!-- The export tag contains other, unspecified, tags -->
