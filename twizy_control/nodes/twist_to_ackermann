@@ -7,7 +7,7 @@ from geometry_msgs.msg import Twist
 
 def main():
     # Initialize ROS node
-    rospy.init_node('converter')
+    rospy.init_node('twist_to_ackermann')
 
     # Read parameters from ROS parameter server
     max_steering_angle = rospy.get_param('~max_steering_angle')
