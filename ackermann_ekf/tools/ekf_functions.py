@@ -1,5 +1,14 @@
-from sympy import *
+#!/usr/bin/python3
+
 import inspect
+import sys
+
+try:
+    from sympy import *
+except:
+    print('Please install sympy first using\n\n    '
+          'pip3 install sympy\n', file=sys.stderr)
+    sys.exit(1)
 
 
 var('a v x y z R P Y dr_dx dp_dx dy_dx dt hx hy hz')
