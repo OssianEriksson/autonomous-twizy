@@ -49,12 +49,8 @@
   <!-- Use doc_depend for packages you need only for building documentation: -->
   <!--   <doc_depend>doxygen</doc_depend> -->
   <buildtool_depend>catkin</buildtool_depend>
-  <build_depend>twizy_bringup</build_depend>
-  <build_depend>twizy_webots</build_depend>
-  <build_export_depend>twizy_bringup</build_export_depend>
-  <build_export_depend>twizy_webots</build_export_depend>
-  <exec_depend>twizy_bringup</exec_depend>
-  <exec_depend>twizy_webots</exec_depend>
+  <depend>twizy_bringup</depend>
+  <depend>twizy_webots</depend>
 
 
   <!-- The export tag contains other, unspecified, tags -->
