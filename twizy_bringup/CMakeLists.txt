@@ -16,6 +16,8 @@ find_package(catkin REQUIRED COMPONENTS
   move_base
   teb_local_planner
   global_planner
+  robot_state_publisher
+  joint_state_publisher
 )
 
 ## System dependencies are found with CMake's conventions
