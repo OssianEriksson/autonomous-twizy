@@ -4,5 +4,5 @@
 
     <param name="robot_description" command="$(arg robot) urdf" />
 
-    <node pkg="rviz" type="rviz" name="rviz" args="-d $(arg rvizconfig)" />
+    <node pkg="rviz" type="rviz" name="rviz" args="-d $(arg rvizconfig)" required="true" />
 </launch>

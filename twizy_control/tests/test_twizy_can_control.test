@@ -1,4 +1,0 @@
-<?xml version="1.0"?>
-<launch>
-    <test test-name="test_twizy_can_control" pkg="twizy_control" type="test_twizy_can_control" />
-</launch>
