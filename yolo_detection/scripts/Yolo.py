@@ -6,13 +6,11 @@ from yolov4.tf import YOLOv4
 
 yolo = YOLOv4()
 
-yolo.config.parse_names("coco.names")
-yolo.config.parse_cfg("yolov4-tiny.cfg")   #Remember to change weight source both for .cfg and .weights
-
+yolo.config.parse_names("src/yolo_detection/coco.names")
+yolo.config.parse_cfg("src/yolo_detection/config/yolov4-tiny.cfg")   #Remember to change weight source both for .cfg and .weights
 yolo.make_model()
-yolo.load_weights("yolov4-tiny.weights", weights_type="yolo")
+yolo.load_weights("src/yolo_detection/weights/yolov4-tiny.weights", weights_type="yolo")
 yolo.summary(summary_type="yolo")
-yolo.summary()
 
 ##yolo.inference(media_path="download.jpeg")
 
@@ -20,10 +18,14 @@ yolo.summary()
 
 #To find camera sources available, run ls -ltrh /dev/video*
 
-yolo.inference(
+
+test = yolo.inference(
    "/dev/video6",             #video0 is webcam, video6 is realsense RGB
    is_image=False,
    cv_apiPreference=cv2.CAP_V4L2,
    cv_frame_size=(640, 480),
    cv_fourcc="YUYV",
+   cv_waitKey_delay=10,
+   prob_thresh=0.2,  
 )
+
