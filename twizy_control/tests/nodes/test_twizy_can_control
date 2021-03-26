@@ -160,5 +160,4 @@ class TestTwizyCanControl(unittest.TestCase):
 
 
 if __name__ == '__main__':
-    rostest.rosrun('twizy_control', 'test_twizy_can_control',
-                   TestTwizyCanControl)
+    rostest.rosrun('twizy_control', f'test_{NODE}', TestTwizyCanControl)
