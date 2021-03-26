@@ -27,7 +27,7 @@ class SensorArray:
     def __init__(self, filter, frequency, base_link):
         self.filter = filter
         self.base_link = str(base_link)
-        self.update_delay = rospy.Duration(1.0 / frequency)
+        self.update_delay = 1.0 / frequency
         self.buffer = tf2_ros.Buffer()
         self.listener = tf2_ros.TransformListener(self.buffer)
         self.initial_position = None
@@ -71,17 +71,42 @@ class SensorArray:
         return self.initial_position is not None
 
 
-class NavSatFixSensor:
-    def __init__(self,
-                 sensor_array,
-                 fuse,
-                 static_position):
-        self.last_observed = rospy.Time(0)
+class Sensor:
+    def __init__(self, sensor_array, fuse, static_position):
         self.sensor_array = sensor_array
         self.static_position = static_position
-        self.sensor_pos = None
-
         self.fuse = fuse
+        self.last_observed = 0.0
+        self.sensor_position = None
+
+    def callback(self, msg):
+        time = msg.header.stamp.to_sec()
+        measure_after = self.last_observed + self.sensor_array.update_delay
+        if time < measure_after:
+            return
+
+        if not self.static_position or self.sensor_position is None:
+            sensor_position_vec = self.sensor_array.get_transform(
+                msg.header.frame_id, msg.header.stamp).transform.translation
+
+            self.sensor_position = [sensor_position_vec.x,
+                                    sensor_position_vec.y,
+                                    sensor_position_vec.z]
+        if self.sensor_position is None:
+            return
+
+        self.last_observed = time
+
+        z, R = self.get_z_R(msg)
+
+        measurement = Measurement(z, R, time, self.sensor_position)
+        self.sensor_array.process_measurement(measurement, self.fuse)
+
+
+class NavSatFixSensor(Sensor):
+    def __init__(self, sensor_array, fuse, static_position):
+        super().__init__(sensor_array, fuse, static_position)
+
         self.fuse[Measurement.IDX_dx_dt] = False
         self.fuse[Measurement.IDX_dy_dt] = False
         self.fuse[Measurement.IDX_dz_dt] = False
@@ -95,21 +120,12 @@ class NavSatFixSensor:
         self.fuse[Measurement.IDX_dpitch_dt] = False
         self.fuse[Measurement.IDX_dyaw_dt] = False
 
-    def callback(self, msg):
-        measure_after = self.last_observed + self.sensor_array.update_delay
-        if msg.header.stamp < measure_after:
-            return
-        self.last_observed = msg.header.stamp
-
-        if not self.static_position or self.sensor_pos is None:
-            sensor_pos_vec = self.sensor_array.get_transform(
-                msg.header.frame_id, msg.header.stamp).transform.translation
-            if sensor_pos_vec is None:
-                return
-
-            self.sensor_pos = [sensor_pos_vec.x,
-                               sensor_pos_vec.y,
-                               sensor_pos_vec.z]
+    def get_z_R(self, msg):
+        x, y, *_ = utm.from_latlon(msg.latitude, msg.longitude)
+        z = [None] * Measurement.SIZE
+        z[Measurement.IDX_X] = x
+        z[Measurement.IDX_Y] = y
+        z[Measurement.IDX_Z] = msg.altitude
 
         R = np.zeros((Measurement.SIZE, Measurement.SIZE))
 
@@ -130,16 +146,7 @@ class NavSatFixSensor:
             R[Measurement.IDX_Z, Measurement.IDX_Y] = cov[7]
             R[Measurement.IDX_Z, Measurement.IDX_Z] = cov[8]
 
-        x, y, *_ = utm.from_latlon(msg.latitude, msg.longitude)
-        z = [None] * Measurement.SIZE
-        z[Measurement.IDX_X] = x
-        z[Measurement.IDX_Y] = y
-        z[Measurement.IDX_Z] = msg.altitude
-
-        time = msg.header.stamp.to_sec()
-
-        measurement = Measurement(z, R, time, self.sensor_pos)
-        self.sensor_array.process_measurement(measurement, self.fuse)
+        return z, R
 
 
 def main():
