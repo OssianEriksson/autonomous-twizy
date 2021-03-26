@@ -6,8 +6,8 @@ class State:
     IDX_X = 0
     IDX_Y = 1
     IDX_Z = 2
-    IDX_accel = 3
-    IDX_speed = 4
+    IDX_speed = 3
+    IDX_accel = 4
     IDX_ROLL = 5
     IDX_PITCH = 6
     IDX_YAW = 7
@@ -17,7 +17,7 @@ class State:
     SIZE = 11
 
     def __init__(self, x=None, P=None):
-        self.x = np.zeros((State.SIZE, 1)) if x is None else np.asarray(x)
+        self.x = np.zeros((State.SIZE, )) if x is None else np.asarray(x)
 
         if P is None:
             if x is None:
@@ -32,18 +32,22 @@ class Measurement:
     IDX_X = 0
     IDX_Y = 1
     IDX_Z = 2
-    IDX_accel = 3
-    IDX_speed = 4
-    IDX_ROLL = 5
-    IDX_PITCH = 6
-    IDX_YAW = 7
-    IDX_droll_dt = 8
-    IDX_dpitch_dt = 9
-    IDX_dyaw_dt = 10
-    SIZE = 11
+    IDX_dx_dt = 3
+    IDX_dy_dt = 4
+    IDX_dz_dt = 5
+    IDX_d2x_dt2 = 6
+    IDX_d2y_dt2 = 7
+    IDX_d2z_dt2 = 8
+    IDX_ROLL = 9
+    IDX_PITCH = 10
+    IDX_YAW = 11
+    IDX_droll_dt = 12
+    IDX_dpitch_dt = 13
+    IDX_dyaw_dt = 14
+    SIZE = 15
 
     def __init__(self, z, R, time, sensor_position):
-        self.z = np.asarray(z)
+        self.z = z
         self.R = np.asarray(R)
         self.time = float(time)
         self.sensor_position = np.asarray(sensor_position)
@@ -89,8 +93,8 @@ class EKF:
         self.state.x, self.state.P, self.Q = self.correct(dt, measurement)
 
     def predict(self, dt):
-        x = ekf_functions.f(self.state.x, dt=dt)
-        F = ekf_functions.F(self.state.x, dt=dt)
+        x = np.asarray(ekf_functions.f(self.state.x, dt=dt))
+        F = np.asarray(ekf_functions.F(self.state.x, dt=dt))
         P = F @ self.state.P @ F.T + self.Q * dt
 
         return self.validate(x), P
@@ -98,9 +102,13 @@ class EKF:
     def correct(self, dt, measurement):
         Q = self.Q
 
-        hx = ekf_functions.h(self.state.x, measurement.sensor_position)
-        y = measurement.z - hx
-        H = ekf_functions.H(self.state.x, measurement.sensor_position)
+        hx = np.asarray(ekf_functions.h(
+            self.state.x, measurement.sensor_position))
+        y = np.array([(0.0 if measurement.z[i] is None else
+                       measurement.z[i] - hx[i])
+                      for i in range(Measurement.SIZE)])
+        H = np.asarray(ekf_functions.H(
+            self.state.x, measurement.sensor_position))
         S = H @ self.state.P @ H.T + measurement.R
         K = self.state.P @ H.T @ np.linalg.inv(S)
         Ky = K @ y

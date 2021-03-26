@@ -1,17 +1,17 @@
 frequency: 30
 base_link: 'base_link'
 x_max:
-- [.inf] # X
-- [.inf] # Y
-- [.inf] # Z
-- [2.0]  # speed
-- [5.0]  # acceleration
-- [0.0]  # ROLL
-- [0.0]  # PITCH
-- [.inf] # YAW
-- [0.0]  # droll_dx
-- [0.0]  # dpitch_dx
-- [0.5]  # dyaw_dx
+- .inf # X
+- .inf # Y
+- .inf # Z
+- 2.0  # speed
+- 5.0  # acceleration
+- 0.0  # ROLL
+- 0.0  # PITCH
+- .inf # YAW
+- 0.0  # droll_dx
+- 0.0  # dpitch_dx
+- 0.5  # dyaw_dx
 
 sensors:
 - topic: /gnss/left/fix
