@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<launch>
+    <node pkg="piksi_multi_rtk" type="piksi_multi_rtk" name="left_gnss" required="true">
+        <remap from="gnss/fix" to="/gnss/left/fix" />
+        <remap from="imu/raw" to="/gnss/left/imu/raw" />
+        <remap from="mag/raw" to="/gnss/left/mag/raw" />
+        <param name="tcp_addr" value="192.168.0.223" />
+        <param name="imu_frame" value="left_gnss_imu" />
+        <param name="mag_frame" value="left_gnss_mag" />
+    </node>
+
+    <node pkg="piksi_multi_rtk" type="piksi_multi_rtk" name="right_gnss" required="true">
+        <remap from="gnss/fix" to="/gnss/right/fix" />
+        <remap from="imu/raw" to="/gnss/right/imu/raw" />
+        <remap from="mag/raw" to="/gnss/right/mag/raw" />
+        <param name="tcp_addr" value="192.168.0.222" />
+        <param name="imu_frame" value="right_gnss_imu" />
+        <param name="mag_frame" value="right_gnss_mag" />
+    </node>
+</launch>
