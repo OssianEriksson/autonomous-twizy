@@ -116,7 +116,11 @@ def main():
         [color_sub, depth_sub], 2, 2.0 / fps)
     ts.registerCallback(cb)
 
-    rospy.spin()
+    # Wait for shutdown
+    try:
+        rospy.spin()
+    except rospy.ROSInterruptException:
+        pass
 
 
 if __name__ == '__main__':

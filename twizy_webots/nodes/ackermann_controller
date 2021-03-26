@@ -65,7 +65,10 @@ def main():
     rospy.Subscriber('ackermann_cmd', AckermannDriveStamped, cb, queue_size=1)
 
     # Wait for shutdown
-    rospy.spin()
+    try:
+        rospy.spin()
+    except rospy.ROSInterruptException:
+        pass
 
 
 if __name__ == '__main__':
