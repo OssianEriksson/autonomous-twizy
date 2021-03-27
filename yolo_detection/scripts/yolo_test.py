@@ -3,8 +3,8 @@
 import cv2
 
 from yolov4.tf import YOLOv4
-
 yolo = YOLOv4()
+
 
 yolo.config.parse_names("src/yolo_detection/coco.names")
 yolo.config.parse_cfg("src/yolo_detection/config/yolov4-tiny.cfg")   #Remember to change weight source both for .cfg and .weights
@@ -19,7 +19,7 @@ yolo.summary(summary_type="yolo")
 #To find camera sources available, run ls -ltrh /dev/video*
 
 
-test = yolo.inference(
+yolo.inference(
    "/dev/video6",             #video0 is webcam, video6 is realsense RGB
    is_image=False,
    cv_apiPreference=cv2.CAP_V4L2,
@@ -28,4 +28,3 @@ test = yolo.inference(
    cv_waitKey_delay=10,
    prob_thresh=0.2,  
 )
-
