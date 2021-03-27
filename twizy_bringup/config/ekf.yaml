@@ -1,4 +1,4 @@
-frequency: 30
+frequency: 24
 base_link: 'base_link'
 x_max:
 - .inf # X
