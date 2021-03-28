@@ -1,0 +1,11 @@
+<launch>
+    <arg name="robot" default="$(find twizy_description)/robot/twizy.py" />
+
+    <param name="robot_description" command="$(arg robot) urdf" />
+    
+    <node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher" required="true" />
+
+    <node pkg="ackermann_ekf_optimized" type="ackermann_ekf" name="ackermann_ekf" required="true" output="screen">
+        <rosparam param="sensors">[{topic: /gnss/left/fix, type: sensor_msgs/NavSatFix}, {topic: /gnss/right/fix, type: sensor_msgs/NavSatFix}]</rosparam>
+    </node>
+</launch>

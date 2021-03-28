@@ -1,0 +1,55 @@
+import numpy as np
+import heapq
+
+
+class Measurement:
+    def __init__(self, z, R, h, H, time):
+        self.z = np.asarray(z)
+        self.R = np.asarray(R)
+        self.h = h
+        self.H = H
+        self.time = float(time)
+
+    def __lt__(self, other):
+        return self.time < other.time
+
+
+class EKF:
+    def __init__(self, x, P, f, F, Q, time=0.0):
+        self.measurements = []
+        self.x =  np.asarray(x)
+        self.P = np.asarray(P)
+        self.f = f
+        self.F = F
+        self.Q = np.asarray(Q)
+        self.time = time
+
+        self.temp = None
+
+    def queue_measurement(self, measurement):
+        heapq.heappush(self.measurements, measurement)
+
+    def process_measurements(self):
+        self.temp = None if not self.measurements else self.measurements[0]
+        while len(self.measurements) > 0:
+            measurement = heapq.heappop(self.measurements)
+
+            dt = measurement.time - self.time
+            if dt > 0:
+                self.time = measurement.time
+
+            self._correct(measurement)
+        if self.temp:
+            self.measurements.append(self.temp)
+
+    def _predict(self, dt):
+        self.x = self.f(self.x, dt)
+        F = self.F(self.x, dt)
+        self.P = F @ self.P @ F.T + self.Q * dt
+
+    def _correct(self, measurement):
+        y = measurement.z - measurement.h(self.x)
+        H = measurement.H(self.x)
+        K = self.P @ H.T @ np.linalg.inv(H @ self.P @ H.T + measurement.R)
+        self.x = self.x + K @ y
+        self.P = (np.eye(len(self.x)) - K @ H) @ self.P

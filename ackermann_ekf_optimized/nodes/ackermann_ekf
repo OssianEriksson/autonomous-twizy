@@ -1,0 +1,170 @@
+#!/usr/bin/python3
+
+import rospy
+
+import numpy as np
+import utm
+import threading
+
+import tf2_ros
+from sensor_msgs.msg import NavSatFix
+
+from ackermann_ekf_optimized.ekf import EKF, Measurement
+import ackermann_ekf_optimized.ackermann as ackermann
+from ackermann_ekf_optimized.ackermann import z_mask, x_mask
+
+
+class Sensor:
+    _xyz_offset = np.array([0.0, 0.0, 0.0])
+
+    Z_MASK_XYZ = z_mask.X | z_mask.Y | z_mask.Z
+
+    def __init__(self, callback, mask, get_position):
+        self.h_dict = {}
+        self.get_position = get_position
+        self.mask = np.asarray(mask)
+        self.callback = callback
+        self.z = np.zeros((ackermann.z_size,))
+        self.R = np.zeros((ackermann.z_size, ackermann.z_size))
+
+    def _measure(self, frame_id, time=None):
+        time = rospy.Time.now() if time is None else time
+
+        h, H = self.h_dict.get(frame_id, (None, None))
+        if h is None:
+            sensor_position = self.get_position(frame_id, time)
+            if sensor_position is None:
+                return
+
+            if self.mask[z_mask.X] and Sensor._xyz_offset[0] == 0:
+                Sensor._xyz_offset[0] = -self.z[z_mask.X] + sensor_position[0]
+            if self.mask[z_mask.Y] and Sensor._xyz_offset[1] == 0:
+                Sensor._xyz_offset[1] = -self.z[z_mask.Y] + sensor_position[1]
+            if self.mask[z_mask.Z] and Sensor._xyz_offset[2] == 0:
+                Sensor._xyz_offset[2] = -self.z[z_mask.Z] + sensor_position[2]
+            if not all(Sensor._xyz_offset):
+                return
+
+            h, H = ackermann.generate_h(self.mask, sensor_position)
+            self.h_dict[frame_id] = (h, H)
+
+        self.z[Sensor.Z_MASK_XYZ] += Sensor._xyz_offset
+
+        _R = self.R[self.mask, :][:, self.mask]
+        if np.any(_R) and np.all(_R.diagonal() > 0):
+            self.callback(Measurement(
+                z=self.z[self.mask],
+                R=_R,
+                h=h,
+                H=H,
+                time=time.to_sec())
+            )
+        else:
+            rospy.logwarn('Singular covariance matrix detected!')
+
+
+class NavSatFixSensor(Sensor):
+    def __init__(self, topic, callback, mask, get_position):
+        super().__init__(
+            callback=callback,
+            mask=mask & Sensor.Z_MASK_XYZ,
+            get_position=get_position
+        )
+
+        self.xyz_mask = np.where(Sensor.Z_MASK_XYZ)
+        self.xyz_cov_mask = np.where(Sensor.Z_MASK_XYZ *
+                                     Sensor.Z_MASK_XYZ[np.newaxis].T)
+
+        rospy.Subscriber(topic, NavSatFix, callback=self._cb, queue_size=1)
+
+    def _cb(self, msg):
+        x, y, *_ = utm.from_latlon(msg.latitude, msg.longitude)
+        self.z[self.xyz_mask] = (x, y, msg.altitude)
+        self.R[self.xyz_cov_mask] = msg.position_covariance
+        self._measure(msg.header.frame_id, msg.header.stamp)
+
+
+def main():
+    rospy.init_node('ackermann_ekf')
+
+    Q_default = np.eye(ackermann.x_size) * 1e1
+    Q_default[x_mask.X, x_mask.X] = 1e-3,
+    Q_default[x_mask.Y, x_mask.Y] = 1e-3,
+    Q_default[x_mask.Z, x_mask.Z] = 1e-3,
+    Q_default[x_mask.speed, x_mask.speed] = 1e-2,
+    Q_default[x_mask.accel, x_mask.accel] = 1e-1,
+    Q_default[x_mask.Roll, x_mask.Roll] = 1e-2,
+    Q_default[x_mask.Pitch, x_mask.Pitch] = 1e-2,
+    Q_default[x_mask.Yaw, x_mask.Yaw] = 1e-2,
+    Q_default[x_mask.droll_dx, x_mask.droll_dx] = 1e-1,
+    Q_default[x_mask.dpitch_dx, x_mask.dpitch_dx] = 1e-1,
+    Q_default[x_mask.dyaw_dx, x_mask.dyaw_dx] = 1e-1
+
+    ekf = EKF(
+        x=rospy.get_param('~x', None) or np.zeros((ackermann.x_size, )),
+        P=rospy.get_param('~P', None) or np.eye(ackermann.x_size) * 1e1,
+        f=ackermann.f,
+        F=ackermann.F,
+        Q=rospy.get_param('~Q', None) or Q_default,
+        time=rospy.Time.now().to_sec()
+    )
+
+    ekf_lock = threading.Lock()
+
+    tf_buffer = tf2_ros.Buffer()
+    tf2_ros.TransformListener(tf_buffer)
+
+    base_link = rospy.get_param('~base_link', 'base_link')
+    def get_position(frame_id, stamp):
+        try:
+            translation = tf_buffer.lookup_transform(
+                base_link,
+                frame_id,
+                stamp,
+                rospy.Duration(0.5)
+            ).transform.translation
+            return np.asarray([translation.x, translation.y, translation.z])
+        except (tf2_ros.LookupException,
+                tf2_ros.ConnectivityException,
+                tf2_ros.ExtrapolationException,
+                AttributeError) as e:
+            rospy.logwarn(str(e))
+            return None
+
+    def cb(measurement):
+        with ekf_lock:
+            ekf.queue_measurement(measurement)
+
+    for sensor in rospy.get_param('~sensors', []):
+        mask = rospy.get_param('~mask', [True] * ackermann.z_size)
+
+        if sensor['type'] == 'sensor_msgs/NavSatFix':
+            NavSatFixSensor(sensor['topic'], cb, mask, get_position)
+        else:
+            raise ValueError(f'Unknown sensor type {sensor["type"]}')
+
+    # TODO
+    import time
+    T = 0.0
+    n = 0
+
+    rate = rospy.Rate(rospy.get_param('~frequency', 30.0))
+    while not rospy.is_shutdown():
+        # TODO
+        T -= time.time()
+        with ekf_lock:
+            ekf.process_measurements()
+            if ekf.temp:
+                n += 1
+        T += time.time()
+        if ekf.temp:
+            n += 1
+        else:
+            T = 0
+        print(T / (n + 1))
+
+        # rate.sleep()
+
+
+if __name__ == '__main__':
+    main()
