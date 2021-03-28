@@ -72,6 +72,10 @@ def main():
         pub_mag.publish(mag)
 
     def publish_llh_msg(msg, **metadata):
+        # Don't publish empty measurements
+        if msg.n_sats < 1:
+            return
+
         # Lower 3 bits define fix mode.
         fix_mode = msg.flags & 0b111
 
