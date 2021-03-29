@@ -122,10 +122,11 @@ include_directories(
 )
 
 ## Declare a C++ library
-add_library(ackermann_ekf src/ackermann_ekf.cpp)
-add_library(sensor_array src/sensor_array.cpp)
-add_library(sensor src/sensor.cpp)
-add_library(navsatfix_sensor src/navsatfix_sensor.cpp)
+add_library(ackermann_ekf
+  src/ackermann_ekf.cpp
+  src/sensor_array.cpp
+  src/navsatfix_sensor.cpp
+)
 
 ## Add cmake target dependencies of the library
 ## as an example, code may need to be generated before libraries
@@ -148,10 +149,7 @@ set_target_properties(ackermann_ekf_node PROPERTIES OUTPUT_NAME ackermann_ekf PR
 add_dependencies(ackermann_ekf_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
-target_link_libraries(ackermann_ekf_node sensor_array ${catkin_LIBRARIES})
-target_link_libraries(sensor_array ackermann_ekf navsatfix_sensor ${catkin_LIBRARIES})
-target_link_libraries(navsatfix_sensor sensor ${catkin_LIBRARIES})
-target_link_libraries(sensor ackermann_ekf ${catkin_LIBRARIES})
+target_link_libraries(ackermann_ekf_node ackermann_ekf ${catkin_LIBRARIES})
 
 #############
 ## Install ##
@@ -177,9 +175,6 @@ install(TARGETS ackermann_ekf_node
 ## See http://docs.ros.org/melodic/api/catkin/html/howto/format1/building_libraries.html
 install(TARGETS 
   ackermann_ekf
-  sensor_array
-  sensor
-  navsatfix_sensor
   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   RUNTIME DESTINATION ${CATKIN_GLOBAL_BIN_DESTINATION}

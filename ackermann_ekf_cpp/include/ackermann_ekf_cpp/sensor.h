@@ -9,6 +9,7 @@
 
 namespace ackermann_ekf
 {
+    template <class RosMessage>
     class Sensor
     {
     protected:
@@ -22,7 +23,12 @@ namespace ackermann_ekf
 
         geometry_msgs::TransformStamped transform_;
 
-        Sensor(const SensorArray &sensor_array, std::array<bool, MEASUREMENT_SIZE> fuse);
+        Sensor(const SensorArray &sensor_array, std::array<bool, MEASUREMENT_SIZE> fuse)
+        : sensor_array_(sensor_array),
+          fuse_(fuse)
+        {}
+
+        virtual void callback(const RosMessage &msg) = 0;
     };
 }
 
