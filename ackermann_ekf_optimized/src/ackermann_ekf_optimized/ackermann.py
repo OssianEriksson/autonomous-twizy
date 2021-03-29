@@ -21,13 +21,12 @@ def generate_f():
     return (lambda x, dt: f_lambda(x, dt).T[0]), F_lambda
 
 
-def generate_h(mask, sensor_position):
+def generate_h(mask):
     if isinstance(mask, np.ndarray):
         mask = mask.tolist()
-    s = [(s0, s1) for s0, s1 in zip(_sensor_position, sensor_position)]
-    h_lambda = lambdify([list(_x)], _h[mask, :].subs(s))
-    H_lambda = lambdify([list(_x)], _H[mask, :].subs(s))
-    return (lambda x: h_lambda(x).T[0]), H_lambda
+    h_lambda = lambdify([list(_x)] + [list(_sensor_position)], _h[mask, :])
+    H_lambda = lambdify([list(_x)] + [list(_sensor_position)], _H[mask, :])
+    return (lambda x, sensor_pos: h_lambda(x, sensor_pos).T[0]), H_lambda
 
 
 def _mask(vector, name):
@@ -41,7 +40,9 @@ def _mask(vector):
     for i in range(len(vector)):
         m = np.asarray([False] * len(vector))
         m[i] = True
-        setattr(Mask, str(vector[i]), m)
+        name = str(vector[i])
+        setattr(Mask, name, m)
+        setattr(Mask, f'{name}_', i)
     return Mask
 
 z_size = len(_z)

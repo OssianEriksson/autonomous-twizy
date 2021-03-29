@@ -5,100 +5,111 @@ import rospy
 import numpy as np
 import utm
 import threading
+from math import tau, pi
+from transforms3d.euler import euler2quat
 
 import tf2_ros
 from sensor_msgs.msg import NavSatFix
+from nav_msgs.msg import Odometry
+from geometry_msgs.msg import TransformStamped
 
 from ackermann_ekf_optimized.ekf import EKF, Measurement
 import ackermann_ekf_optimized.ackermann as ackermann
 from ackermann_ekf_optimized.ackermann import z_mask, x_mask
 
+X_MASK_XYZ = x_mask.X | x_mask.Y | x_mask.Z
+X_MASK_XYZRPY = X_MASK_XYZ | x_mask.Roll | x_mask.Pitch | x_mask.Yaw
+Z_MASK_XYZ = z_mask.X | z_mask.Y | z_mask.Z
+
+X_MASK_XYZ_COV = X_MASK_XYZ * X_MASK_XYZ[np.newaxis].T
+X_MASK_XYZRPY_COV = X_MASK_XYZRPY * X_MASK_XYZRPY[np.newaxis].T
+Z_MASK_XYZ_COV = Z_MASK_XYZ * Z_MASK_XYZ[np.newaxis].T
 
 class Sensor:
-    _xyz_offset = np.array([0.0, 0.0, 0.0])
-
-    Z_MASK_XYZ = z_mask.X | z_mask.Y | z_mask.Z
-
-    def __init__(self, callback, mask, get_position):
-        self.h_dict = {}
-        self.get_position = get_position
+    def __init__(self, bounce_callable, mask):
         self.mask = np.asarray(mask)
-        self.callback = callback
+        self.bounce_callable = bounce_callable
         self.z = np.zeros((ackermann.z_size,))
         self.R = np.zeros((ackermann.z_size, ackermann.z_size))
+        self.h, self.H = ackermann.generate_h(mask)
+        self._state_update_lock = threading.Lock()
 
-    def _measure(self, frame_id, time=None):
-        time = rospy.Time.now() if time is None else time
+        self._state_update_lock.locked
 
-        h, H = self.h_dict.get(frame_id, (None, None))
-        if h is None:
-            sensor_position = self.get_position(frame_id, time)
-            if sensor_position is None:
-                return
+    def callback(self, msg):
+        if self._state_update_lock.locked():
+            return
 
-            if self.mask[z_mask.X] and Sensor._xyz_offset[0] == 0:
-                Sensor._xyz_offset[0] = -self.z[z_mask.X] + sensor_position[0]
-            if self.mask[z_mask.Y] and Sensor._xyz_offset[1] == 0:
-                Sensor._xyz_offset[1] = -self.z[z_mask.Y] + sensor_position[1]
-            if self.mask[z_mask.Z] and Sensor._xyz_offset[2] == 0:
-                Sensor._xyz_offset[2] = -self.z[z_mask.Z] + sensor_position[2]
-            if not all(Sensor._xyz_offset):
-                return
-
-            h, H = ackermann.generate_h(self.mask, sensor_position)
-            self.h_dict[frame_id] = (h, H)
-
-        self.z[Sensor.Z_MASK_XYZ] += Sensor._xyz_offset
-
-        _R = self.R[self.mask, :][:, self.mask]
-        if np.any(_R) and np.all(_R.diagonal() > 0):
-            self.callback(Measurement(
-                z=self.z[self.mask],
-                R=_R,
-                h=h,
-                H=H,
-                time=time.to_sec())
-            )
-        else:
-            rospy.logwarn('Singular covariance matrix detected!')
+        with self._state_update_lock:
+            self.bounce_callable(self, msg)
 
 
 class NavSatFixSensor(Sensor):
-    def __init__(self, topic, callback, mask, get_position):
-        super().__init__(
-            callback=callback,
-            mask=mask & Sensor.Z_MASK_XYZ,
-            get_position=get_position
-        )
+    def __init__(self, params, bounce_callable, mask):
+        super().__init__(bounce_callable, mask=mask & Z_MASK_XYZ)
 
-        self.xyz_mask = np.where(Sensor.Z_MASK_XYZ)
-        self.xyz_cov_mask = np.where(Sensor.Z_MASK_XYZ *
-                                     Sensor.Z_MASK_XYZ[np.newaxis].T)
+        rospy.Subscriber(params['topic'], NavSatFix,
+                         callback=self.callback, queue_size=1)
 
-        rospy.Subscriber(topic, NavSatFix, callback=self._cb, queue_size=1)
-
-    def _cb(self, msg):
+    def set_state(self, msg, fr_id):
         x, y, *_ = utm.from_latlon(msg.latitude, msg.longitude)
-        self.z[self.xyz_mask] = (x, y, msg.altitude)
-        self.R[self.xyz_cov_mask] = msg.position_covariance
-        self._measure(msg.header.frame_id, msg.header.stamp)
+        self.z[Z_MASK_XYZ] = (x, y, msg.altitude)
+        self.R[Z_MASK_XYZ_COV] = msg.position_covariance
+
+
+class FrameId:
+    def __init__(self, frame_id, base_link, tf_buffer):
+        self.transform = tf_buffer.lookup_transform(
+            base_link,
+            frame_id,
+            rospy.Time(0.0),
+            rospy.Duration(0.5)
+        ).transform
+
+        t = self.transform.translation
+        self.translation = np.asarray([t.x, t.y, t.z])
+
+
+class MeasurementEnhancer:
+    def __init__(self, ekf):
+        self.ready = False
+        self._initial_XYZ = np.asarray([0.0, 0.0, 0.0])
+        self.ekf = ekf
+
+    def enhance_sensor(self, sensor, fr_id):
+        if not self.ready:
+            for i, j in enumerate([z_mask.X_, z_mask.Y_, z_mask.Z_]):
+                if sensor.mask[j]:
+                    self._initial_XYZ[i] = sensor.z[j] - fr_id.translation[i]
+            self.ready = np.all(self._initial_XYZ)
+
+            if not self.ready:
+                return False
+
+        sensor.z[Z_MASK_XYZ] -= self._initial_XYZ
+
+        x_yaw = self.ekf.x[x_mask.Yaw_]
+        z_yaw = sensor.z[z_mask.Yaw_]
+        sensor.z[z_mask.Yaw_] += round((x_yaw - z_yaw) / tau) * tau
+
+        return True
 
 
 def main():
     rospy.init_node('ackermann_ekf')
 
     Q_default = np.eye(ackermann.x_size) * 1e1
-    Q_default[x_mask.X, x_mask.X] = 1e-3,
-    Q_default[x_mask.Y, x_mask.Y] = 1e-3,
-    Q_default[x_mask.Z, x_mask.Z] = 1e-3,
-    Q_default[x_mask.speed, x_mask.speed] = 1e-2,
-    Q_default[x_mask.accel, x_mask.accel] = 1e-1,
-    Q_default[x_mask.Roll, x_mask.Roll] = 1e-2,
-    Q_default[x_mask.Pitch, x_mask.Pitch] = 1e-2,
-    Q_default[x_mask.Yaw, x_mask.Yaw] = 1e-2,
-    Q_default[x_mask.droll_dx, x_mask.droll_dx] = 1e-1,
-    Q_default[x_mask.dpitch_dx, x_mask.dpitch_dx] = 1e-1,
-    Q_default[x_mask.dyaw_dx, x_mask.dyaw_dx] = 1e-1
+    Q_default[x_mask.X_, x_mask.X_] = 1e-3
+    Q_default[x_mask.Y_, x_mask.Y_] = 1e-3
+    Q_default[x_mask.Z_, x_mask.Z_] = 1e-3
+    Q_default[x_mask.speed_, x_mask.speed_] = 1e-2
+    Q_default[x_mask.accel_, x_mask.accel_] = 1e-1
+    Q_default[x_mask.Roll_, x_mask.Roll_] = 1e-2
+    Q_default[x_mask.Pitch_, x_mask.Pitch_] = 1e-2
+    Q_default[x_mask.Yaw_, x_mask.Yaw_] = 1e-2
+    Q_default[x_mask.droll_dx_, x_mask.droll_dx_] = 1e-1
+    Q_default[x_mask.dpitch_dx_, x_mask.dpitch_dx_] = 1e-1
+    Q_default[x_mask.dyaw_dx_, x_mask.dyaw_dx_] = 1e-1
 
     ekf = EKF(
         x=rospy.get_param('~x', None) or np.zeros((ackermann.x_size, )),
@@ -115,55 +126,114 @@ def main():
     tf2_ros.TransformListener(tf_buffer)
 
     base_link = rospy.get_param('~base_link', 'base_link')
-    def get_position(frame_id, stamp):
-        try:
-            translation = tf_buffer.lookup_transform(
-                base_link,
-                frame_id,
-                stamp,
-                rospy.Duration(0.5)
-            ).transform.translation
-            return np.asarray([translation.x, translation.y, translation.z])
-        except (tf2_ros.LookupException,
-                tf2_ros.ConnectivityException,
-                tf2_ros.ExtrapolationException,
-                AttributeError) as e:
-            rospy.logwarn(str(e))
-            return None
+    map_frame = rospy.get_param('~map_frame', 'map')
 
-    def cb(measurement):
+    fr_ids = {}
+    measurement_enhancer = MeasurementEnhancer(ekf)
+
+    def callback(sensor, msg):
+        fr_id = fr_ids.get(msg.header.frame_id)
+        if not fr_id:
+            try:
+                fr_id = FrameId(msg.header.frame_id, base_link, tf_buffer)
+                fr_ids[msg.header.frame_id] = fr_id
+            except (tf2_ros.LookupException,
+                    tf2_ros.ConnectivityException,
+                    tf2_ros.ExtrapolationException,
+                    AttributeError) as e:
+                return
+
+        sensor.set_state(msg, fr_id)
+
+        if not measurement_enhancer.enhance_sensor(sensor, fr_id):
+            return
+
+        R = sensor.R[sensor.mask, :][:, sensor.mask]
+        if np.any(R.diagonal() <= 0):
+            rospy.logwarn('Singular covariance matrix detected!')
+            return
+
         with ekf_lock:
-            ekf.queue_measurement(measurement)
+            ekf.process_measurement(Measurement(
+                z=sensor.z[sensor.mask],
+                R=R,
+                h=lambda x: sensor.h(x, fr_id.translation),
+                H=lambda x: sensor.H(x, fr_id.translation),
+                time=msg.header.stamp.to_sec()
+            ))
+
+            ekf.x[x_mask.Pitch_] = np.clip(ekf.x[x_mask.Pitch_], -0.01, 0.01)
+            ekf.x[x_mask.Roll_] = np.clip(ekf.x[x_mask.Roll], -0.01, 0.01)
+            ekf.x[x_mask.droll_dx] = 0.0
+            ekf.x[x_mask.dpitch_dx] = 0.0
+            ekf.x[x_mask.dyaw_dx] = 0.0
 
     for sensor in rospy.get_param('~sensors', []):
         mask = rospy.get_param('~mask', [True] * ackermann.z_size)
 
         if sensor['type'] == 'sensor_msgs/NavSatFix':
-            NavSatFixSensor(sensor['topic'], cb, mask, get_position)
+            NavSatFixSensor(sensor, callback, mask)
         else:
             raise ValueError(f'Unknown sensor type {sensor["type"]}')
 
-    # TODO
-    import time
-    T = 0.0
-    n = 0
+    br = tf2_ros.TransformBroadcaster()
+    t = TransformStamped()
+    t.header.frame_id = map_frame
+    t.child_frame_id = base_link
 
+    odom_pub = rospy.Publisher('odom', Odometry, queue_size=10)
+    odom = Odometry()
+    odom.header.frame_id = map_frame
+    odom.child_frame_id = base_link
+
+    last_time = ekf.time
     rate = rospy.Rate(rospy.get_param('~frequency', 30.0))
     while not rospy.is_shutdown():
-        # TODO
-        T -= time.time()
-        with ekf_lock:
-            ekf.process_measurements()
-            if ekf.temp:
-                n += 1
-        T += time.time()
-        if ekf.temp:
-            n += 1
-        else:
-            T = 0
-        print(T / (n + 1))
+        if ekf.time > last_time:
+            q = euler2quat(ekf.x[x_mask.Roll_],
+                        ekf.x[x_mask.Pitch_],
+                        ekf.x[x_mask.Yaw_])
+            t.header.stamp = rospy.Time(ekf.time)
+            t.transform.translation.x = ekf.x[x_mask.X_]
+            t.transform.translation.y = ekf.x[x_mask.Y_]
+            t.transform.translation.z = ekf.x[x_mask.Z_]
+            t.transform.rotation.x = q[1]
+            t.transform.rotation.y = q[2]
+            t.transform.rotation.z = q[3]
+            t.transform.rotation.w = q[0]
 
-        # rate.sleep()
+            br.sendTransform(t)
+
+            odom.pose.pose.position.x = ekf.x[x_mask.X_]
+            odom.pose.pose.position.y = ekf.x[x_mask.Y_]
+            odom.pose.pose.position.z = ekf.x[x_mask.Z_]
+            odom.pose.pose.orientation = t.transform.rotation
+            odom.pose.covariance = ekf.P[X_MASK_XYZRPY_COV].tolist()
+
+            speed = ekf.x[x_mask.speed_]
+            Pspeed = ekf.P[x_mask.speed_, x_mask.speed_]
+            odom.twist.twist.linear.x = speed
+            odom.twist.twist.angular.x = ekf.x[x_mask.droll_dx_] * speed
+            odom.twist.twist.angular.y = ekf.x[x_mask.dpitch_dx_] * speed
+            odom.twist.twist.angular.z = ekf.x[x_mask.dyaw_dx_] * speed
+            # Math is hard... This covariance is just guessed and not rigorous
+            # in any way whatsoever: We e.g. use only a diagonal matrix
+            odom.twist.covariance = [0.0] * 36
+            odom.twist.covariance[0] = ekf.P[x_mask.speed_, x_mask.speed_]
+            odom.twist.covariance[7] = 1e-6
+            odom.twist.covariance[14] = 1e-6
+            odom.twist.covariance[21] = ekf.P[x_mask.Roll_, x_mask.Roll_] * \
+                speed**2 + Pspeed * ekf.x[x_mask.Roll_]**2
+            odom.twist.covariance[28] = ekf.P[x_mask.Pitch_, x_mask.Pitch_] * \
+                speed**2 + Pspeed * ekf.x[x_mask.Pitch_]**2
+            odom.twist.covariance[35] = ekf.P[x_mask.Yaw_, x_mask.Yaw_] * \
+                speed**2 + Pspeed * ekf.x[x_mask.Yaw_]**2
+
+            odom_pub.publish(odom)
+
+            last_time = ekf.time
+
+        rate.sleep()
 
 
 if __name__ == '__main__':

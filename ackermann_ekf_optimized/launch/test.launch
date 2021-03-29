@@ -2,7 +2,9 @@
     <arg name="robot" default="$(find twizy_description)/robot/twizy.py" />
 
     <param name="robot_description" command="$(arg robot) urdf" />
-    
+
+    <node pkg="joint_state_publisher" type="joint_state_publisher" name="joint_state_publisher" required="true" />
+
     <node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher" required="true" />
 
     <node pkg="ackermann_ekf_optimized" type="ackermann_ekf" name="ackermann_ekf" required="true" output="screen">

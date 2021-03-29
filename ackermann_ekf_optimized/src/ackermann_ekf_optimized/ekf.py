@@ -1,5 +1,4 @@
 import numpy as np
-import heapq
 
 
 class Measurement:
@@ -24,23 +23,13 @@ class EKF:
         self.Q = np.asarray(Q)
         self.time = time
 
-        self.temp = None
+    def process_measurement(self, measurement):
+        dt = measurement.time - self.time
+        if dt > 0:
+            self.time = measurement.time
+            self._predict(dt)
 
-    def queue_measurement(self, measurement):
-        heapq.heappush(self.measurements, measurement)
-
-    def process_measurements(self):
-        self.temp = None if not self.measurements else self.measurements[0]
-        while len(self.measurements) > 0:
-            measurement = heapq.heappop(self.measurements)
-
-            dt = measurement.time - self.time
-            if dt > 0:
-                self.time = measurement.time
-
-            self._correct(measurement)
-        if self.temp:
-            self.measurements.append(self.temp)
+        self._correct(measurement)
 
     def _predict(self, dt):
         self.x = self.f(self.x, dt)
