@@ -37,7 +37,7 @@ struct Measurement {
 
 struct State {
   public:
-    enum StateIndex : int {
+    enum Index : int {
         X,
         Y,
         Z,

@@ -4,17 +4,20 @@
 #include "ackermann_ekf_cpp/sensor.h"
 #include "ackermann_ekf_cpp/sensor_array.h"
 
-#include <sensor_msgs/NavSatFix.h>
 #include <array>
+#include <sensor_msgs/NavSatFix.h>
 #include <string>
 
 namespace ackermann_ekf {
-class NavSatFixSensor : public Sensor<sensor_msgs::NavSatFix> {
+class NavSatFixSensor : public Sensor {
+  private:
+    std::string topic_;
+
   public:
     NavSatFixSensor(const SensorArray &sensor_array,
-                    std::array<bool, MEASUREMENT_SIZE> fuse);
+                    const XmlRpc::XmlRpcValue &params);
 
-    void callback(const sensor_msgs::NavSatFix &msg);
+    void initialize(const ros::NodeHandle &nh);
 };
 } // namespace ackermann_ekf
 

@@ -27,30 +27,13 @@ void SensorArray::initialize() {
             continue;
         }
 
-        std::string topic = sensors[i]["topic"];
         std::string type = sensors[i]["type"];
-
-        if (topic.empty() || type.empty()) {
-            ROS_WARN("Missing either topic or type for sensor");
-            continue;
-        }
-
-        std::array<bool, MEASUREMENT_SIZE> mask;
-        if (sensors[i].hasMember("mask")) {
-            XmlRpc::XmlRpcValue mask_list = sensors[i]["mask"];
-            ROS_ASSERT(mask_list.getType() == XmlRpc::XmlRpcValue::TypeArray);
-            for (int j = 0; j < MEASUREMENT_SIZE; j++) {
-                mask[j] = static_cast<bool>(mask_list[j]);
-            }
-        } else {
-            for (int j = 0; j < MEASUREMENT_SIZE; j++) {
-                mask[j] = true;
-            }
-        }
-
         if (type == "sensor_msgs/NavSatFix") {
-            std::cout << "Creating NavSatFix sensor" << std::endl;
-            NavSatFixSensor(*this, mask);
+            NavSatFixSensor s(*this, sensors[i]);
+            s.initialize(nh_);
+        } else {
+            ROS_WARN("Unknown sensor type %s", static_cast<std::string>(type).c_str());
+            continue;
         }
     }
 }

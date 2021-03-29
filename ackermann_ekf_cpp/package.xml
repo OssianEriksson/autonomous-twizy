@@ -50,7 +50,8 @@
   <!--   <doc_depend>doxygen</doc_depend> -->
   <buildtool_depend>catkin</buildtool_depend>
   <depend>roscpp</depend>
-  <depend>eigen_conversions</depend>
+  <depend>eigen</depend>
+  <depend>geographiclib</depend>
   <depend>geometry_msgs</depend>
   <depend>tf2_ros</depend>
 
