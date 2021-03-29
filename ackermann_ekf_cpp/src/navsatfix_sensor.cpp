@@ -4,8 +4,8 @@
 namespace ackermann_ekf
 {
     NavSatFixSensor::NavSatFixSensor(const SensorArray &sensor_array,
-                                     const XmlRpc::XmlRpcValue &params)
-        : Sensor(sensor_array, params)
+                                     std::array<bool, MEASUREMENT_SIZE> fuse)
+        : Sensor(sensor_array, fuse)
     {
     }
 }

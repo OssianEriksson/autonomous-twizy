@@ -6,14 +6,14 @@
 #include "ackermann_ekf_cpp/sensor_array.h"
 
 #include <string>
+#include <array>
 
 namespace ackermann_ekf
 {
     class NavSatFixSensor : public Sensor
     {
     public:
-        NavSatFixSensor(const SensorArray &sensor_array,
-                        const XmlRpc::XmlRpcValue &params);
+        NavSatFixSensor(const SensorArray &sensor_array, std::array<bool, MEASUREMENT_SIZE> fuse);
     };
 }
 

@@ -181,7 +181,7 @@ namespace ackermann_ekf
         Eigen::VectorXd y(MEASUREMENT_SIZE);
         for (int i = 0; i < MEASUREMENT_SIZE; i++)
         {
-            if (R(i, i) < 0)
+            if (R(i, i) <= 0)
             {
                 y(i) = 0.0;
 

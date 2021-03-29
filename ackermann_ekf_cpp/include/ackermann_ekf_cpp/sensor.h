@@ -5,7 +5,7 @@
 #include "ackermann_ekf_cpp/ackermann_ekf.h"
 
 #include <geometry_msgs/TransformStamped.h>
-#include <string>
+#include <array>
 
 namespace ackermann_ekf
 {
@@ -16,13 +16,13 @@ namespace ackermann_ekf
 
         Measurement measurement_;
 
-        bool fuse_[MEASUREMENT_SIZE];
+        std::array<bool, MEASUREMENT_SIZE> fuse_;
 
         std::string topic_;
 
         geometry_msgs::TransformStamped transform_;
 
-        Sensor(const SensorArray &sensor_array, const XmlRpc::XmlRpcValue &params);
+        Sensor(const SensorArray &sensor_array, std::array<bool, MEASUREMENT_SIZE> fuse);
     };
 }
 

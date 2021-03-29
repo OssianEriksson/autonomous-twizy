@@ -1,4 +1,5 @@
 #include "ackermann_ekf_cpp/sensor_array.h"
+#include "ackermann_ekf_cpp/navsatfix_sensor.h"
 
 #include <ros/ros.h>
 #include <tf2_ros/transform_listener.h>
@@ -14,8 +15,8 @@ namespace ackermann_ekf
         : filter_(),
           nh_(nh),
           nh_private_(nh_private),
-          tf_buffer_(),
-          tf_listener_(tf_buffer_),
+          tf_buffer_(*new tf2_ros::Buffer),
+          tf_listener_(*new tf2_ros::TransformListener(tf_buffer_)),
           base_link_("base_link"),
           frequency_(30.0)
     {
@@ -46,6 +47,29 @@ namespace ackermann_ekf
             {
                 ROS_WARN("Missing either topic or type for sensor");
                 continue;
+            }
+
+            std::array<bool, MEASUREMENT_SIZE> mask;
+            if (sensors[i].hasMember("mask"))
+            {
+                XmlRpc::XmlRpcValue mask_list = sensors[i]["mask"];
+                ROS_ASSERT(mask_list.getType() == XmlRpc::XmlRpcValue::TypeArray);
+                for (int j = 0; j < MEASUREMENT_SIZE; j++)
+                {
+                    mask[j] = static_cast<bool>(mask_list[j]);
+                }
+            }
+            else
+            {
+                for (int j = 0; j < MEASUREMENT_SIZE; j++)
+                {
+                    mask[j] = true;
+                }
+            }
+
+            if (type == "sensor_msgs/NavSatFix") {
+                std::cout << "Creating NavSatFix sensor" << std::endl;
+                NavSatFixSensor(*this, mask);
             }
         }
     }

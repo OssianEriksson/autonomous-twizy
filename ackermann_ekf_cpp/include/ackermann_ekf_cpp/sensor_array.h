@@ -19,9 +19,9 @@ namespace ackermann_ekf
 
         ros::NodeHandle nh_private_;
 
-        tf2_ros::Buffer tf_buffer_;
+        tf2_ros::Buffer &tf_buffer_;
 
-        tf2_ros::TransformListener tf_listener_;
+        tf2_ros::TransformListener &tf_listener_;
 
         std::string base_link_;
 
@@ -30,7 +30,7 @@ namespace ackermann_ekf
     public:
         SensorArray(const ros::NodeHandle &nh,
                     const ros::NodeHandle &nh_private);
-        
+
         void initialize();
 
         bool update_transform(const std::string &frame_id,
