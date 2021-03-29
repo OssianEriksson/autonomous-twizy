@@ -1,8 +1,8 @@
 #ifndef ACKERMANN_EKF_SENSOR
 #define ACKERMANN_EKF_SENSOR
 
-#include "ackermann_ekf_cpp/ackermann_ekf.h"
 #include "ackermann_ekf_cpp/sensor_array.h"
+#include "ackermann_ekf_cpp/ackermann_ekf.h"
 
 #include <array>
 #include <geometry_msgs/TransformStamped.h>

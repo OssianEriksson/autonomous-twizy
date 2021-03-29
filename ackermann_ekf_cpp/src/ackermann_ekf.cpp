@@ -1,8 +1,5 @@
 #include "ackermann_ekf_cpp/ackermann_ekf.h"
 
-#include <Eigen/Dense>
-#include <math.h>
-
 namespace ackermann_ekf {
 AckermannEkf::AckermannEkf()
     : x_(STATE_SIZE),

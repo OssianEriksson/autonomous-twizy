@@ -1,13 +1,6 @@
 #include "ackermann_ekf_cpp/sensor_array.h"
 #include "ackermann_ekf_cpp/navsatfix_sensor.h"
 
-#include <iostream>
-#include <map>
-#include <ros/ros.h>
-#include <string>
-#include <tf2_ros/transform_listener.h>
-#include <vector>
-
 namespace ackermann_ekf {
 SensorArray::SensorArray(const ros::NodeHandle &nh,
                          const ros::NodeHandle &nh_private)

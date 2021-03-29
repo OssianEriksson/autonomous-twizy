@@ -1,6 +1,6 @@
-#include <ros/ros.h>
-
 #include "ackermann_ekf_cpp/sensor_array.h"
+
+#include <ros/ros.h>
 
 int main(int argc, char **argv) {
     ros::init(argc, argv, "ackermann_ekf");

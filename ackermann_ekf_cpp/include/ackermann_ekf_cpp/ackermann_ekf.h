@@ -2,6 +2,7 @@
 #define ACKERMANN_EKF_ACKERMANN_EKF
 
 #include <Eigen/Dense>
+#include <math.h>
 
 namespace ackermann_ekf {
 struct Measurement {
