@@ -12,11 +12,11 @@
 
 namespace ackermann_ekf {
 class NavSatFixSensor : public Sensor<sensor_msgs::NavSatFix> {
-public:
-  NavSatFixSensor(const SensorArray &sensor_array,
-                  std::array<bool, MEASUREMENT_SIZE> fuse);
+  public:
+    NavSatFixSensor(const SensorArray &sensor_array,
+                    std::array<bool, MEASUREMENT_SIZE> fuse);
 
-  void callback(const sensor_msgs::NavSatFix &msg);
+    void callback(const sensor_msgs::NavSatFix &msg);
 };
 } // namespace ackermann_ekf
 

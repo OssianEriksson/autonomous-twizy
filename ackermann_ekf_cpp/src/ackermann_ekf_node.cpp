@@ -3,14 +3,14 @@
 #include "ackermann_ekf_cpp/sensor_array.h"
 
 int main(int argc, char **argv) {
-  ros::init(argc, argv, "ackermann_ekf");
+    ros::init(argc, argv, "ackermann_ekf");
 
-  ros::NodeHandle nh;
-  ros::NodeHandle nh_private("~");
+    ros::NodeHandle nh;
+    ros::NodeHandle nh_private("~");
 
-  ackermann_ekf::SensorArray ekf(nh, nh_private);
-  ekf.initialize();
-  ros::spin();
+    ackermann_ekf::SensorArray ekf(nh, nh_private);
+    ekf.initialize();
+    ros::spin();
 
-  return 0;
+    return 0;
 }

@@ -10,28 +10,28 @@
 
 namespace ackermann_ekf {
 class SensorArray {
-private:
-  AckermannEkf filter_;
+  private:
+    AckermannEkf filter_;
 
-  ros::NodeHandle nh_;
+    ros::NodeHandle nh_;
 
-  ros::NodeHandle nh_private_;
+    ros::NodeHandle nh_private_;
 
-  tf2_ros::Buffer &tf_buffer_;
+    tf2_ros::Buffer &tf_buffer_;
 
-  tf2_ros::TransformListener &tf_listener_;
+    tf2_ros::TransformListener &tf_listener_;
 
-  std::string base_link_;
+    std::string base_link_;
 
-  float frequency_;
+    float frequency_;
 
-public:
-  SensorArray(const ros::NodeHandle &nh, const ros::NodeHandle &nh_private);
+  public:
+    SensorArray(const ros::NodeHandle &nh, const ros::NodeHandle &nh_private);
 
-  void initialize();
+    void initialize();
 
-  bool update_transform(const std::string &frame_id, const ros::Time &time,
-                        geometry_msgs::TransformStamped &transform);
+    bool update_transform(const std::string &frame_id, const ros::Time &time,
+                          geometry_msgs::TransformStamped &transform);
 };
 } // namespace ackermann_ekf
 
