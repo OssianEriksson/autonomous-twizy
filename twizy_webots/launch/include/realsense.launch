@@ -1,5 +1,15 @@
 <?xml version="1.0"?>
 <launch>
+    <node pkg="twizy_webots" type="color_depth_sensor" name="front_realsense" required="true" output="screen">
+        <param name="color_device" value="front_realsense_aligned_depth_to_color_camera" />
+        <param name="depth_device" value="front_realsense_depth_camera" />
+        <param name="frame_id" value="front_realsense" />
+        <remap from="image_raw" to="camera/front/aligned_depth_to_color/image_raw" />
+        <remap from="camera_info" to="camera/front/aligned_depth_to_color/camera_info" />
+        <remap from="depth/image_raw" to="camera/front/depth/image_raw" />
+        <remap from="depth/camera_info" to="camera/front/depth/camera_info" />
+    </node>
+
     <node pkg="nodelet" type="nodelet" name="nodelet_manager" args="manager" />
     <node pkg="nodelet" type="nodelet" name="image_nodelet" args="load depth_image_proc/point_cloud_xyzrgb nodelet_manager">
         <remap from="depth_registered/camera_info" to="camera/front/depth/camera_info" />

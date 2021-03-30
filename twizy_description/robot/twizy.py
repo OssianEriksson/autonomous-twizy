@@ -109,12 +109,13 @@ def rear_wheel(lr):
                     Node('RotationalMotor', {
                         'name': f'"rear_{lr}_wheel_motor"',
                         'maxTorque': physical['max_drive_torque'],
+                        'acceleration': physical['max_acceleration'] / physical['rear_wheel']['radius'],
                         'sound': '""'
                     })
                 ]
             })
         ],
-        'translation': f'{-physical["wheelbase"] / 2.0} {(1 if lr == "left" else -1) * physical["rear_track"] / 2.0} {physical["rear_wheel"]["radius"]}'
+        'translation': f'0.0 {(1 if lr == "left" else -1) * physical["rear_track"] / 2.0} {physical["rear_wheel"]["radius"]}'
     })
 
 
@@ -133,12 +134,13 @@ def front_wheel(lr):
                     Node('RotationalMotor', {
                         'name': f'"front_{lr}_steering_motor"',
                         'maxTorque': physical['max_steering_torque'],
+                        'maxVelocity': physical['max_steering_velocity'],
                         'sound': '""'
                     })
                 ]
             })
         ],
-        'translation': f'{physical["wheelbase"] / 2.0} {(1 if lr == "left" else -1) * physical["front_track"] / 2.0} {physical["front_wheel"]["radius"]}'
+        'translation': f'{physical["wheelbase"]} {(1 if lr == "left" else -1) * physical["front_track"] / 2.0} {physical["front_wheel"]["radius"]}'
     })
 
 
@@ -148,6 +150,28 @@ def gnss(lr):
         'translation': vector(model[f'{lr}_gnss']['position']),
         'accuracy': model[f'{lr}_gnss']['accuracy']
     })
+
+
+def piksi_imu(lu):
+    transformation_fields = {
+        'translation': vector(model[f'{lu}_piksi_imu']['position']),
+        'rotation': rotation(model[f'{lu}_piksi_imu']['rotation'])
+    }
+
+    return [
+        Node('Solid', {
+            'name': f'"{lu}_piksi_imu"',
+            **transformation_fields
+        }),
+        Node('Gyro', {
+            'name': f'"{lu}_piksi_gyro"',
+            **transformation_fields
+        }, True),
+        Node('Accelerometer', {
+            'name': f'"{lu}_piksi_accelerometer"',
+            **transformation_fields
+        }, True)
+    ]
 
 
 def twizy():
@@ -163,6 +187,8 @@ def twizy():
                     }),
                     gnss('left'),
                     gnss('right'),
+                    *piksi_imu('lower'),
+                    *piksi_imu('upper'),
                     Node('Transform', {
                         'children': [
                             Node('Transform', {
@@ -210,7 +236,7 @@ def twizy():
                     ],
                     'translation': f'{physical["front_overhang"] - (physical["chassis"]["length"] - physical["wheelbase"]) * 0.5} 0.0 {physical["chassis"]["height"] * 0.5}'
                 }),
-                'translation': f'0.0 0.0 {physical["ground_clearance"]}',
+                'translation': f'{physical["wheelbase"] / 2.0} 0.0 {physical["ground_clearance"]}',
                 'rotation': f'0.0 1.0 0.0 {physical["rake"]}'
             }),
             front_wheel('left'),

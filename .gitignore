@@ -5,3 +5,9 @@
 __pycache__/
 *.py[cod]
 *$py.class
+
+# Visual Studio Code settings
+.vscode/
+
+# Clang-format:ing rules
+.clang-format
