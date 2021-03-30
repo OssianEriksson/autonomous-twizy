@@ -87,7 +87,7 @@ def main():
 
         if linear_accel:
             imu.linear_acceleration = linear_accel.linear_acceleration
-            imu.linear_acceleration_covariance = inertial_covariance
+            imu.linear_acceleration_covariance = accel_covariance
         else:
             imu.linear_acceleration_covariance = NO_DATA
 
