@@ -65,8 +65,8 @@ H = simplify(jacobian(h, state));
 
 f_str = ceigenvec(cstatevars(ccode(f), state), 'State', state);
 F_str = ceigenmat(cstatevars(ccode(F), state), 'State', state, 'State', state);
-h_str = ceigenvecn(ceigenvec(cstatevars(ccode(h), state), 'Measurement', observables), 'measurement.sensor_position_', sensor_xyz);
-H_str = ceigenvecn(ceigenmat(cstatevars(ccode(H), state), 'Measurement', observables, 'State', state), 'measurement.sensor_position_', sensor_xyz);
+h_str = ceigenvecn(ceigenvec(cstatevars(ccode(h), state), 'Measurement', observables), 'measurement.sensor_position', sensor_xyz);
+H_str = ceigenvecn(ceigenmat(cstatevars(ccode(H), state), 'Measurement', observables, 'State', state), 'measurement.sensor_position', sensor_xyz);
 
 fprintf('%s\n\n%s\n\n%s\n\n%s\n', f_str, F_str, h_str, H_str)
 

@@ -3,7 +3,7 @@ function out = cstatevars(str, state)
     [sorted, ~] = sortsyms(state);
     for var=sorted'
         c = char(var);
-        out = regexprep(out, sprintf('(?<!:)%s', c), 'x_(State::${c})');
+        out = regexprep(out, sprintf('(?<!:)%s', c), 'x(State::${c})');
     end
 end
 
