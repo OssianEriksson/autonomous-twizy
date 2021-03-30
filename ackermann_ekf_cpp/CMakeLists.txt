@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.0.2)
 project(ackermann_ekf_cpp)
 
 ## Compile as C++11, supported in ROS Kinetic and newer
-add_compile_options(-std=c++11) # -O3 -DNDEBUG)
+add_compile_options(-std=c++11 -O3 -DNDEBUG)
 
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
@@ -134,6 +134,7 @@ add_library(ackermann_ekf
   src/sensor_array.cpp
   src/sensor.cpp
   src/navsatfix_sensor.cpp
+  src/imu_sensor.cpp
 )
 
 ## Add cmake target dependencies of the library

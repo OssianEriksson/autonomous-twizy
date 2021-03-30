@@ -1,5 +1,6 @@
 #include "ackermann_ekf_cpp/sensor.h"
 #include "ackermann_ekf_cpp/ackermann_ekf.h"
+#include "ackermann_ekf_cpp/imu_sensor.h"
 #include "ackermann_ekf_cpp/navsatfix_sensor.h"
 #include "ackermann_ekf_cpp/sensor_array.h"
 

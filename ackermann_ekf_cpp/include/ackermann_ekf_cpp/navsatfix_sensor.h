@@ -9,7 +9,6 @@
 #include <geometry_msgs/TransformStamped.h>
 #include <ros/ros.h>
 #include <sensor_msgs/NavSatFix.h>
-#include <nav_msgs/Odometry.h>
 #include <string>
 
 namespace ackermann_ekf {

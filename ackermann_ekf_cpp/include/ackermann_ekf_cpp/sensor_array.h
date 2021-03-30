@@ -7,6 +7,7 @@
 #include <Eigen/Dense>
 #include <boost/ptr_container/ptr_vector.hpp>
 #include <geometry_msgs/TransformStamped.h>
+#include <nav_msgs/Odometry.h>
 #include <ros/ros.h>
 #include <std_msgs/Header.h>
 #include <string>
