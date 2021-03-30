@@ -109,6 +109,7 @@ def rear_wheel(lr):
                     Node('RotationalMotor', {
                         'name': f'"rear_{lr}_wheel_motor"',
                         'maxTorque': physical['max_drive_torque'],
+                        'acceleration': physical['max_acceleration'] / physical['rear_wheel']['radius'],
                         'sound': '""'
                     })
                 ]
@@ -133,6 +134,7 @@ def front_wheel(lr):
                     Node('RotationalMotor', {
                         'name': f'"front_{lr}_steering_motor"',
                         'maxTorque': physical['max_steering_torque'],
+                        'maxVelocity': physical['max_steering_velocity'],
                         'sound': '""'
                     })
                 ]
