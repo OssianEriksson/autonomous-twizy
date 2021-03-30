@@ -168,7 +168,7 @@ bool SensorArray::get_transform(geometry_msgs::TransformStamped &transform,
                                 const std_msgs::Header &header) {
     try {
         transform = tf_buffer_.lookupTransform(base_link_, header.frame_id,
-                                               header.stamp);
+                                               ros::Time(0));
     } catch (tf2::TransformException &ex) {
         ROS_WARN("%s", ex.what());
         return false;

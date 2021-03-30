@@ -115,7 +115,7 @@ def rear_wheel(lr):
                 ]
             })
         ],
-        'translation': f'{-physical["wheelbase"] / 2.0} {(1 if lr == "left" else -1) * physical["rear_track"] / 2.0} {physical["rear_wheel"]["radius"]}'
+        'translation': f'0.0 {(1 if lr == "left" else -1) * physical["rear_track"] / 2.0} {physical["rear_wheel"]["radius"]}'
     })
 
 
@@ -140,7 +140,7 @@ def front_wheel(lr):
                 ]
             })
         ],
-        'translation': f'{physical["wheelbase"] / 2.0} {(1 if lr == "left" else -1) * physical["front_track"] / 2.0} {physical["front_wheel"]["radius"]}'
+        'translation': f'{physical["wheelbase"]} {(1 if lr == "left" else -1) * physical["front_track"] / 2.0} {physical["front_wheel"]["radius"]}'
     })
 
 
@@ -236,7 +236,7 @@ def twizy():
                     ],
                     'translation': f'{physical["front_overhang"] - (physical["chassis"]["length"] - physical["wheelbase"]) * 0.5} 0.0 {physical["chassis"]["height"] * 0.5}'
                 }),
-                'translation': f'0.0 0.0 {physical["ground_clearance"]}',
+                'translation': f'{physical["wheelbase"] / 2.0} 0.0 {physical["ground_clearance"]}',
                 'rotation': f'0.0 1.0 0.0 {physical["rake"]}'
             }),
             front_wheel('left'),
