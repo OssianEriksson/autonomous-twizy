@@ -15,5 +15,5 @@ global_costmap:
   # away-from-the-robot/) but has apparently not been fixed for our case
   width: 100.0
   height: 100.0
-  resolution: 10.0
+  resolution: 2.0
   

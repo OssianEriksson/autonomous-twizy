@@ -1,6 +1,6 @@
 TebLocalPlannerROS:
 
- odom_topic: /odom
+ odom_topic: /odom #subscribes local_planner to ros odometry topic
     
  # Trajectory
   
@@ -18,7 +18,7 @@ TebLocalPlannerROS:
  publish_feedback: False                  # Publish planner feedback containing the full trajectory and a list of active obstacles (should be enabled only for evaluation or debugging)
     
  # Robot
-               
+
  max_vel_x: 1.38            # Maximum veolicty in positive x-direction [m/s]
  max_vel_x_backwards: 1.38  # Maximum veolicty in negative x-direction [m/s]
  max_vel_y: 0.0             # Maximum veolicty in y-direction [m/s] (set to 0 for car-like vehicles)
@@ -33,9 +33,12 @@ TebLocalPlannerROS:
  # ********************************************************************
 
  footprint_model: # types: "point", "circular", "two_circles", "line", "polygon"
-   type: "line"
+   type: "line"           
    line_start: [1.0, 0.0] # for type "line"
    line_end: [-1.0, 0.0] # for type "line"
+
+#    type: "circular"
+#    radius: "1.0"
    
  # GoalTolerance
     

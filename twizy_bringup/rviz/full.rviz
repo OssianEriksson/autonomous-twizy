@@ -144,7 +144,7 @@ Visualization Manager:
       Buffer Length: 1
       Class: rviz/Path
       Color: 25; 255; 0
-      Enabled: false
+      Enabled: true
       Head Diameter: 0.30000001192092896
       Head Length: 0.20000000298023224
       Length: 0.30000001192092896
@@ -168,13 +168,14 @@ Visualization Manager:
       Buffer Length: 1
       Class: rviz/Path
       Color: 25; 255; 0
-      Enabled: false
+      Enabled: true
       Head Diameter: 0.30000001192092896
       Head Length: 0.20000000298023224
       Length: 0.30000001192092896
       Line Style: Lines
       Line Width: 0.029999999329447746
       Name: TEB global plan
+      Color: 255; 0; 0;
       Offset:
         X: 0
         Y: 0
@@ -192,12 +193,13 @@ Visualization Manager:
       Class: rviz/Map
       Color Scheme: map
       Draw Behind: false
-      Enabled: false
+      Enabled: true
       Name: Local map
       Topic: /move_base/local_costmap/costmap
       Unreliable: false
       Use Timestamp: false
       Value: false
+      Enabled: true
   Enabled: true
   Global Options:
     Background Color: 48; 48; 48
