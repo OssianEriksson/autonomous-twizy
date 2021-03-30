@@ -3,7 +3,6 @@
 
 #include "ackermann_ekf_cpp/ackermann_ekf.h"
 
-#include <array>
 #include <geometry_msgs/TransformStamped.h>
 #include <ros/ros.h>
 

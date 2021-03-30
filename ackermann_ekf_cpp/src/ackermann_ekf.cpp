@@ -5,34 +5,34 @@
 
 namespace ackermann_ekf {
 AckermannEkf::AckermannEkf(double time)
-    : x_(STATE_SIZE),
-      P_(STATE_SIZE, STATE_SIZE),
-      Q_(STATE_SIZE, STATE_SIZE),
-      time_(time) {
-    x_.setZero();
-    P_.setIdentity();
+    : x(STATE_SIZE),
+      P(STATE_SIZE, STATE_SIZE),
+      Q(STATE_SIZE, STATE_SIZE),
+      time(time) {
+    x.setZero();
+    P.setIdentity();
 
-    Q_.setZero();
-    Q_(State::X, State::X) = 1e-3;
-    Q_(State::Y, State::Y) = 1e-3;
-    Q_(State::Z, State::Z) = 1e-3;
-    Q_(State::speed, State::speed) = 1e-2;
-    Q_(State::accel, State::accel) = 1e-1;
-    Q_(State::Roll, State::Roll) = 1e-2;
-    Q_(State::Pitch, State::Pitch) = 1e-2;
-    Q_(State::Yaw, State::Yaw) = 1e-2;
-    Q_(State::dpitch_dx, State::dpitch_dx) = 1e-1;
-    Q_(State::dyaw_dx, State::dyaw_dx) = 1e-1;
-    Q_(State::droll_dx, State::droll_dx) = 1e-1;
+    Q.setZero();
+    Q(State::X, State::X) = 1e-3;
+    Q(State::Y, State::Y) = 1e-3;
+    Q(State::Z, State::Z) = 1e-3;
+    Q(State::speed, State::speed) = 1e-2;
+    Q(State::accel, State::accel) = 1e-1;
+    Q(State::Roll, State::Roll) = 1e-2;
+    Q(State::Pitch, State::Pitch) = 1e-2;
+    Q(State::Yaw, State::Yaw) = 1e-2;
+    Q(State::dpitch_dx, State::dpitch_dx) = 1e-1;
+    Q(State::dyaw_dx, State::dyaw_dx) = 1e-1;
+    Q(State::droll_dx, State::droll_dx) = 1e-1;
 }
 
 void AckermannEkf::process_measurement(const Measurement &measurement) {
-    double dt = measurement.time_ - time_;
+    double dt = measurement.time - time;
 
     if (dt > 0) {
         predict(dt);
 
-        time_ = measurement.time_;
+        time = measurement.time;
     }
 
     correct(measurement);
@@ -41,158 +41,153 @@ void AckermannEkf::process_measurement(const Measurement &measurement) {
 void AckermannEkf::predict(double dt) {
     Eigen::VectorXd f(STATE_SIZE);
     Eigen::MatrixXd F(STATE_SIZE, STATE_SIZE);
+    f.setZero();
+    F.setZero();
 
     // clang-format off
 
-    f(State::X) = x_(State::X) - ((dt * dt) * (x_(State::speed) * (x_(State::dpitch_dx) * x_(State::speed) * (sin(x_(State::Roll)) * sin(x_(State::Yaw)) + cos(x_(State::Roll)) * cos(x_(State::Yaw)) * sin(x_(State::Pitch))) + x_(State::dyaw_dx) * x_(State::speed) * (cos(x_(State::Roll)) * sin(x_(State::Yaw)) - cos(x_(State::Yaw)) * sin(x_(State::Pitch)) * sin(x_(State::Roll)))) - x_(State::accel) * cos(x_(State::Pitch)) * cos(x_(State::Yaw)))) / 2.0 + dt * x_(State::speed) * cos(x_(State::Pitch)) * cos(x_(State::Yaw));
-    f(State::Y) = x_(State::Y) + ((dt * dt) * (x_(State::speed) * (x_(State::dpitch_dx) * x_(State::speed) * (cos(x_(State::Yaw)) * sin(x_(State::Roll)) - cos(x_(State::Roll)) * sin(x_(State::Pitch)) * sin(x_(State::Yaw))) + x_(State::dyaw_dx) * x_(State::speed) * (cos(x_(State::Roll)) * cos(x_(State::Yaw)) + sin(x_(State::Pitch)) * sin(x_(State::Roll)) * sin(x_(State::Yaw)))) + x_(State::accel) * cos(x_(State::Pitch)) * sin(x_(State::Yaw)))) / 2.0 + dt * x_(State::speed) * cos(x_(State::Pitch)) * sin(x_(State::Yaw));
-    f(State::Z) = x_(State::Z) - ((dt * dt) * (x_(State::speed) * (x_(State::dpitch_dx) * x_(State::speed) * cos(x_(State::Pitch)) * cos(x_(State::Roll)) - x_(State::dyaw_dx) * x_(State::speed) * cos(x_(State::Pitch)) * sin(x_(State::Roll))) + x_(State::accel) * sin(x_(State::Pitch)))) / 2.0 - dt * x_(State::speed) * sin(x_(State::Pitch));
-    f(State::speed) = x_(State::speed) + x_(State::accel) * dt;
-    f(State::accel) = x_(State::accel);
-    f(State::Roll) = (x_(State::Roll) * cos(x_(State::Pitch)) + x_(State::droll_dx) * dt * x_(State::speed) * cos(x_(State::Pitch)) + dt * x_(State::dyaw_dx) * x_(State::speed) * cos(x_(State::Roll)) * sin(x_(State::Pitch)) + x_(State::dpitch_dx) * dt * x_(State::speed) * sin(x_(State::Pitch)) * sin(x_(State::Roll))) / cos(x_(State::Pitch));
-    f(State::Pitch) = x_(State::Pitch) + dt * x_(State::speed) * (x_(State::dpitch_dx) * cos(x_(State::Roll)) - x_(State::dyaw_dx) * sin(x_(State::Roll)));
-    f(State::Yaw) = (x_(State::Yaw) * cos(x_(State::Pitch)) + dt * x_(State::dyaw_dx) * x_(State::speed) * cos(x_(State::Roll)) + x_(State::dpitch_dx) * dt * x_(State::speed) * sin(x_(State::Roll))) / cos(x_(State::Pitch));
-    f(State::droll_dx) = x_(State::droll_dx);
-    f(State::dpitch_dx) = x_(State::dpitch_dx);
-    f(State::dyaw_dx) = x_(State::dyaw_dx);
+    f(State::X) = x(State::X) - ((dt * dt) * (x(State::speed) * (x(State::dpitch_dx) * x(State::speed) * (sin(x(State::Roll)) * sin(x(State::Yaw)) + cos(x(State::Roll)) * cos(x(State::Yaw)) * sin(x(State::Pitch))) + x(State::dyaw_dx) * x(State::speed) * (cos(x(State::Roll)) * sin(x(State::Yaw)) - cos(x(State::Yaw)) * sin(x(State::Pitch)) * sin(x(State::Roll)))) - x(State::accel) * cos(x(State::Pitch)) * cos(x(State::Yaw)))) / 2.0 + dt * x(State::speed) * cos(x(State::Pitch)) * cos(x(State::Yaw));
+    f(State::Y) = x(State::Y) + ((dt * dt) * (x(State::speed) * (x(State::dpitch_dx) * x(State::speed) * (cos(x(State::Yaw)) * sin(x(State::Roll)) - cos(x(State::Roll)) * sin(x(State::Pitch)) * sin(x(State::Yaw))) + x(State::dyaw_dx) * x(State::speed) * (cos(x(State::Roll)) * cos(x(State::Yaw)) + sin(x(State::Pitch)) * sin(x(State::Roll)) * sin(x(State::Yaw)))) + x(State::accel) * cos(x(State::Pitch)) * sin(x(State::Yaw)))) / 2.0 + dt * x(State::speed) * cos(x(State::Pitch)) * sin(x(State::Yaw));
+    f(State::Z) = x(State::Z) - ((dt * dt) * (x(State::speed) * (x(State::dpitch_dx) * x(State::speed) * cos(x(State::Pitch)) * cos(x(State::Roll)) - x(State::dyaw_dx) * x(State::speed) * cos(x(State::Pitch)) * sin(x(State::Roll))) + x(State::accel) * sin(x(State::Pitch)))) / 2.0 - dt * x(State::speed) * sin(x(State::Pitch));
+    f(State::speed) = x(State::speed) + x(State::accel) * dt;
+    f(State::accel) = x(State::accel);
+    f(State::Roll) = (x(State::Roll) * cos(x(State::Pitch)) + x(State::droll_dx) * dt * x(State::speed) * cos(x(State::Pitch)) + dt * x(State::dyaw_dx) * x(State::speed) * cos(x(State::Roll)) * sin(x(State::Pitch)) + x(State::dpitch_dx) * dt * x(State::speed) * sin(x(State::Pitch)) * sin(x(State::Roll))) / cos(x(State::Pitch));
+    f(State::Pitch) = x(State::Pitch) + dt * x(State::speed) * (x(State::dpitch_dx) * cos(x(State::Roll)) - x(State::dyaw_dx) * sin(x(State::Roll)));
+    f(State::Yaw) = (x(State::Yaw) * cos(x(State::Pitch)) + dt * x(State::dyaw_dx) * x(State::speed) * cos(x(State::Roll)) + x(State::dpitch_dx) * dt * x(State::speed) * sin(x(State::Roll))) / cos(x(State::Pitch));
+    f(State::droll_dx) = x(State::droll_dx);
+    f(State::dpitch_dx) = x(State::dpitch_dx);
+    f(State::dyaw_dx) = x(State::dyaw_dx);
 
     F(State::X, State::X) = 1.0;
-    F(State::X, State::speed) = -dt * (-cos(x_(State::Pitch)) * cos(x_(State::Yaw)) + dt * x_(State::dyaw_dx) * x_(State::speed) * cos(x_(State::Roll)) * sin(x_(State::Yaw)) + x_(State::dpitch_dx) * dt * x_(State::speed) * sin(x_(State::Roll)) * sin(x_(State::Yaw)) + x_(State::dpitch_dx) * dt * x_(State::speed) * cos(x_(State::Roll)) * cos(x_(State::Yaw)) * sin(x_(State::Pitch)) - dt * x_(State::dyaw_dx) * x_(State::speed) * cos(x_(State::Yaw)) * sin(x_(State::Pitch)) * sin(x_(State::Roll)));
-    F(State::X, State::accel) = ((dt * dt) * cos(x_(State::Pitch)) * cos(x_(State::Yaw))) / 2.0;
-    F(State::X, State::Roll) = (dt * dt) * x_(State::speed) * (x_(State::dpitch_dx) * x_(State::speed) * (cos(x_(State::Roll)) * sin(x_(State::Yaw)) - cos(x_(State::Yaw)) * sin(x_(State::Pitch)) * sin(x_(State::Roll))) - x_(State::dyaw_dx) * x_(State::speed) * (sin(x_(State::Roll)) * sin(x_(State::Yaw)) + cos(x_(State::Roll)) * cos(x_(State::Yaw)) * sin(x_(State::Pitch)))) * (-1.0 / 2.0);
-    F(State::X, State::Pitch) = dt * cos(x_(State::Yaw)) * (x_(State::speed) * sin(x_(State::Pitch)) * 2.0 + x_(State::accel) * dt * sin(x_(State::Pitch)) + x_(State::dpitch_dx) * dt * (x_(State::speed) * x_(State::speed)) * cos(x_(State::Pitch)) * cos(x_(State::Roll)) - dt * x_(State::dyaw_dx) * (x_(State::speed) * x_(State::speed)) * cos(x_(State::Pitch)) * sin(x_(State::Roll))) * (-1.0 / 2.0);
-    F(State::X, State::Yaw) = (dt * dt) * (x_(State::speed) * (x_(State::dpitch_dx) * x_(State::speed) * (cos(x_(State::Yaw)) * sin(x_(State::Roll)) - cos(x_(State::Roll)) * sin(x_(State::Pitch)) * sin(x_(State::Yaw))) + x_(State::dyaw_dx) * x_(State::speed) * (cos(x_(State::Roll)) * cos(x_(State::Yaw)) + sin(x_(State::Pitch)) * sin(x_(State::Roll)) * sin(x_(State::Yaw)))) + x_(State::accel) * cos(x_(State::Pitch)) * sin(x_(State::Yaw))) * (-1.0 / 2.0) - dt * x_(State::speed) * cos(x_(State::Pitch)) * sin(x_(State::Yaw));
-    F(State::X, State::dpitch_dx) = (dt * dt) * (x_(State::speed) * x_(State::speed)) * (sin(x_(State::Roll)) * sin(x_(State::Yaw)) + cos(x_(State::Roll)) * cos(x_(State::Yaw)) * sin(x_(State::Pitch))) * (-1.0 / 2.0);
-    F(State::X, State::dyaw_dx) = (dt * dt) * (x_(State::speed) * x_(State::speed)) * (cos(x_(State::Roll)) * sin(x_(State::Yaw)) - cos(x_(State::Yaw)) * sin(x_(State::Pitch)) * sin(x_(State::Roll))) * (-1.0 / 2.0);
+    F(State::X, State::speed) = -dt * (-cos(x(State::Pitch)) * cos(x(State::Yaw)) + dt * x(State::dyaw_dx) * x(State::speed) * cos(x(State::Roll)) * sin(x(State::Yaw)) + x(State::dpitch_dx) * dt * x(State::speed) * sin(x(State::Roll)) * sin(x(State::Yaw)) + x(State::dpitch_dx) * dt * x(State::speed) * cos(x(State::Roll)) * cos(x(State::Yaw)) * sin(x(State::Pitch)) - dt * x(State::dyaw_dx) * x(State::speed) * cos(x(State::Yaw)) * sin(x(State::Pitch)) * sin(x(State::Roll)));
+    F(State::X, State::accel) = ((dt * dt) * cos(x(State::Pitch)) * cos(x(State::Yaw))) / 2.0;
+    F(State::X, State::Roll) = (dt * dt) * x(State::speed) * (x(State::dpitch_dx) * x(State::speed) * (cos(x(State::Roll)) * sin(x(State::Yaw)) - cos(x(State::Yaw)) * sin(x(State::Pitch)) * sin(x(State::Roll))) - x(State::dyaw_dx) * x(State::speed) * (sin(x(State::Roll)) * sin(x(State::Yaw)) + cos(x(State::Roll)) * cos(x(State::Yaw)) * sin(x(State::Pitch)))) * (-1.0 / 2.0);
+    F(State::X, State::Pitch) = dt * cos(x(State::Yaw)) * (x(State::speed) * sin(x(State::Pitch)) * 2.0 + x(State::accel) * dt * sin(x(State::Pitch)) + x(State::dpitch_dx) * dt * (x(State::speed) * x(State::speed)) * cos(x(State::Pitch)) * cos(x(State::Roll)) - dt * x(State::dyaw_dx) * (x(State::speed) * x(State::speed)) * cos(x(State::Pitch)) * sin(x(State::Roll))) * (-1.0 / 2.0);
+    F(State::X, State::Yaw) = (dt * dt) * (x(State::speed) * (x(State::dpitch_dx) * x(State::speed) * (cos(x(State::Yaw)) * sin(x(State::Roll)) - cos(x(State::Roll)) * sin(x(State::Pitch)) * sin(x(State::Yaw))) + x(State::dyaw_dx) * x(State::speed) * (cos(x(State::Roll)) * cos(x(State::Yaw)) + sin(x(State::Pitch)) * sin(x(State::Roll)) * sin(x(State::Yaw)))) + x(State::accel) * cos(x(State::Pitch)) * sin(x(State::Yaw))) * (-1.0 / 2.0) - dt * x(State::speed) * cos(x(State::Pitch)) * sin(x(State::Yaw));
+    F(State::X, State::dpitch_dx) = (dt * dt) * (x(State::speed) * x(State::speed)) * (sin(x(State::Roll)) * sin(x(State::Yaw)) + cos(x(State::Roll)) * cos(x(State::Yaw)) * sin(x(State::Pitch))) * (-1.0 / 2.0);
+    F(State::X, State::dyaw_dx) = (dt * dt) * (x(State::speed) * x(State::speed)) * (cos(x(State::Roll)) * sin(x(State::Yaw)) - cos(x(State::Yaw)) * sin(x(State::Pitch)) * sin(x(State::Roll))) * (-1.0 / 2.0);
     F(State::Y, State::Y) = 1.0;
-    F(State::Y, State::speed) = dt * (cos(x_(State::Pitch)) * sin(x_(State::Yaw)) + dt * x_(State::dyaw_dx) * x_(State::speed) * cos(x_(State::Roll)) * cos(x_(State::Yaw)) + x_(State::dpitch_dx) * dt * x_(State::speed) * cos(x_(State::Yaw)) * sin(x_(State::Roll)) - x_(State::dpitch_dx) * dt * x_(State::speed) * cos(x_(State::Roll)) * sin(x_(State::Pitch)) * sin(x_(State::Yaw)) + dt * x_(State::dyaw_dx) * x_(State::speed) * sin(x_(State::Pitch)) * sin(x_(State::Roll)) * sin(x_(State::Yaw)));
-    F(State::Y, State::accel) = ((dt * dt) * cos(x_(State::Pitch)) * sin(x_(State::Yaw))) / 2.0;
-    F(State::Y, State::Roll) = ((dt * dt) * x_(State::speed) * (x_(State::dpitch_dx) * x_(State::speed) * (cos(x_(State::Roll)) * cos(x_(State::Yaw)) + sin(x_(State::Pitch)) * sin(x_(State::Roll)) * sin(x_(State::Yaw))) - x_(State::dyaw_dx) * x_(State::speed) * (cos(x_(State::Yaw)) * sin(x_(State::Roll)) - cos(x_(State::Roll)) * sin(x_(State::Pitch)) * sin(x_(State::Yaw))))) / 2.0;
-    F(State::Y, State::Pitch) = dt * sin(x_(State::Yaw)) * (x_(State::speed) * sin(x_(State::Pitch)) * 2.0 + x_(State::accel) * dt * sin(x_(State::Pitch)) + x_(State::dpitch_dx) * dt * (x_(State::speed) * x_(State::speed)) * cos(x_(State::Pitch)) * cos(x_(State::Roll)) - dt * x_(State::dyaw_dx) * (x_(State::speed) * x_(State::speed)) * cos(x_(State::Pitch)) * sin(x_(State::Roll))) * (-1.0 / 2.0);
-    F(State::Y, State::Yaw) = (dt * dt) * (x_(State::speed) * (x_(State::dpitch_dx) * x_(State::speed) * (sin(x_(State::Roll)) * sin(x_(State::Yaw)) + cos(x_(State::Roll)) * cos(x_(State::Yaw)) * sin(x_(State::Pitch))) + x_(State::dyaw_dx) * x_(State::speed) * (cos(x_(State::Roll)) * sin(x_(State::Yaw)) - cos(x_(State::Yaw)) * sin(x_(State::Pitch)) * sin(x_(State::Roll)))) - x_(State::accel) * cos(x_(State::Pitch)) * cos(x_(State::Yaw))) * (-1.0 / 2.0) + dt * x_(State::speed) * cos(x_(State::Pitch)) * cos(x_(State::Yaw));
-    F(State::Y, State::dpitch_dx) = ((dt * dt) * (x_(State::speed) * x_(State::speed)) * (cos(x_(State::Yaw)) * sin(x_(State::Roll)) - cos(x_(State::Roll)) * sin(x_(State::Pitch)) * sin(x_(State::Yaw)))) / 2.0;
-    F(State::Y, State::dyaw_dx) = ((dt * dt) * (x_(State::speed) * x_(State::speed)) * (cos(x_(State::Roll)) * cos(x_(State::Yaw)) + sin(x_(State::Pitch)) * sin(x_(State::Roll)) * sin(x_(State::Yaw)))) / 2.0;
+    F(State::Y, State::speed) = dt * (cos(x(State::Pitch)) * sin(x(State::Yaw)) + dt * x(State::dyaw_dx) * x(State::speed) * cos(x(State::Roll)) * cos(x(State::Yaw)) + x(State::dpitch_dx) * dt * x(State::speed) * cos(x(State::Yaw)) * sin(x(State::Roll)) - x(State::dpitch_dx) * dt * x(State::speed) * cos(x(State::Roll)) * sin(x(State::Pitch)) * sin(x(State::Yaw)) + dt * x(State::dyaw_dx) * x(State::speed) * sin(x(State::Pitch)) * sin(x(State::Roll)) * sin(x(State::Yaw)));
+    F(State::Y, State::accel) = ((dt * dt) * cos(x(State::Pitch)) * sin(x(State::Yaw))) / 2.0;
+    F(State::Y, State::Roll) = ((dt * dt) * x(State::speed) * (x(State::dpitch_dx) * x(State::speed) * (cos(x(State::Roll)) * cos(x(State::Yaw)) + sin(x(State::Pitch)) * sin(x(State::Roll)) * sin(x(State::Yaw))) - x(State::dyaw_dx) * x(State::speed) * (cos(x(State::Yaw)) * sin(x(State::Roll)) - cos(x(State::Roll)) * sin(x(State::Pitch)) * sin(x(State::Yaw))))) / 2.0;
+    F(State::Y, State::Pitch) = dt * sin(x(State::Yaw)) * (x(State::speed) * sin(x(State::Pitch)) * 2.0 + x(State::accel) * dt * sin(x(State::Pitch)) + x(State::dpitch_dx) * dt * (x(State::speed) * x(State::speed)) * cos(x(State::Pitch)) * cos(x(State::Roll)) - dt * x(State::dyaw_dx) * (x(State::speed) * x(State::speed)) * cos(x(State::Pitch)) * sin(x(State::Roll))) * (-1.0 / 2.0);
+    F(State::Y, State::Yaw) = (dt * dt) * (x(State::speed) * (x(State::dpitch_dx) * x(State::speed) * (sin(x(State::Roll)) * sin(x(State::Yaw)) + cos(x(State::Roll)) * cos(x(State::Yaw)) * sin(x(State::Pitch))) + x(State::dyaw_dx) * x(State::speed) * (cos(x(State::Roll)) * sin(x(State::Yaw)) - cos(x(State::Yaw)) * sin(x(State::Pitch)) * sin(x(State::Roll)))) - x(State::accel) * cos(x(State::Pitch)) * cos(x(State::Yaw))) * (-1.0 / 2.0) + dt * x(State::speed) * cos(x(State::Pitch)) * cos(x(State::Yaw));
+    F(State::Y, State::dpitch_dx) = ((dt * dt) * (x(State::speed) * x(State::speed)) * (cos(x(State::Yaw)) * sin(x(State::Roll)) - cos(x(State::Roll)) * sin(x(State::Pitch)) * sin(x(State::Yaw)))) / 2.0;
+    F(State::Y, State::dyaw_dx) = ((dt * dt) * (x(State::speed) * x(State::speed)) * (cos(x(State::Roll)) * cos(x(State::Yaw)) + sin(x(State::Pitch)) * sin(x(State::Roll)) * sin(x(State::Yaw)))) / 2.0;
     F(State::Z, State::Z) = 1.0;
-    F(State::Z, State::speed) = -dt * (sin(x_(State::Pitch)) + x_(State::dpitch_dx) * dt * x_(State::speed) * cos(x_(State::Pitch)) * cos(x_(State::Roll)) - dt * x_(State::dyaw_dx) * x_(State::speed) * cos(x_(State::Pitch)) * sin(x_(State::Roll)));
-    F(State::Z, State::accel) = (dt * dt) * sin(x_(State::Pitch)) * (-1.0 / 2.0);
-    F(State::Z, State::Roll) = ((dt * dt) * (x_(State::speed) * x_(State::speed)) * cos(x_(State::Pitch)) * (x_(State::dyaw_dx) * cos(x_(State::Roll)) + x_(State::dpitch_dx) * sin(x_(State::Roll)))) / 2.0;
-    F(State::Z, State::Pitch) = (dt * dt) * (x_(State::accel) * cos(x_(State::Pitch)) - x_(State::speed) * (x_(State::dpitch_dx) * x_(State::speed) * cos(x_(State::Roll)) * sin(x_(State::Pitch)) - x_(State::dyaw_dx) * x_(State::speed) * sin(x_(State::Pitch)) * sin(x_(State::Roll)))) * (-1.0 / 2.0) - dt * x_(State::speed) * cos(x_(State::Pitch));
-    F(State::Z, State::dpitch_dx) = (dt * dt) * (x_(State::speed) * x_(State::speed)) * cos(x_(State::Pitch)) * cos(x_(State::Roll)) * (-1.0 / 2.0);
-    F(State::Z, State::dyaw_dx) = ((dt * dt) * (x_(State::speed) * x_(State::speed)) * cos(x_(State::Pitch)) * sin(x_(State::Roll))) / 2.0;
+    F(State::Z, State::speed) = -dt * (sin(x(State::Pitch)) + x(State::dpitch_dx) * dt * x(State::speed) * cos(x(State::Pitch)) * cos(x(State::Roll)) - dt * x(State::dyaw_dx) * x(State::speed) * cos(x(State::Pitch)) * sin(x(State::Roll)));
+    F(State::Z, State::accel) = (dt * dt) * sin(x(State::Pitch)) * (-1.0 / 2.0);
+    F(State::Z, State::Roll) = ((dt * dt) * (x(State::speed) * x(State::speed)) * cos(x(State::Pitch)) * (x(State::dyaw_dx) * cos(x(State::Roll)) + x(State::dpitch_dx) * sin(x(State::Roll)))) / 2.0;
+    F(State::Z, State::Pitch) = (dt * dt) * (x(State::accel) * cos(x(State::Pitch)) - x(State::speed) * (x(State::dpitch_dx) * x(State::speed) * cos(x(State::Roll)) * sin(x(State::Pitch)) - x(State::dyaw_dx) * x(State::speed) * sin(x(State::Pitch)) * sin(x(State::Roll)))) * (-1.0 / 2.0) - dt * x(State::speed) * cos(x(State::Pitch));
+    F(State::Z, State::dpitch_dx) = (dt * dt) * (x(State::speed) * x(State::speed)) * cos(x(State::Pitch)) * cos(x(State::Roll)) * (-1.0 / 2.0);
+    F(State::Z, State::dyaw_dx) = ((dt * dt) * (x(State::speed) * x(State::speed)) * cos(x(State::Pitch)) * sin(x(State::Roll))) / 2.0;
     F(State::speed, State::speed) = 1.0;
     F(State::speed, State::accel) = dt;
     F(State::accel, State::accel) = 1.0;
-    F(State::Roll, State::speed) = (dt * (x_(State::droll_dx) * cos(x_(State::Pitch)) + x_(State::dyaw_dx) * cos(x_(State::Roll)) * sin(x_(State::Pitch)) + x_(State::dpitch_dx) * sin(x_(State::Pitch)) * sin(x_(State::Roll)))) / cos(x_(State::Pitch));
-    F(State::Roll, State::Roll) = (cos(x_(State::Pitch)) + x_(State::dpitch_dx) * dt * x_(State::speed) * cos(x_(State::Roll)) * sin(x_(State::Pitch)) - dt * x_(State::dyaw_dx) * x_(State::speed) * sin(x_(State::Pitch)) * sin(x_(State::Roll))) / cos(x_(State::Pitch));
-    F(State::Roll, State::Pitch) = dt * x_(State::speed) * 1.0 / pow(cos(x_(State::Pitch)), 2.0) * (x_(State::dyaw_dx) * cos(x_(State::Roll)) + x_(State::dpitch_dx) * sin(x_(State::Roll)));
-    F(State::Roll, State::droll_dx) = dt * x_(State::speed);
-    F(State::Roll, State::dpitch_dx) = (dt * x_(State::speed) * sin(x_(State::Pitch)) * sin(x_(State::Roll))) / cos(x_(State::Pitch));
-    F(State::Roll, State::dyaw_dx) = (dt * x_(State::speed) * cos(x_(State::Roll)) * sin(x_(State::Pitch))) / cos(x_(State::Pitch));
-    F(State::Pitch, State::speed) = dt * (x_(State::dpitch_dx) * cos(x_(State::Roll)) - x_(State::dyaw_dx) * sin(x_(State::Roll)));
-    F(State::Pitch, State::Roll) = -dt * x_(State::speed) * (x_(State::dyaw_dx) * cos(x_(State::Roll)) + x_(State::dpitch_dx) * sin(x_(State::Roll)));
+    F(State::Roll, State::speed) = (dt * (x(State::droll_dx) * cos(x(State::Pitch)) + x(State::dyaw_dx) * cos(x(State::Roll)) * sin(x(State::Pitch)) + x(State::dpitch_dx) * sin(x(State::Pitch)) * sin(x(State::Roll)))) / cos(x(State::Pitch));
+    F(State::Roll, State::Roll) = (cos(x(State::Pitch)) + x(State::dpitch_dx) * dt * x(State::speed) * cos(x(State::Roll)) * sin(x(State::Pitch)) - dt * x(State::dyaw_dx) * x(State::speed) * sin(x(State::Pitch)) * sin(x(State::Roll))) / cos(x(State::Pitch));
+    F(State::Roll, State::Pitch) = dt * x(State::speed) * 1.0 / pow(cos(x(State::Pitch)), 2.0) * (x(State::dyaw_dx) * cos(x(State::Roll)) + x(State::dpitch_dx) * sin(x(State::Roll)));
+    F(State::Roll, State::droll_dx) = dt * x(State::speed);
+    F(State::Roll, State::dpitch_dx) = (dt * x(State::speed) * sin(x(State::Pitch)) * sin(x(State::Roll))) / cos(x(State::Pitch));
+    F(State::Roll, State::dyaw_dx) = (dt * x(State::speed) * cos(x(State::Roll)) * sin(x(State::Pitch))) / cos(x(State::Pitch));
+    F(State::Pitch, State::speed) = dt * (x(State::dpitch_dx) * cos(x(State::Roll)) - x(State::dyaw_dx) * sin(x(State::Roll)));
+    F(State::Pitch, State::Roll) = -dt * x(State::speed) * (x(State::dyaw_dx) * cos(x(State::Roll)) + x(State::dpitch_dx) * sin(x(State::Roll)));
     F(State::Pitch, State::Pitch) = 1.0;
-    F(State::Pitch, State::dpitch_dx) = dt * x_(State::speed) * cos(x_(State::Roll));
-    F(State::Pitch, State::dyaw_dx) = -dt * x_(State::speed) * sin(x_(State::Roll));
-    F(State::Yaw, State::speed) = (dt * (x_(State::dyaw_dx) * cos(x_(State::Roll)) + x_(State::dpitch_dx) * sin(x_(State::Roll)))) / cos(x_(State::Pitch));
-    F(State::Yaw, State::Roll) = (dt * x_(State::speed) * (x_(State::dpitch_dx) * cos(x_(State::Roll)) - x_(State::dyaw_dx) * sin(x_(State::Roll)))) / cos(x_(State::Pitch));
-    F(State::Yaw, State::Pitch) = dt * x_(State::speed) * 1.0 / pow(cos(x_(State::Pitch)), 2.0) * sin(x_(State::Pitch)) * (x_(State::dyaw_dx) * cos(x_(State::Roll)) + x_(State::dpitch_dx) * sin(x_(State::Roll)));
+    F(State::Pitch, State::dpitch_dx) = dt * x(State::speed) * cos(x(State::Roll));
+    F(State::Pitch, State::dyaw_dx) = -dt * x(State::speed) * sin(x(State::Roll));
+    F(State::Yaw, State::speed) = (dt * (x(State::dyaw_dx) * cos(x(State::Roll)) + x(State::dpitch_dx) * sin(x(State::Roll)))) / cos(x(State::Pitch));
+    F(State::Yaw, State::Roll) = (dt * x(State::speed) * (x(State::dpitch_dx) * cos(x(State::Roll)) - x(State::dyaw_dx) * sin(x(State::Roll)))) / cos(x(State::Pitch));
+    F(State::Yaw, State::Pitch) = dt * x(State::speed) * 1.0 / pow(cos(x(State::Pitch)), 2.0) * sin(x(State::Pitch)) * (x(State::dyaw_dx) * cos(x(State::Roll)) + x(State::dpitch_dx) * sin(x(State::Roll)));
     F(State::Yaw, State::Yaw) = 1.0;
-    F(State::Yaw, State::dpitch_dx) = (dt * x_(State::speed) * sin(x_(State::Roll))) / cos(x_(State::Pitch));
-    F(State::Yaw, State::dyaw_dx) = (dt * x_(State::speed) * cos(x_(State::Roll))) / cos(x_(State::Pitch));
+    F(State::Yaw, State::dpitch_dx) = (dt * x(State::speed) * sin(x(State::Roll))) / cos(x(State::Pitch));
+    F(State::Yaw, State::dyaw_dx) = (dt * x(State::speed) * cos(x(State::Roll))) / cos(x(State::Pitch));
     F(State::droll_dx, State::droll_dx) = 1.0;
     F(State::dpitch_dx, State::dpitch_dx) = 1.0;
     F(State::dyaw_dx, State::dyaw_dx) = 1.0;
 
     // clang-format on
 
-    // std::string sep = "\n------------------------------------------------\n";
-    // std::cout << x_ << sep;
-
-    x_ = f;
-    P_ = F * P_ * F.transpose();
-    P_.noalias() += dt * Q_;
-
-    // std::cout << dt << sep;
-    // std::cout << f << sep;
-    // std::cout << F << sep;
-    // std::cout << P_ << sep;
-    // std::cout << Q_ << sep;
+    x = f;
+    P = F * P * F.transpose();
+    P.noalias() += dt * Q;
 }
 
 void AckermannEkf::correct(const Measurement &measurement) {
     Eigen::VectorXd h(MEASUREMENT_SIZE);
     Eigen::MatrixXd H(MEASUREMENT_SIZE, STATE_SIZE);
+    h.setZero();
+    H.setZero();
 
     // clang-format off
 
-    h(Measurement::X) = x_(State::X) - measurement.sensor_position_(1) * (cos(x_(State::Roll)) * sin(x_(State::Yaw)) - cos(x_(State::Yaw)) * sin(x_(State::Pitch)) * sin(x_(State::Roll))) + measurement.sensor_position_(2) * (sin(x_(State::Roll)) * sin(x_(State::Yaw)) + cos(x_(State::Roll)) * cos(x_(State::Yaw)) * sin(x_(State::Pitch))) + measurement.sensor_position_(0) * cos(x_(State::Pitch)) * cos(x_(State::Yaw));
-    h(Measurement::Y) = x_(State::Y) + measurement.sensor_position_(1) * (cos(x_(State::Roll)) * cos(x_(State::Yaw)) + sin(x_(State::Pitch)) * sin(x_(State::Roll)) * sin(x_(State::Yaw))) - measurement.sensor_position_(2) * (cos(x_(State::Yaw)) * sin(x_(State::Roll)) - cos(x_(State::Roll)) * sin(x_(State::Pitch)) * sin(x_(State::Yaw))) + measurement.sensor_position_(0) * cos(x_(State::Pitch)) * sin(x_(State::Yaw));
-    h(Measurement::Z) = x_(State::Z) - measurement.sensor_position_(0) * sin(x_(State::Pitch)) + measurement.sensor_position_(2) * cos(x_(State::Pitch)) * cos(x_(State::Roll)) + measurement.sensor_position_(1) * cos(x_(State::Pitch)) * sin(x_(State::Roll));
-    h(Measurement::dx_dt) = x_(State::speed) * (x_(State::dpitch_dx) * measurement.sensor_position_(2) - x_(State::dyaw_dx) * measurement.sensor_position_(1) + 1.0);
-    h(Measurement::dy_dt) = -x_(State::speed) * (x_(State::droll_dx) * measurement.sensor_position_(2) - x_(State::dyaw_dx) * measurement.sensor_position_(0));
-    h(Measurement::dz_dt) = -x_(State::speed) * (x_(State::dpitch_dx) * measurement.sensor_position_(0) - x_(State::droll_dx) * measurement.sensor_position_(1));
-    h(Measurement::d2x_dt2) = x_(State::accel) + x_(State::accel) * x_(State::dpitch_dx) * measurement.sensor_position_(2) - x_(State::accel) * x_(State::dyaw_dx) * measurement.sensor_position_(1) - x_(State::dpitch_dx) * x_(State::speed) * (x_(State::dpitch_dx) * measurement.sensor_position_(0) * x_(State::speed) - x_(State::droll_dx) * measurement.sensor_position_(1) * x_(State::speed)) + x_(State::dyaw_dx) * x_(State::speed) * (x_(State::droll_dx) * measurement.sensor_position_(2) * x_(State::speed) - x_(State::dyaw_dx) * measurement.sensor_position_(0) * x_(State::speed));
-    h(Measurement::d2y_dt2) = x_(State::dyaw_dx) * (x_(State::speed) * x_(State::speed)) * 2.0 - x_(State::accel) * x_(State::droll_dx) * measurement.sensor_position_(2) + x_(State::accel) * x_(State::dyaw_dx) * measurement.sensor_position_(0) + x_(State::droll_dx) * x_(State::speed) * (x_(State::dpitch_dx) * measurement.sensor_position_(0) * x_(State::speed) - x_(State::droll_dx) * measurement.sensor_position_(1) * x_(State::speed)) + x_(State::dyaw_dx) * x_(State::speed) * (x_(State::dpitch_dx) * measurement.sensor_position_(2) * x_(State::speed) - x_(State::dyaw_dx) * measurement.sensor_position_(1) * x_(State::speed));
-    h(Measurement::d2z_dt2) = x_(State::dpitch_dx) * (x_(State::speed) * x_(State::speed)) * -2.0 - x_(State::accel) * x_(State::dpitch_dx) * measurement.sensor_position_(0) + x_(State::accel) * x_(State::droll_dx) * measurement.sensor_position_(1) - x_(State::dpitch_dx) * x_(State::speed) * (x_(State::dpitch_dx) * measurement.sensor_position_(2) * x_(State::speed) - x_(State::dyaw_dx) * measurement.sensor_position_(1) * x_(State::speed)) - x_(State::droll_dx) * x_(State::speed) * (x_(State::droll_dx) * measurement.sensor_position_(2) * x_(State::speed) - x_(State::dyaw_dx) * measurement.sensor_position_(0) * x_(State::speed));
-    h(Measurement::Roll) = x_(State::Roll);
-    h(Measurement::Pitch) = x_(State::Pitch);
-    h(Measurement::Yaw) = x_(State::Yaw);
-    h(Measurement::droll_dt) = x_(State::droll_dx) * x_(State::speed);
-    h(Measurement::dpitch_dt) = x_(State::dpitch_dx) * x_(State::speed);
-    h(Measurement::dyaw_dt) = x_(State::dyaw_dx) * x_(State::speed);
+    h(Measurement::X) = x(State::X) - measurement.sensor_position(1) * (cos(x(State::Roll)) * sin(x(State::Yaw)) - cos(x(State::Yaw)) * sin(x(State::Pitch)) * sin(x(State::Roll))) + measurement.sensor_position(2) * (sin(x(State::Roll)) * sin(x(State::Yaw)) + cos(x(State::Roll)) * cos(x(State::Yaw)) * sin(x(State::Pitch))) + measurement.sensor_position(0) * cos(x(State::Pitch)) * cos(x(State::Yaw));
+    h(Measurement::Y) = x(State::Y) + measurement.sensor_position(1) * (cos(x(State::Roll)) * cos(x(State::Yaw)) + sin(x(State::Pitch)) * sin(x(State::Roll)) * sin(x(State::Yaw))) - measurement.sensor_position(2) * (cos(x(State::Yaw)) * sin(x(State::Roll)) - cos(x(State::Roll)) * sin(x(State::Pitch)) * sin(x(State::Yaw))) + measurement.sensor_position(0) * cos(x(State::Pitch)) * sin(x(State::Yaw));
+    h(Measurement::Z) = x(State::Z) - measurement.sensor_position(0) * sin(x(State::Pitch)) + measurement.sensor_position(2) * cos(x(State::Pitch)) * cos(x(State::Roll)) + measurement.sensor_position(1) * cos(x(State::Pitch)) * sin(x(State::Roll));
+    h(Measurement::dx_dt) = x(State::speed) * (x(State::dpitch_dx) * measurement.sensor_position(2) - x(State::dyaw_dx) * measurement.sensor_position(1) + 1.0);
+    h(Measurement::dy_dt) = -x(State::speed) * (x(State::droll_dx) * measurement.sensor_position(2) - x(State::dyaw_dx) * measurement.sensor_position(0));
+    h(Measurement::dz_dt) = -x(State::speed) * (x(State::dpitch_dx) * measurement.sensor_position(0) - x(State::droll_dx) * measurement.sensor_position(1));
+    h(Measurement::d2x_dt2) = x(State::accel) + x(State::accel) * x(State::dpitch_dx) * measurement.sensor_position(2) - x(State::accel) * x(State::dyaw_dx) * measurement.sensor_position(1) - x(State::dpitch_dx) * x(State::speed) * (x(State::dpitch_dx) * measurement.sensor_position(0) * x(State::speed) - x(State::droll_dx) * measurement.sensor_position(1) * x(State::speed)) + x(State::dyaw_dx) * x(State::speed) * (x(State::droll_dx) * measurement.sensor_position(2) * x(State::speed) - x(State::dyaw_dx) * measurement.sensor_position(0) * x(State::speed));
+    h(Measurement::d2y_dt2) = x(State::dyaw_dx) * (x(State::speed) * x(State::speed)) * 2.0 - x(State::accel) * x(State::droll_dx) * measurement.sensor_position(2) + x(State::accel) * x(State::dyaw_dx) * measurement.sensor_position(0) + x(State::droll_dx) * x(State::speed) * (x(State::dpitch_dx) * measurement.sensor_position(0) * x(State::speed) - x(State::droll_dx) * measurement.sensor_position(1) * x(State::speed)) + x(State::dyaw_dx) * x(State::speed) * (x(State::dpitch_dx) * measurement.sensor_position(2) * x(State::speed) - x(State::dyaw_dx) * measurement.sensor_position(1) * x(State::speed));
+    h(Measurement::d2z_dt2) = x(State::dpitch_dx) * (x(State::speed) * x(State::speed)) * -2.0 - x(State::accel) * x(State::dpitch_dx) * measurement.sensor_position(0) + x(State::accel) * x(State::droll_dx) * measurement.sensor_position(1) - x(State::dpitch_dx) * x(State::speed) * (x(State::dpitch_dx) * measurement.sensor_position(2) * x(State::speed) - x(State::dyaw_dx) * measurement.sensor_position(1) * x(State::speed)) - x(State::droll_dx) * x(State::speed) * (x(State::droll_dx) * measurement.sensor_position(2) * x(State::speed) - x(State::dyaw_dx) * measurement.sensor_position(0) * x(State::speed));
+    h(Measurement::Roll) = x(State::Roll);
+    h(Measurement::Pitch) = x(State::Pitch);
+    h(Measurement::Yaw) = x(State::Yaw);
+    h(Measurement::droll_dt) = x(State::droll_dx) * x(State::speed);
+    h(Measurement::dpitch_dt) = x(State::dpitch_dx) * x(State::speed);
+    h(Measurement::dyaw_dt) = x(State::dyaw_dx) * x(State::speed);
 
     H(Measurement::X, State::X) = 1.0;
-    H(Measurement::X, State::Roll) = measurement.sensor_position_(1) * (sin(x_(State::Roll)) * sin(x_(State::Yaw)) + cos(x_(State::Roll)) * cos(x_(State::Yaw)) * sin(x_(State::Pitch))) + measurement.sensor_position_(2) * (cos(x_(State::Roll)) * sin(x_(State::Yaw)) - cos(x_(State::Yaw)) * sin(x_(State::Pitch)) * sin(x_(State::Roll)));
-    H(Measurement::X, State::Pitch) = cos(x_(State::Yaw)) * (-measurement.sensor_position_(0) * sin(x_(State::Pitch)) + measurement.sensor_position_(2) * cos(x_(State::Pitch)) * cos(x_(State::Roll)) + measurement.sensor_position_(1) * cos(x_(State::Pitch)) * sin(x_(State::Roll)));
-    H(Measurement::X, State::Yaw) = -measurement.sensor_position_(1) * (cos(x_(State::Roll)) * cos(x_(State::Yaw)) + sin(x_(State::Pitch)) * sin(x_(State::Roll)) * sin(x_(State::Yaw))) + measurement.sensor_position_(2) * (cos(x_(State::Yaw)) * sin(x_(State::Roll)) - cos(x_(State::Roll)) * sin(x_(State::Pitch)) * sin(x_(State::Yaw))) - measurement.sensor_position_(0) * cos(x_(State::Pitch)) * sin(x_(State::Yaw));
+    H(Measurement::X, State::Roll) = measurement.sensor_position(1) * (sin(x(State::Roll)) * sin(x(State::Yaw)) + cos(x(State::Roll)) * cos(x(State::Yaw)) * sin(x(State::Pitch))) + measurement.sensor_position(2) * (cos(x(State::Roll)) * sin(x(State::Yaw)) - cos(x(State::Yaw)) * sin(x(State::Pitch)) * sin(x(State::Roll)));
+    H(Measurement::X, State::Pitch) = cos(x(State::Yaw)) * (-measurement.sensor_position(0) * sin(x(State::Pitch)) + measurement.sensor_position(2) * cos(x(State::Pitch)) * cos(x(State::Roll)) + measurement.sensor_position(1) * cos(x(State::Pitch)) * sin(x(State::Roll)));
+    H(Measurement::X, State::Yaw) = -measurement.sensor_position(1) * (cos(x(State::Roll)) * cos(x(State::Yaw)) + sin(x(State::Pitch)) * sin(x(State::Roll)) * sin(x(State::Yaw))) + measurement.sensor_position(2) * (cos(x(State::Yaw)) * sin(x(State::Roll)) - cos(x(State::Roll)) * sin(x(State::Pitch)) * sin(x(State::Yaw))) - measurement.sensor_position(0) * cos(x(State::Pitch)) * sin(x(State::Yaw));
     H(Measurement::Y, State::Y) = 1.0;
-    H(Measurement::Y, State::Roll) = -measurement.sensor_position_(1) * (cos(x_(State::Yaw)) * sin(x_(State::Roll)) - cos(x_(State::Roll)) * sin(x_(State::Pitch)) * sin(x_(State::Yaw))) - measurement.sensor_position_(2) * (cos(x_(State::Roll)) * cos(x_(State::Yaw)) + sin(x_(State::Pitch)) * sin(x_(State::Roll)) * sin(x_(State::Yaw)));
-    H(Measurement::Y, State::Pitch) = sin(x_(State::Yaw)) * (-measurement.sensor_position_(0) * sin(x_(State::Pitch)) + measurement.sensor_position_(2) * cos(x_(State::Pitch)) * cos(x_(State::Roll)) + measurement.sensor_position_(1) * cos(x_(State::Pitch)) * sin(x_(State::Roll)));
-    H(Measurement::Y, State::Yaw) = -measurement.sensor_position_(1) * (cos(x_(State::Roll)) * sin(x_(State::Yaw)) - cos(x_(State::Yaw)) * sin(x_(State::Pitch)) * sin(x_(State::Roll))) + measurement.sensor_position_(2) * (sin(x_(State::Roll)) * sin(x_(State::Yaw)) + cos(x_(State::Roll)) * cos(x_(State::Yaw)) * sin(x_(State::Pitch))) + measurement.sensor_position_(0) * cos(x_(State::Pitch)) * cos(x_(State::Yaw));
+    H(Measurement::Y, State::Roll) = -measurement.sensor_position(1) * (cos(x(State::Yaw)) * sin(x(State::Roll)) - cos(x(State::Roll)) * sin(x(State::Pitch)) * sin(x(State::Yaw))) - measurement.sensor_position(2) * (cos(x(State::Roll)) * cos(x(State::Yaw)) + sin(x(State::Pitch)) * sin(x(State::Roll)) * sin(x(State::Yaw)));
+    H(Measurement::Y, State::Pitch) = sin(x(State::Yaw)) * (-measurement.sensor_position(0) * sin(x(State::Pitch)) + measurement.sensor_position(2) * cos(x(State::Pitch)) * cos(x(State::Roll)) + measurement.sensor_position(1) * cos(x(State::Pitch)) * sin(x(State::Roll)));
+    H(Measurement::Y, State::Yaw) = -measurement.sensor_position(1) * (cos(x(State::Roll)) * sin(x(State::Yaw)) - cos(x(State::Yaw)) * sin(x(State::Pitch)) * sin(x(State::Roll))) + measurement.sensor_position(2) * (sin(x(State::Roll)) * sin(x(State::Yaw)) + cos(x(State::Roll)) * cos(x(State::Yaw)) * sin(x(State::Pitch))) + measurement.sensor_position(0) * cos(x(State::Pitch)) * cos(x(State::Yaw));
     H(Measurement::Z, State::Z) = 1.0;
-    H(Measurement::Z, State::Roll) = cos(x_(State::Pitch)) * (measurement.sensor_position_(1) * cos(x_(State::Roll)) - measurement.sensor_position_(2) * sin(x_(State::Roll)));
-    H(Measurement::Z, State::Pitch) = -measurement.sensor_position_(0) * cos(x_(State::Pitch)) - measurement.sensor_position_(2) * cos(x_(State::Roll)) * sin(x_(State::Pitch)) - measurement.sensor_position_(1) * sin(x_(State::Pitch)) * sin(x_(State::Roll));
-    H(Measurement::dx_dt, State::speed) = x_(State::dpitch_dx) * measurement.sensor_position_(2) - x_(State::dyaw_dx) * measurement.sensor_position_(1) + 1.0;
-    H(Measurement::dx_dt, State::dpitch_dx) = measurement.sensor_position_(2) * x_(State::speed);
-    H(Measurement::dx_dt, State::dyaw_dx) = -measurement.sensor_position_(1) * x_(State::speed);
-    H(Measurement::dy_dt, State::speed) = -x_(State::droll_dx) * measurement.sensor_position_(2) + x_(State::dyaw_dx) * measurement.sensor_position_(0);
-    H(Measurement::dy_dt, State::droll_dx) = -measurement.sensor_position_(2) * x_(State::speed);
-    H(Measurement::dy_dt, State::dyaw_dx) = measurement.sensor_position_(0) * x_(State::speed);
-    H(Measurement::dz_dt, State::speed) = -x_(State::dpitch_dx) * measurement.sensor_position_(0) + x_(State::droll_dx) * measurement.sensor_position_(1);
-    H(Measurement::dz_dt, State::droll_dx) = measurement.sensor_position_(1) * x_(State::speed);
-    H(Measurement::dz_dt, State::dpitch_dx) = -measurement.sensor_position_(0) * x_(State::speed);
-    H(Measurement::d2x_dt2, State::speed) = x_(State::speed) * ((x_(State::dpitch_dx) * x_(State::dpitch_dx)) * measurement.sensor_position_(0) + (x_(State::dyaw_dx) * x_(State::dyaw_dx)) * measurement.sensor_position_(0) - x_(State::dpitch_dx) * x_(State::droll_dx) * measurement.sensor_position_(1) - x_(State::droll_dx) * x_(State::dyaw_dx) * measurement.sensor_position_(2)) * -2.0;
-    H(Measurement::d2x_dt2, State::accel) = x_(State::dpitch_dx) * measurement.sensor_position_(2) - x_(State::dyaw_dx) * measurement.sensor_position_(1) + 1.0;
-    H(Measurement::d2x_dt2, State::droll_dx) = (x_(State::speed) * x_(State::speed)) * (x_(State::dpitch_dx) * measurement.sensor_position_(1) + x_(State::dyaw_dx) * measurement.sensor_position_(2));
-    H(Measurement::d2x_dt2, State::dpitch_dx) = x_(State::accel) * measurement.sensor_position_(2) - x_(State::dpitch_dx) * measurement.sensor_position_(0) * (x_(State::speed) * x_(State::speed)) * 2.0 + x_(State::droll_dx) * measurement.sensor_position_(1) * (x_(State::speed) * x_(State::speed));
-    H(Measurement::d2x_dt2, State::dyaw_dx) = -x_(State::accel) * measurement.sensor_position_(1) + x_(State::droll_dx) * measurement.sensor_position_(2) * (x_(State::speed) * x_(State::speed)) - x_(State::dyaw_dx) * measurement.sensor_position_(0) * (x_(State::speed) * x_(State::speed)) * 2.0;
-    H(Measurement::d2y_dt2, State::speed) = x_(State::speed) * (x_(State::dyaw_dx) * 2.0 - (x_(State::droll_dx) * x_(State::droll_dx)) * measurement.sensor_position_(1) - (x_(State::dyaw_dx) * x_(State::dyaw_dx)) * measurement.sensor_position_(1) + x_(State::dpitch_dx) * x_(State::droll_dx) * measurement.sensor_position_(0) + x_(State::dpitch_dx) * x_(State::dyaw_dx) * measurement.sensor_position_(2)) * 2.0;
-    H(Measurement::d2y_dt2, State::accel) = -x_(State::droll_dx) * measurement.sensor_position_(2) + x_(State::dyaw_dx) * measurement.sensor_position_(0);
-    H(Measurement::d2y_dt2, State::droll_dx) = -x_(State::accel) * measurement.sensor_position_(2) + x_(State::dpitch_dx) * measurement.sensor_position_(0) * (x_(State::speed) * x_(State::speed)) - x_(State::droll_dx) * measurement.sensor_position_(1) * (x_(State::speed) * x_(State::speed)) * 2.0;
-    H(Measurement::d2y_dt2, State::dpitch_dx) = (x_(State::speed) * x_(State::speed)) * (x_(State::droll_dx) * measurement.sensor_position_(0) + x_(State::dyaw_dx) * measurement.sensor_position_(2));
-    H(Measurement::d2y_dt2, State::dyaw_dx) = x_(State::accel) * measurement.sensor_position_(0) + (x_(State::speed) * x_(State::speed)) * 2.0 + x_(State::dpitch_dx) * measurement.sensor_position_(2) * (x_(State::speed) * x_(State::speed)) - x_(State::dyaw_dx) * measurement.sensor_position_(1) * (x_(State::speed) * x_(State::speed)) * 2.0;
-    H(Measurement::d2z_dt2, State::speed) = x_(State::speed) * (x_(State::dpitch_dx) * 2.0 + (x_(State::dpitch_dx) * x_(State::dpitch_dx)) * measurement.sensor_position_(2) + (x_(State::droll_dx) * x_(State::droll_dx)) * measurement.sensor_position_(2) - x_(State::dpitch_dx) * x_(State::dyaw_dx) * measurement.sensor_position_(1) - x_(State::droll_dx) * x_(State::dyaw_dx) * measurement.sensor_position_(0)) * -2.0;
-    H(Measurement::d2z_dt2, State::accel) = -x_(State::dpitch_dx) * measurement.sensor_position_(0) + x_(State::droll_dx) * measurement.sensor_position_(1);
-    H(Measurement::d2z_dt2, State::droll_dx) = x_(State::accel) * measurement.sensor_position_(1) - x_(State::droll_dx) * measurement.sensor_position_(2) * (x_(State::speed) * x_(State::speed)) * 2.0 + x_(State::dyaw_dx) * measurement.sensor_position_(0) * (x_(State::speed) * x_(State::speed));
-    H(Measurement::d2z_dt2, State::dpitch_dx) = -x_(State::accel) * measurement.sensor_position_(0) - (x_(State::speed) * x_(State::speed)) * 2.0 - x_(State::dpitch_dx) * measurement.sensor_position_(2) * (x_(State::speed) * x_(State::speed)) * 2.0 + x_(State::dyaw_dx) * measurement.sensor_position_(1) * (x_(State::speed) * x_(State::speed));
-    H(Measurement::d2z_dt2, State::dyaw_dx) = (x_(State::speed) * x_(State::speed)) * (x_(State::dpitch_dx) * measurement.sensor_position_(1) + x_(State::droll_dx) * measurement.sensor_position_(0));
+    H(Measurement::Z, State::Roll) = cos(x(State::Pitch)) * (measurement.sensor_position(1) * cos(x(State::Roll)) - measurement.sensor_position(2) * sin(x(State::Roll)));
+    H(Measurement::Z, State::Pitch) = -measurement.sensor_position(0) * cos(x(State::Pitch)) - measurement.sensor_position(2) * cos(x(State::Roll)) * sin(x(State::Pitch)) - measurement.sensor_position(1) * sin(x(State::Pitch)) * sin(x(State::Roll));
+    H(Measurement::dx_dt, State::speed) = x(State::dpitch_dx) * measurement.sensor_position(2) - x(State::dyaw_dx) * measurement.sensor_position(1) + 1.0;
+    H(Measurement::dx_dt, State::dpitch_dx) = measurement.sensor_position(2) * x(State::speed);
+    H(Measurement::dx_dt, State::dyaw_dx) = -measurement.sensor_position(1) * x(State::speed);
+    H(Measurement::dy_dt, State::speed) = -x(State::droll_dx) * measurement.sensor_position(2) + x(State::dyaw_dx) * measurement.sensor_position(0);
+    H(Measurement::dy_dt, State::droll_dx) = -measurement.sensor_position(2) * x(State::speed);
+    H(Measurement::dy_dt, State::dyaw_dx) = measurement.sensor_position(0) * x(State::speed);
+    H(Measurement::dz_dt, State::speed) = -x(State::dpitch_dx) * measurement.sensor_position(0) + x(State::droll_dx) * measurement.sensor_position(1);
+    H(Measurement::dz_dt, State::droll_dx) = measurement.sensor_position(1) * x(State::speed);
+    H(Measurement::dz_dt, State::dpitch_dx) = -measurement.sensor_position(0) * x(State::speed);
+    H(Measurement::d2x_dt2, State::speed) = x(State::speed) * ((x(State::dpitch_dx) * x(State::dpitch_dx)) * measurement.sensor_position(0) + (x(State::dyaw_dx) * x(State::dyaw_dx)) * measurement.sensor_position(0) - x(State::dpitch_dx) * x(State::droll_dx) * measurement.sensor_position(1) - x(State::droll_dx) * x(State::dyaw_dx) * measurement.sensor_position(2)) * -2.0;
+    H(Measurement::d2x_dt2, State::accel) = x(State::dpitch_dx) * measurement.sensor_position(2) - x(State::dyaw_dx) * measurement.sensor_position(1) + 1.0;
+    H(Measurement::d2x_dt2, State::droll_dx) = (x(State::speed) * x(State::speed)) * (x(State::dpitch_dx) * measurement.sensor_position(1) + x(State::dyaw_dx) * measurement.sensor_position(2));
+    H(Measurement::d2x_dt2, State::dpitch_dx) = x(State::accel) * measurement.sensor_position(2) - x(State::dpitch_dx) * measurement.sensor_position(0) * (x(State::speed) * x(State::speed)) * 2.0 + x(State::droll_dx) * measurement.sensor_position(1) * (x(State::speed) * x(State::speed));
+    H(Measurement::d2x_dt2, State::dyaw_dx) = -x(State::accel) * measurement.sensor_position(1) + x(State::droll_dx) * measurement.sensor_position(2) * (x(State::speed) * x(State::speed)) - x(State::dyaw_dx) * measurement.sensor_position(0) * (x(State::speed) * x(State::speed)) * 2.0;
+    H(Measurement::d2y_dt2, State::speed) = x(State::speed) * (x(State::dyaw_dx) * 2.0 - (x(State::droll_dx) * x(State::droll_dx)) * measurement.sensor_position(1) - (x(State::dyaw_dx) * x(State::dyaw_dx)) * measurement.sensor_position(1) + x(State::dpitch_dx) * x(State::droll_dx) * measurement.sensor_position(0) + x(State::dpitch_dx) * x(State::dyaw_dx) * measurement.sensor_position(2)) * 2.0;
+    H(Measurement::d2y_dt2, State::accel) = -x(State::droll_dx) * measurement.sensor_position(2) + x(State::dyaw_dx) * measurement.sensor_position(0);
+    H(Measurement::d2y_dt2, State::droll_dx) = -x(State::accel) * measurement.sensor_position(2) + x(State::dpitch_dx) * measurement.sensor_position(0) * (x(State::speed) * x(State::speed)) - x(State::droll_dx) * measurement.sensor_position(1) * (x(State::speed) * x(State::speed)) * 2.0;
+    H(Measurement::d2y_dt2, State::dpitch_dx) = (x(State::speed) * x(State::speed)) * (x(State::droll_dx) * measurement.sensor_position(0) + x(State::dyaw_dx) * measurement.sensor_position(2));
+    H(Measurement::d2y_dt2, State::dyaw_dx) = x(State::accel) * measurement.sensor_position(0) + (x(State::speed) * x(State::speed)) * 2.0 + x(State::dpitch_dx) * measurement.sensor_position(2) * (x(State::speed) * x(State::speed)) - x(State::dyaw_dx) * measurement.sensor_position(1) * (x(State::speed) * x(State::speed)) * 2.0;
+    H(Measurement::d2z_dt2, State::speed) = x(State::speed) * (x(State::dpitch_dx) * 2.0 + (x(State::dpitch_dx) * x(State::dpitch_dx)) * measurement.sensor_position(2) + (x(State::droll_dx) * x(State::droll_dx)) * measurement.sensor_position(2) - x(State::dpitch_dx) * x(State::dyaw_dx) * measurement.sensor_position(1) - x(State::droll_dx) * x(State::dyaw_dx) * measurement.sensor_position(0)) * -2.0;
+    H(Measurement::d2z_dt2, State::accel) = -x(State::dpitch_dx) * measurement.sensor_position(0) + x(State::droll_dx) * measurement.sensor_position(1);
+    H(Measurement::d2z_dt2, State::droll_dx) = x(State::accel) * measurement.sensor_position(1) - x(State::droll_dx) * measurement.sensor_position(2) * (x(State::speed) * x(State::speed)) * 2.0 + x(State::dyaw_dx) * measurement.sensor_position(0) * (x(State::speed) * x(State::speed));
+    H(Measurement::d2z_dt2, State::dpitch_dx) = -x(State::accel) * measurement.sensor_position(0) - (x(State::speed) * x(State::speed)) * 2.0 - x(State::dpitch_dx) * measurement.sensor_position(2) * (x(State::speed) * x(State::speed)) * 2.0 + x(State::dyaw_dx) * measurement.sensor_position(1) * (x(State::speed) * x(State::speed));
+    H(Measurement::d2z_dt2, State::dyaw_dx) = (x(State::speed) * x(State::speed)) * (x(State::dpitch_dx) * measurement.sensor_position(1) + x(State::droll_dx) * measurement.sensor_position(0));
     H(Measurement::Roll, State::Roll) = 1.0;
     H(Measurement::Pitch, State::Pitch) = 1.0;
     H(Measurement::Yaw, State::Yaw) = 1.0;
-    H(Measurement::droll_dt, State::speed) = x_(State::droll_dx);
-    H(Measurement::droll_dt, State::droll_dx) = x_(State::speed);
-    H(Measurement::dpitch_dt, State::speed) = x_(State::dpitch_dx);
-    H(Measurement::dpitch_dt, State::dpitch_dx) = x_(State::speed);
-    H(Measurement::dyaw_dt, State::speed) = x_(State::dyaw_dx);
-    H(Measurement::dyaw_dt, State::dyaw_dx) = x_(State::speed);
+    H(Measurement::droll_dt, State::speed) = x(State::droll_dx);
+    H(Measurement::droll_dt, State::droll_dx) = x(State::speed);
+    H(Measurement::dpitch_dt, State::speed) = x(State::dpitch_dx);
+    H(Measurement::dpitch_dt, State::dpitch_dx) = x(State::speed);
+    H(Measurement::dyaw_dt, State::speed) = x(State::dyaw_dx);
+    H(Measurement::dyaw_dt, State::dyaw_dx) = x(State::speed);
 
     // clang-format on
 
-    Eigen::MatrixXd R = measurement.R_;
+    Eigen::MatrixXd R = measurement.R;
     Eigen::VectorXd y(MEASUREMENT_SIZE);
     for (int i = 0; i < MEASUREMENT_SIZE; i++) {
-        if (measurement.mask_[i]) {
-            y(i) = measurement.z_(i) - h(i);
+        if (measurement.mask[i]) {
+            y(i) = measurement.z(i) - h(i);
 
             if (R(i, i) < MIN_COVARIANCE) {
                 R(i, i) = MIN_COVARIANCE;
@@ -207,8 +202,8 @@ void AckermannEkf::correct(const Measurement &measurement) {
     }
 
     Eigen::MatrixXd K =
-        P_ * H.transpose() * (H * P_ * H.transpose() + R).inverse();
-    x_.noalias() += K * y;
-    P_ = (Eigen::MatrixXd::Identity(STATE_SIZE, STATE_SIZE) - K * H) * P_;
+        P * H.transpose() * (H * P * H.transpose() + R).inverse();
+    x.noalias() += K * y;
+    P = (Eigen::MatrixXd::Identity(STATE_SIZE, STATE_SIZE) - K * H) * P;
 }
 } // namespace ackermann_ekf

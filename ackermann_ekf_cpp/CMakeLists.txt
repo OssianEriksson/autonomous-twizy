@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.0.2)
 project(ackermann_ekf_cpp)
 
 ## Compile as C++11, supported in ROS Kinetic and newer
-# add_compile_options(-std=c++11)
+add_compile_options(-std=c++11) # -O3 -DNDEBUG)
 
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
@@ -10,13 +10,17 @@ project(ackermann_ekf_cpp)
 find_package(catkin REQUIRED COMPONENTS
   roscpp
   geometry_msgs
+  sensor_msgs
   tf2_ros
+  tf2_geometry_msgs
   geodesy
   geographic_msgs
+  std_msgs
 )
 
 ## System dependencies are found with CMake's conventions
-find_package(Eigen3)
+find_package(Eigen3 REQUIRED)
+find_package(Boost REQUIRED)
 
 
 ## Uncomment this if the package has a setup.py. This macro ensures

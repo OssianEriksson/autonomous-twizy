@@ -3,7 +3,6 @@
 
 #include <Eigen/Dense>
 #include <math.h>
-#include <string>
 
 namespace ackermann_ekf {
 struct Measurement {
@@ -27,19 +26,22 @@ struct Measurement {
         SIZE
     };
 
-    Eigen::VectorXd z_;
+    Eigen::VectorXd z;
 
-    Eigen::MatrixXd R_;
+    Eigen::MatrixXd R;
 
-    std::array<bool, static_cast<int>(SIZE)> mask_;
+    std::array<bool, static_cast<int>(SIZE)> mask;
 
-    double time_ = 0.0;
+    double time = 0.0;
 
-    Eigen::Vector3d sensor_position_;
+    Eigen::Vector3d sensor_position;
 
     Measurement()
-        : z_(static_cast<int>(SIZE)),
-          R_(static_cast<int>(SIZE), static_cast<int>(SIZE)) {}
+        : z(static_cast<int>(SIZE)),
+          R(static_cast<int>(SIZE), static_cast<int>(SIZE)) {
+        z.setZero();
+        R.setZero();
+    }
 };
 
 struct State {
@@ -61,15 +63,14 @@ struct State {
 };
 
 class AckermannEkf {
-  private:
-    Eigen::MatrixXd P_;
-
-    Eigen::MatrixXd Q_;
-
   public:
-    Eigen::VectorXd x_;
+    Eigen::VectorXd x;
 
-    double time_;
+    Eigen::MatrixXd P;
+
+    Eigen::MatrixXd Q;
+
+    double time;
 
     AckermannEkf(double time);
 

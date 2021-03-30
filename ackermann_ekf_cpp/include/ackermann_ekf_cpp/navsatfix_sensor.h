@@ -4,7 +4,6 @@
 #include "ackermann_ekf_cpp/ackermann_ekf.h"
 #include "ackermann_ekf_cpp/sensor.h"
 
-#include <array>
 #include <geodesy/utm.h>
 #include <geographic_msgs/GeoPoint.h>
 #include <geometry_msgs/TransformStamped.h>
