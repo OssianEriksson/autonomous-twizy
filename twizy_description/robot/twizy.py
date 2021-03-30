@@ -150,6 +150,28 @@ def gnss(lr):
     })
 
 
+def piksi_imu(lu):
+    transformation_fields = {
+        'translation': vector(model[f'{lu}_piksi_imu']['position']),
+        'rotation': rotation(model[f'{lu}_piksi_imu']['rotation'])
+    }
+
+    return [
+        Node('Solid', {
+            'name': f'"{lu}_piksi_imu"',
+            **transformation_fields
+        }),
+        Node('Gyro', {
+            'name': f'"{lu}_piksi_gyro"',
+            **transformation_fields
+        }, True),
+        Node('Accelerometer', {
+            'name': f'"{lu}_piksi_accelerometer"',
+            **transformation_fields
+        }, True)
+    ]
+
+
 def twizy():
     return Node('Robot', {
         'children': [
@@ -163,6 +185,8 @@ def twizy():
                     }),
                     gnss('left'),
                     gnss('right'),
+                    *piksi_imu('lower'),
+                    *piksi_imu('upper'),
                     Node('Transform', {
                         'children': [
                             Node('Transform', {
