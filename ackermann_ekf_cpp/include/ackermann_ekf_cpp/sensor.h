@@ -2,28 +2,23 @@
 #define ACKERMANN_EKF_SENSOR
 
 #include "ackermann_ekf_cpp/ackermann_ekf.h"
-#include "ackermann_ekf_cpp/sensor_array.h"
 
-#include <ros/ros.h>
 #include <array>
 #include <geometry_msgs/TransformStamped.h>
+#include <ros/ros.h>
 
 namespace ackermann_ekf {
+class SensorArray;
+
 class Sensor {
   protected:
-    SensorArray sensor_array_;
+    SensorArray &sensor_array_;
 
     Measurement measurement_;
 
-    std::array<bool, MEASUREMENT_SIZE> mask_;
+    Sensor(SensorArray &sensor_array, const XmlRpc::XmlRpcValue &params);
 
-    std::string topic_;
-
-    geometry_msgs::TransformStamped transform_;
-
-    Sensor(const SensorArray &sensor_array, const XmlRpc::XmlRpcValue &params);
-
-    virtual void initialize(const ros::NodeHandle &nh) = 0;
+    void set_sensor_position(const geometry_msgs::TransformStamped &transform);
 };
 } // namespace ackermann_ekf
 

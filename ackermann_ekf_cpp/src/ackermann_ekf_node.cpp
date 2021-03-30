@@ -8,8 +8,7 @@ int main(int argc, char **argv) {
     ros::NodeHandle nh;
     ros::NodeHandle nh_private("~");
 
-    ackermann_ekf::SensorArray ekf(nh, nh_private);
-    ekf.initialize();
+    ackermann_ekf::SensorArray sensor_array(nh, nh_private);
     ros::spin();
 
     return 0;

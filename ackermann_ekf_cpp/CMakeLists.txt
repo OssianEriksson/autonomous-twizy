@@ -11,11 +11,11 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
   geometry_msgs
   tf2_ros
+  geodesy
+  geographic_msgs
 )
 
 ## System dependencies are found with CMake's conventions
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "/usr/share/cmake/geographiclib/")
-find_package(GeographicLib REQUIRED)
 find_package(Eigen3)
 
 
@@ -152,7 +152,7 @@ set_target_properties(ackermann_ekf_node PROPERTIES OUTPUT_NAME ackermann_ekf PR
 add_dependencies(ackermann_ekf_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
-target_link_libraries(ackermann_ekf_node ackermann_ekf ${EIGEN3_LIBRARIES} ${GeographicLib_LIBRARIES} ${catkin_LIBRARIES})
+target_link_libraries(ackermann_ekf_node ackermann_ekf ${EIGEN3_LIBRARIES} ${catkin_LIBRARIES})
 
 #############
 ## Install ##

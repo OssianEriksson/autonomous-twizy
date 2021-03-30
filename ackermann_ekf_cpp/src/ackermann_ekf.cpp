@@ -1,12 +1,17 @@
 #include "ackermann_ekf_cpp/ackermann_ekf.h"
+#include "ackermann_ekf_cpp/navsatfix_sensor.h"
+#include "ackermann_ekf_cpp/sensor.h"
+#include "ackermann_ekf_cpp/sensor_array.h"
 
 namespace ackermann_ekf {
-AckermannEkf::AckermannEkf()
+AckermannEkf::AckermannEkf(double time)
     : x_(STATE_SIZE),
       P_(STATE_SIZE, STATE_SIZE),
       Q_(STATE_SIZE, STATE_SIZE),
-      I_(STATE_SIZE, STATE_SIZE),
-      time_(0.0) {
+      time_(time) {
+    x_.setZero();
+    P_.setIdentity();
+
     Q_.setZero();
     Q_(State::X, State::X) = 1e-3;
     Q_(State::Y, State::Y) = 1e-3;
@@ -19,8 +24,6 @@ AckermannEkf::AckermannEkf()
     Q_(State::dpitch_dx, State::dpitch_dx) = 1e-1;
     Q_(State::dyaw_dx, State::dyaw_dx) = 1e-1;
     Q_(State::droll_dx, State::droll_dx) = 1e-1;
-
-    P_.setIdentity();
 }
 
 void AckermannEkf::process_measurement(const Measurement &measurement) {
@@ -102,13 +105,22 @@ void AckermannEkf::predict(double dt) {
 
     // clang-format on
 
+    // std::string sep = "\n------------------------------------------------\n";
+    // std::cout << x_ << sep;
+
     x_ = f;
     P_ = F * P_ * F.transpose();
     P_.noalias() += dt * Q_;
+
+    // std::cout << dt << sep;
+    // std::cout << f << sep;
+    // std::cout << F << sep;
+    // std::cout << P_ << sep;
+    // std::cout << Q_ << sep;
 }
 
 void AckermannEkf::correct(const Measurement &measurement) {
-    Eigen::VectorXd h(STATE_SIZE);
+    Eigen::VectorXd h(MEASUREMENT_SIZE);
     Eigen::MatrixXd H(MEASUREMENT_SIZE, STATE_SIZE);
 
     // clang-format off
@@ -179,24 +191,24 @@ void AckermannEkf::correct(const Measurement &measurement) {
     Eigen::MatrixXd R = measurement.R_;
     Eigen::VectorXd y(MEASUREMENT_SIZE);
     for (int i = 0; i < MEASUREMENT_SIZE; i++) {
-        if (R(i, i) <= 0) {
-            y(i) = 0.0;
-
-            R.row(i).setConstant(0.0);
-            R.col(i).setConstant(0.0);
-            R(i, i) = INF_COVARIANCE;
-        } else {
+        if (measurement.mask_[i]) {
             y(i) = measurement.z_(i) - h(i);
 
             if (R(i, i) < MIN_COVARIANCE) {
                 R(i, i) = MIN_COVARIANCE;
             }
+        } else {
+            y(i) = 0.0;
+
+            R.row(i).setConstant(0.0);
+            R.col(i).setConstant(0.0);
+            R(i, i) = INF_COVARIANCE;
         }
     }
 
     Eigen::MatrixXd K =
         P_ * H.transpose() * (H * P_ * H.transpose() + R).inverse();
     x_.noalias() += K * y;
-    P_ = (I_ - K * H) * P_;
+    P_ = (Eigen::MatrixXd::Identity(STATE_SIZE, STATE_SIZE) - K * H) * P_;
 }
 } // namespace ackermann_ekf

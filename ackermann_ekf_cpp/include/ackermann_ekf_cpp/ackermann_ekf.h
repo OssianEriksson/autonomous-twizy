@@ -3,17 +3,10 @@
 
 #include <Eigen/Dense>
 #include <math.h>
+#include <string>
 
 namespace ackermann_ekf {
 struct Measurement {
-    Eigen::VectorXd z_;
-
-    Eigen::MatrixXd R_;
-
-    double time_;
-
-    Eigen::Vector3d sensor_position_;
-
   public:
     enum Index : int {
         X,
@@ -33,6 +26,20 @@ struct Measurement {
         dyaw_dt,
         SIZE
     };
+
+    Eigen::VectorXd z_;
+
+    Eigen::MatrixXd R_;
+
+    std::array<bool, static_cast<int>(SIZE)> mask_;
+
+    double time_ = 0.0;
+
+    Eigen::Vector3d sensor_position_;
+
+    Measurement()
+        : z_(static_cast<int>(SIZE)),
+          R_(static_cast<int>(SIZE), static_cast<int>(SIZE)) {}
 };
 
 struct State {
@@ -55,18 +62,16 @@ struct State {
 
 class AckermannEkf {
   private:
-    Eigen::VectorXd x_;
-
     Eigen::MatrixXd P_;
 
     Eigen::MatrixXd Q_;
 
-    Eigen::MatrixXd I_;
+  public:
+    Eigen::VectorXd x_;
 
     double time_;
 
-  public:
-    AckermannEkf();
+    AckermannEkf(double time);
 
     void process_measurement(const Measurement &measurement);
 
