@@ -1,8 +1,8 @@
 #ifndef ACKERMANN_EKF_NAVSATFIX_SENSOR
 #define ACKERMANN_EKF_NAVSATFIX_SENSOR
 
-#include "ackermann_ekf_cpp/ackermann_ekf.h"
-#include "ackermann_ekf_cpp/sensor.h"
+#include "ackermann_ekf/ackermann_ekf.h"
+#include "ackermann_ekf/sensor.h"
 
 #include <geodesy/utm.h>
 #include <geographic_msgs/GeoPoint.h>

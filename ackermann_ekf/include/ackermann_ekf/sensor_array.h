@@ -1,8 +1,8 @@
 #ifndef ACKERMANN_EKF_SENSOR_ARRAY
 #define ACKERMANN_EKF_SENSOR_ARRAY
 
-#include "ackermann_ekf_cpp/ackermann_ekf.h"
-#include "ackermann_ekf_cpp/sensor.h"
+#include "ackermann_ekf/ackermann_ekf.h"
+#include "ackermann_ekf/sensor.h"
 
 #include <Eigen/Dense>
 #include <boost/ptr_container/ptr_vector.hpp>
@@ -14,6 +14,7 @@
 #include <tf2_geometry_msgs/tf2_geometry_msgs.h>
 #include <tf2_ros/transform_broadcaster.h>
 #include <tf2_ros/transform_listener.h>
+#include <limits>
 
 namespace ackermann_ekf {
 
@@ -40,6 +41,8 @@ class SensorArray {
     std::string world_frame_;
 
     std::string base_link_;
+
+    Eigen::VectorXd x_max_, x_min_;
 
     void periodic_update(const ros::TimerEvent &evt);
 

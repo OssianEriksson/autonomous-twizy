@@ -1,7 +1,7 @@
 #ifndef ACKERMANN_EKF_SENSOR
 #define ACKERMANN_EKF_SENSOR
 
-#include "ackermann_ekf_cpp/ackermann_ekf.h"
+#include "ackermann_ekf/ackermann_ekf.h"
 
 #include <geometry_msgs/TransformStamped.h>
 #include <ros/ros.h>

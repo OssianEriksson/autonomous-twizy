@@ -1,8 +1,8 @@
-#include "ackermann_ekf_cpp/imu_sensor.h"
-#include "ackermann_ekf_cpp/ackermann_ekf.h"
-#include "ackermann_ekf_cpp/navsatfix_sensor.h"
-#include "ackermann_ekf_cpp/sensor.h"
-#include "ackermann_ekf_cpp/sensor_array.h"
+#include "ackermann_ekf/imu_sensor.h"
+#include "ackermann_ekf/ackermann_ekf.h"
+#include "ackermann_ekf/navsatfix_sensor.h"
+#include "ackermann_ekf/sensor.h"
+#include "ackermann_ekf/sensor_array.h"
 
 namespace ackermann_ekf {
 ImuSensor::ImuSensor(SensorArray &sensor_array,
@@ -25,9 +25,10 @@ ImuSensor::ImuSensor(SensorArray &sensor_array,
 void ImuSensor::set_cov_xyz(const tf2::Transform transform, const int index[3],
                             const boost::array<double, 9> &cov) {
     tf2::Matrix3x3 covariance_matrix =
-        transform.getBasis() * tf2::Matrix3x3(cov[0], cov[1], cov[2], cov[3],
-                                              cov[4], cov[5], cov[6], cov[7],
-                                              cov[8]);
+        transform.getBasis() *
+        tf2::Matrix3x3(cov[0], cov[1], cov[2], cov[3], cov[4], cov[5], cov[6],
+                       cov[7], cov[8]) *
+        transform.getBasis().transpose();
     for (int i = 0; i < 9; i++) {
         measurement_.R(index[i / 3], index[i % 3]) =
             covariance_matrix[i / 3][i % 3];
@@ -65,7 +66,7 @@ void ImuSensor::callback(const sensor_msgs::Imu::ConstPtr &msg) {
     measurement_.z[Measurement::dyaw_dt] = angular_velocity.z();
     measurement_.z[Measurement::d2x_dt2] = linear_acceleration.x();
     measurement_.z[Measurement::d2y_dt2] = linear_acceleration.y();
-    measurement_.z[Measurement::d2z_dt2] = linear_acceleration.z() + 9.82;
+    measurement_.z[Measurement::d2z_dt2] = linear_acceleration.z();
 
     int RPY[3] = {Measurement::Roll, Measurement::Pitch, Measurement::Yaw};
     int drpy_dt[3] = {Measurement::droll_dt, Measurement::dpitch_dt,

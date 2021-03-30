@@ -34,6 +34,8 @@ struct Measurement {
 
     double time = 0.0;
 
+    double gravity = 9.82;
+
     Eigen::Vector3d sensor_position;
 
     Measurement()

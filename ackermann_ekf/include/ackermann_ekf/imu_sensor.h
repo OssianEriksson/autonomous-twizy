@@ -1,8 +1,8 @@
 #ifndef ACKERMANN_EKF_IMU_SENSOR
 #define ACKERMANN_EKF_IMU_SENSOR
 
-#include "ackermann_ekf_cpp/ackermann_ekf.h"
-#include "ackermann_ekf_cpp/sensor.h"
+#include "ackermann_ekf/ackermann_ekf.h"
+#include "ackermann_ekf/sensor.h"
 
 #include <boost/array.hpp>
 #include <geometry_msgs/TransformStamped.h>

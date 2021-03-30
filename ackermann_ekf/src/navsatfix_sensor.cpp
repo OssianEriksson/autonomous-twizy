@@ -1,8 +1,8 @@
-#include "ackermann_ekf_cpp/navsatfix_sensor.h"
-#include "ackermann_ekf_cpp/imu_sensor.h"
-#include "ackermann_ekf_cpp/ackermann_ekf.h"
-#include "ackermann_ekf_cpp/sensor.h"
-#include "ackermann_ekf_cpp/sensor_array.h"
+#include "ackermann_ekf/navsatfix_sensor.h"
+#include "ackermann_ekf/imu_sensor.h"
+#include "ackermann_ekf/ackermann_ekf.h"
+#include "ackermann_ekf/sensor.h"
+#include "ackermann_ekf/sensor_array.h"
 
 namespace ackermann_ekf {
 NavSatFixSensor::NavSatFixSensor(SensorArray &sensor_array,

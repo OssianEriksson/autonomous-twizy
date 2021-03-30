@@ -1,8 +1,8 @@
-#include "ackermann_ekf_cpp/sensor_array.h"
-#include "ackermann_ekf_cpp/ackermann_ekf.h"
-#include "ackermann_ekf_cpp/imu_sensor.h"
-#include "ackermann_ekf_cpp/navsatfix_sensor.h"
-#include "ackermann_ekf_cpp/sensor.h"
+#include "ackermann_ekf/sensor_array.h"
+#include "ackermann_ekf/ackermann_ekf.h"
+#include "ackermann_ekf/imu_sensor.h"
+#include "ackermann_ekf/navsatfix_sensor.h"
+#include "ackermann_ekf/sensor.h"
 
 namespace ackermann_ekf {
 SensorArray::SensorArray(ros::NodeHandle &nh, ros::NodeHandle &nh_private)
@@ -12,12 +12,34 @@ SensorArray::SensorArray(ros::NodeHandle &nh, ros::NodeHandle &nh_private)
       tf_broadcaster_(*new tf2_ros::TransformBroadcaster),
       base_link_("base_link"),
       world_frame_("map"),
-      frequency_(30.0) {
+      frequency_(30.0),
+      x_max_(STATE_SIZE),
+      x_min_(STATE_SIZE) {
+    ROS_INFO("Initializing Ackermann EKF...");
+
     nh_private.getParam("base_link", base_link_);
     nh_private.getParam("world_frame", world_frame_);
     nh_private.getParam("frequency", frequency_);
 
-    ROS_INFO("Initializing Ackermann EKF...");
+    x_max_.setConstant(std::numeric_limits<double>::max());
+    x_min_.setConstant(std::numeric_limits<double>::min());
+    XmlRpc::XmlRpcValue x_max, x_min;
+    if (nh_private.getParam("x_max", x_max)) {
+        ROS_ASSERT(x_max.getType() == XmlRpc::XmlRpcValue::TypeArray);
+        ROS_ASSERT(x_max.size() == STATE_SIZE);
+        for (int i = 0; i < STATE_SIZE; i++) {
+            x_max_(i) = static_cast<double>(x_max[i]);
+        }
+    }
+    if (nh_private.getParam("x_min", x_min)) {
+        ROS_ASSERT(x_min.getType() == XmlRpc::XmlRpcValue::TypeArray);
+        ROS_ASSERT(x_min.size() == STATE_SIZE);
+        for (int i = 0; i < STATE_SIZE; i++) {
+            x_min_(i) = static_cast<double>(x_min[i]);
+        }
+    } else {
+        x_min_ = -x_max_;
+    }
 
     XmlRpc::XmlRpcValue sensors;
     nh_private.getParam("sensors", sensors);
@@ -31,6 +53,8 @@ SensorArray::SensorArray(ros::NodeHandle &nh, ros::NodeHandle &nh_private)
         std::string type = sensors[i]["type"];
         if (type == "sensor_msgs/NavSatFix") {
             sensor_ptrs.push_back(new NavSatFixSensor(*this, sensors[i], nh));
+        } else if (type == "sensor_msgs/Imu") {
+            sensor_ptrs.push_back(new ImuSensor(*this, sensors[i], nh));
         } else {
             ROS_WARN("Unknown sensor type %s",
                      static_cast<std::string>(type).c_str());
@@ -45,13 +69,17 @@ SensorArray::SensorArray(ros::NodeHandle &nh, ros::NodeHandle &nh_private)
 }
 
 void SensorArray::periodic_update(const ros::TimerEvent &evt) {
+    if (evt.current_real == evt.last_real) {
+        return;
+    }
+
     tf2::Quaternion q;
     q.setRPY(filter_.x(State::Roll), filter_.x(State::Pitch),
              filter_.x(State::Yaw));
 
     geometry_msgs::TransformStamped transformStamped;
 
-    transformStamped.header.stamp = ros::Time::now();
+    transformStamped.header.stamp = evt.current_real;
     transformStamped.header.frame_id = world_frame_;
     transformStamped.child_frame_id = base_link_;
     transformStamped.transform.translation.x = filter_.x(State::X);
@@ -132,6 +160,8 @@ void SensorArray::process_measurement(Measurement &measurement) {
     measurement.z[Measurement::Yaw] += round(D_Yaw / (2 * M_PI)) * 2 * M_PI;
 
     filter_.process_measurement(measurement);
+
+    filter_.x.noalias() = filter_.x.cwiseMax(x_min_).cwiseMin(x_max_);
 }
 
 bool SensorArray::get_transform(geometry_msgs::TransformStamped &transform,

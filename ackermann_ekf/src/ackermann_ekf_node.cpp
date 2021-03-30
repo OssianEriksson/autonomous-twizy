@@ -1,4 +1,4 @@
-#include "ackermann_ekf_cpp/sensor_array.h"
+#include "ackermann_ekf/sensor_array.h"
 
 #include <ros/ros.h>
 

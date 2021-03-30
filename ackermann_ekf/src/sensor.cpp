@@ -1,8 +1,8 @@
-#include "ackermann_ekf_cpp/sensor.h"
-#include "ackermann_ekf_cpp/ackermann_ekf.h"
-#include "ackermann_ekf_cpp/imu_sensor.h"
-#include "ackermann_ekf_cpp/navsatfix_sensor.h"
-#include "ackermann_ekf_cpp/sensor_array.h"
+#include "ackermann_ekf/sensor.h"
+#include "ackermann_ekf/ackermann_ekf.h"
+#include "ackermann_ekf/imu_sensor.h"
+#include "ackermann_ekf/navsatfix_sensor.h"
+#include "ackermann_ekf/sensor_array.h"
 
 namespace ackermann_ekf {
 Sensor::Sensor(SensorArray &sensor_array, const XmlRpc::XmlRpcValue &params)
@@ -10,6 +10,7 @@ Sensor::Sensor(SensorArray &sensor_array, const XmlRpc::XmlRpcValue &params)
     if (params.hasMember("mask")) {
         XmlRpc::XmlRpcValue mask = params["mask"];
         ROS_ASSERT(mask.getType() == XmlRpc::XmlRpcValue::TypeArray);
+        ROS_ASSERT(mask.size() == MEASUREMENT_SIZE);
         for (int i = 0; i < MEASUREMENT_SIZE; i++) {
             measurement_.mask[i] = static_cast<bool>(mask[i]);
         }
@@ -17,6 +18,10 @@ Sensor::Sensor(SensorArray &sensor_array, const XmlRpc::XmlRpcValue &params)
         for (int i = 0; i < MEASUREMENT_SIZE; i++) {
             measurement_.mask[i] = true;
         }
+    }
+
+    if (params.hasMember("gravity")) {
+        measurement_.gravity = static_cast<double>(params["gravity"]);
     }
 }
 
