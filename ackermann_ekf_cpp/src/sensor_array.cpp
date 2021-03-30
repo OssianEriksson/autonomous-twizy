@@ -37,29 +37,72 @@ SensorArray::SensorArray(ros::NodeHandle &nh, ros::NodeHandle &nh_private)
         }
     }
 
+    odom_publisher_ = nh.advertise<nav_msgs::Odometry>("odom", 10);
+
     periodic_update_timer_ = nh.createTimer(
         ros::Duration(1.0 / frequency_), &SensorArray::periodic_update, this);
 }
 
 void SensorArray::periodic_update(const ros::TimerEvent &evt) {
     tf2::Quaternion q;
-    q.setRPY(filter_.x[State::Roll], filter_.x[State::Pitch],
-             filter_.x[State::Yaw]);
+    q.setRPY(filter_.x(State::Roll), filter_.x(State::Pitch),
+             filter_.x(State::Yaw));
 
     geometry_msgs::TransformStamped transformStamped;
 
     transformStamped.header.stamp = ros::Time::now();
     transformStamped.header.frame_id = world_frame_;
     transformStamped.child_frame_id = base_link_;
-    transformStamped.transform.translation.x = filter_.x[State::X];
-    transformStamped.transform.translation.y = filter_.x[State::Y];
-    transformStamped.transform.translation.z = filter_.x[State::Z];
+    transformStamped.transform.translation.x = filter_.x(State::X);
+    transformStamped.transform.translation.y = filter_.x(State::Y);
+    transformStamped.transform.translation.z = filter_.x(State::Z);
     transformStamped.transform.rotation.x = q.x();
     transformStamped.transform.rotation.y = q.y();
     transformStamped.transform.rotation.z = q.z();
     transformStamped.transform.rotation.w = q.w();
 
     tf_broadcaster_.sendTransform(transformStamped);
+
+    nav_msgs::Odometry odometry;
+
+    odometry.pose.pose.position.x = filter_.x(State::X);
+    odometry.pose.pose.position.y = filter_.x(State::Y);
+    odometry.pose.pose.position.z = filter_.x(State::Z);
+    odometry.pose.pose.orientation.x = q.x();
+    odometry.pose.pose.orientation.y = q.y();
+    odometry.pose.pose.orientation.z = q.z();
+    odometry.pose.pose.orientation.w = q.w();
+
+    const int XYZRPY[6] = {State::X,    State::Y,     State::Z,
+                           State::Roll, State::Pitch, State::Yaw};
+    for (int i = 0; i < 36; i++) {
+        odometry.pose.covariance[i] = filter_.P(XYZRPY[i / 6], XYZRPY[i % 6]);
+    }
+
+    const double v = filter_.x(State::speed), v2 = v * v;
+    const double Pv = filter_.P(State::speed, State::speed);
+
+    odometry.twist.twist.linear.x = filter_.x(State::speed);
+    odometry.twist.twist.angular.x = filter_.x(State::droll_dx) * v;
+    odometry.twist.twist.angular.y = filter_.x(State::dpitch_dx) * v;
+    odometry.twist.twist.angular.z = filter_.x(State::dyaw_dx) * v;
+
+    // Math is hard... This covariance is just guessed and not rigorous in any
+    // way whatsoever: We e.g. use only set a diagonal covaraiance matrix
+    odometry.twist.covariance[0] = filter_.P(State::speed, State::speed);
+    odometry.twist.covariance[7] = MIN_COVARIANCE;
+    odometry.twist.covariance[14] = MIN_COVARIANCE;
+    odometry.twist.covariance[21] =
+        filter_.P(State::Roll, State::Roll) * v2 +
+        Pv * filter_.x(State::Roll) * filter_.x(State::Roll);
+    odometry.twist.covariance[28] =
+        filter_.P(State::Pitch, State::Pitch) * v2 +
+        Pv * filter_.x(State::Pitch) * filter_.x(State::Pitch);
+    odometry.twist.covariance[35] =
+        filter_.P(State::Yaw, State::Yaw) * v2 +
+        Pv * filter_.x(State::Yaw) * filter_.x(State::Yaw);
+
+    odom_publisher_.publish(odometry);
 }
 
 void SensorArray::process_measurement(Measurement &measurement) {

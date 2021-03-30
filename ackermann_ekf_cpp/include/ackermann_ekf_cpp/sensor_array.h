@@ -26,6 +26,8 @@ class SensorArray {
 
     tf2_ros::TransformBroadcaster &tf_broadcaster_;
 
+    ros::Publisher odom_publisher_;
+
     ros::Timer periodic_update_timer_;
 
     Eigen::Vector3d initial_position_;
