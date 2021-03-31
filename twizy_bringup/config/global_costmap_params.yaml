@@ -1,18 +1,21 @@
 global_costmap:
+  inflater_layer:
+    inflation_radius: 3.0
+    cost_scaling_factor: 2
+
   plugins:
   - {name: obstacle_layer, type: "costmap_2d::ObstacleLayer"}
+  - {name: inflater_layer, type: "costmap_2d::InflationLayer"}
 
-  global_frame: map
-  robot_base_frame: base_link
   update_frequency: 1.0
   rolling_window: true
 
   # The width, and height are needed so there aren't complaints when a goal
   # outside the global map is selected (we increase the global map size so
-  # this never happens). This behavious has been labeled a bug in some planners
+  # this never happens). This behavious has been labeled a bug in navfn
   # (see https://answers.ros.org/question/89946/the-goal-sent-to-the-navfn-
   # planner-is-off-the-global-costmap-how-to-send-a-goal-more-than-10-meters-
-  # away-from-the-robot/) but has apparently not been fixed for our case
+  # away-from-the-robot/), but is still a thing in global_planner
   width: 100.0
   height: 100.0
   resolution: 2.0
