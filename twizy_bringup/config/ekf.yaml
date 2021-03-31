@@ -1,7 +1,7 @@
 frequency: 24
 base_link: 'base_link'
 
-# x_max: [.inf, .inf, .inf, 10.0, 3.0, 0.01, 0.01, .inf, 0.01, 0.01, 1.0]
+x_max: [.inf, .inf, .inf, 10.0, 3.0, 0.01, 0.01, .inf, 0.01, 0.01, 1.0]
 
 sensors:
 - topic: /gnss/left/fix
