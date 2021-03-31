@@ -10,7 +10,7 @@ TebLocalPlannerROS:
  max_samples: 500                         # Search source code of teb_local_planner for more info
  global_plan_overwrite_orientation: True  # Overwrite orientation of local subgoals provided by the global planner (Because global subgoals are often 2D)
  allow_init_with_backwards_motion: True   # If true, underlying trajectories might be initialized with backwards motions in case the goal is behind the start within the local costmap (Useful if the car is equipped with rear sensors(which it is in our case, back camera))
- max_global_plan_lookahead_dist: 3.0      # Maximum cumulative Euclidean distance of the subset of the global plan taken into account for optimization. Set to 0 in order to deactivate this limitation.
+ max_global_plan_lookahead_dist: 10.0     # Maximum cumulative Euclidean distance of the subset of the global plan taken into account for optimization. Set to 0 in order to deactivate this limitation.
  global_plan_viapoint_sep: -1             # If positive, via-points are extrected from the global plan (path-following mode). The value determines the resolution of the reference path (min. separation between each two consecutive via-points along the global plan, if negative: disabled).
  global_plan_prune_distance: 1            # Distance between robot and via_points of global plan which is used for pruning
  exact_arc_length: False                  # If true, the planner uses the exact arc length in velocity, acceleration and turning rate computations (-> increased cpu time), otherwise the Euclidean approximation is used.
@@ -76,7 +76,7 @@ TebLocalPlannerROS:
  weight_acc_lim_x: 1          # Optimization weight for satisfying the maximum allowed translational acceleration 
  weight_acc_lim_theta: 1      # Optimization weight for satisfying the maximum allowed angular acceleration
  weight_kinematics_nh: 1000   # Optimization weight for non-holonomic (e.g. cars) kinematics
- weight_kinematics_forward_drive: 1 # Opt. weight for forcing the robot to choose only forward directions. Small weights (e.g. =1) still allows going backwards, 1000 almost prevents all kinds of backwards driving.
+ weight_kinematics_forward_drive: 10 # Opt. weight for forcing the robot to choose only forward directions. Small weights (e.g. =1) still allows going backwards, 1000 almost prevents all kinds of backwards driving.
  weight_kinematics_turning_radius: 1 # Opt. weight for forcing a minimum turning radius.
  weight_optimaltime: 1 # Opt. weight for contracting the trajectory with respect to transition/exec time. Must be > 0 
  weight_shortest_path: 0 # Opt. weight for contracting the trajectory with respect to path length.

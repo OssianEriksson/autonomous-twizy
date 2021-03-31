@@ -10,6 +10,7 @@
 		<rosparam file="$(find twizy_bringup)/config/local_costmap_params.yaml" command="load" />
 		<rosparam file="$(find twizy_bringup)/config/global_costmap_params.yaml" command="load" />
 		<rosparam file="$(find twizy_bringup)/config/teb_local_planner_params.yaml" command="load" />
+		<rosparam file="$(find twizy_bringup)/config/global_planner_params.yaml" command="load" />
 
 		<param name="base_global_planner" value="global_planner/GlobalPlanner" />
 		<param name="planner_frequency" value="1.0" />
