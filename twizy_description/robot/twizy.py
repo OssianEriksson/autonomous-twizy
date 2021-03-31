@@ -188,7 +188,13 @@ def twizy():
                     gnss('left'),
                     gnss('right'),
                     *piksi_imu('lower'),
-                    *piksi_imu('upper'),
+
+                    # The first IMU works fine, however the second (we have
+                    # tried switching them around) reports values in some
+                    # unknown coordinate systems instead of the one specified
+                    # with the transform and rotation fields. Is this a bug in
+                    # the webots ROS controller?
+                    # *piksi_imu('upper'),
                     Node('Transform', {
                         'children': [
                             Node('Transform', {
