@@ -13,7 +13,7 @@ global_costmap:
   # (see https://answers.ros.org/question/89946/the-goal-sent-to-the-navfn-
   # planner-is-off-the-global-costmap-how-to-send-a-goal-more-than-10-meters-
   # away-from-the-robot/) but has apparently not been fixed for our case
-  width: 500.0
-  height: 500.0
-  resolution: 500.0
+  width: 100.0
+  height: 100.0
+  resolution: 2.0
   

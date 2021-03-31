@@ -192,7 +192,7 @@ void AckermannEkf::correct(const Measurement &measurement) {
     Eigen::MatrixXd R = measurement.R;
     Eigen::VectorXd y(MEASUREMENT_SIZE);
     for (int i = 0; i < MEASUREMENT_SIZE; i++) {
-        if (measurement.mask[i]) {
+        if (measurement.mask[i] && !isnan(measurement.z(i))) {
             y(i) = measurement.z(i) - h(i);
 
             if (R(i, i) < MIN_COVARIANCE) {

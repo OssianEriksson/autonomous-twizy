@@ -1,0 +1,66 @@
+#VRML_SIM R2021a utf8
+WorldInfo {
+  coordinateSystem "NUE"
+  contactProperties [
+    ContactProperties {
+      softCFM 0.0001
+    }
+  ]
+}
+Viewpoint {
+  orientation -0.30701421794563033 0.9174762429466939 0.2529419174586373 2.192844829452034
+  position 7.7614461554409075 8.414295906491061 -5.9554869753767
+}
+TexturedBackground {
+}
+TexturedBackgroundLight {
+}
+RectangleArena {
+  floorSize 100 100
+}
+Twizy {
+  hidden position_0_0 2.6050643982447792e-14
+  hidden position2_0_0 0.0030584037615439866
+  hidden position_0_1 2.62713536634479e-14
+  hidden position2_0_1 0.00314003129130136
+  hidden position_0_2 0.3256811380009399
+  hidden position_0_3 0.32561208950456
+  hidden translation_7 4.4179416041047295e-15 6.566743322227217e-15 0.7
+  hidden rotation_7 2.9703478133026614e-11 1 1.0375202976187107e-11 0.0010691983075991475
+  hidden translation_8 7.397544653920467e-15 -3.2029999276448477e-15 0.7
+  hidden rotation_8 1.822707239817604e-11 1 -1.3555730384873008e-11 0.001125291103610224
+  hidden translation_9 6.8960182952817006e-15 4.261275420536476e-15 0.7
+  hidden rotation_9 4.4318486621251315e-14 1 -9.044763426949976e-14 0.3199448385507077
+  hidden translation_10 -6.115832426902775e-15 -1.3138046861243943e-14 -6.876529855472453e-15
+  hidden rotation_10 6.213538310196219e-15 1 -1.446482619860278e-14 0.3199084939079519
+  hidden rotation_13 -1.2914121811840439e-14 1 1.32078039630909e-11 0.001989205453748902
+  hidden rotation_14 -1.2941200608085187e-14 1 1.3232622874250825e-11 0.00201474018758595
+  hidden rotation_15 0 1 0 0.005736299450211004
+  hidden rotation_16 0 1 0 0.005703595596541083
+  translation -2.46397e-05 0.0130192 -0.888661
+  rotation 0.5770605990358749 0.5770491714963732 0.5779405840704616 -2.093492750379218
+}
+WoodenBox {
+  translation 0.46 0.5 2.51
+  size 1 1 1
+}
+WoodenBox {
+  translation 2.16 0.5 2.51
+  name "wooden box(1)"
+  size 1 1 1
+}
+WoodenBox {
+  translation -1.71 0.5 2.51
+  name "wooden box(2)"
+  size 1 1 1
+}
+WoodenBox {
+  translation -1.69 0.5 0.58
+  name "wooden box(3)"
+  size 1 1 1
+}
+WoodenBox {
+  translation 2.14 0.5 0.68
+  name "wooden box(4)"
+  size 1 1 1
+}

@@ -8,7 +8,7 @@ local_costmap:
   update_frequency: 1.0
   publish_frequency: 1.0
   rolling_window: true
-  width: 10.0
-  height: 10.0
+  width: 20.0                   # Width of the local costmap
+  height: 20.0                  # Height of the local costmap
   resolution: 0.2
 
