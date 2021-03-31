@@ -21,14 +21,14 @@ TebLocalPlannerROS:
 
  max_vel_x: 1.38            # Maximum velocity in positive x-direction [m/s]
  max_vel_x_backwards: 1.38  # Maximum velocity in negative x-direction [m/s]
- max_vel_y: 0.0             # Maximum velocity in y-direction [m/s] (set to 0 for car-like vehicles)
- max_vel_theta: 0.3         # the angular velocity is also bounded by min_turning_radius in case of a carlike robot (r = v / omega)
+ max_vel_y: 0.0             # Maximum velocity in y-direction [m/s] (Set to 0 for car-like vehicles)
+ max_vel_theta: 1.38         # the angular velocity is also bounded by min_turning_radius in case of a carlike robot (r = v / omega)
  acc_lim_x: 0.5             # Maximum Acceleration in x-direction [m/s²]
  acc_lim_theta: 0.5         # Maximum angular velocity of the whole car in radians/sec
 
  # ********************** Carlike robot parameters ********************
  min_turning_radius: 2.5        # Min turning radius of the carlike robot (compute value using a model or adjust with rqt_reconfigure manually)
- wheelbase: 1.686               # Wheelbase of our robot
+ wheelbase: 1.686               # Wheelbase of our robot measured in [m]
  cmd_angle_instead_rotvel: True # stage simulator takes the angle instead of the rotvel as input (twist message), this is needed by the twist_to_ackermann node
  # ********************************************************************
 
@@ -43,20 +43,20 @@ TebLocalPlannerROS:
  # GoalTolerance
     
  xy_goal_tolerance: 0.2         # Tolerace for car position compared to end goal in meters
- yaw_goal_tolerance: 0.1        # Tolerance for car rotation compared to angular goal in radians
+ yaw_goal_tolerance: 0.2        # Tolerance for car rotation compared to angular goal in radians
  free_goal_vel: False           # False makes the car arrive at goal at no speed, True allows it to arrive at any speed
  complete_global_plan: True
     
  # Obstacles
     
- min_obstacle_dist: 0.8         # This value must also include our robot's expansion, since footprint_model is set to "line".
- inflation_dist: 0.6            # Buffer zone around obstacles with non-zero penalty costs ()NOTE: Must be greater than min_obstacle_dist in order to be taken into account
- include_costmap_obstacles: True # Specify if obstacles of the local costmap should be taken into account
- costmap_obstacles_behind_robot_dist: 1.0 # Specify distance for how far behind the car an object can be in order to make the local costmap take the object into accout while planning route
- obstacle_poses_affected: 15     # Each obstacle position is attached to the closest pose on the trajectory in order to keep a distance. Additional neighbors can be taken into account as well.
+ min_obstacle_dist: 1.5                     # This value must also include our robot's expansion, since footprint_model is set to "line".
+ inflation_dist: 2.0                        # with non-zero penalty costs ()NOTE: Must be greater than min_obstacle_dist in order to be taken into account
+ include_costmap_obstacles: True            # Specify if obstacles of the local costmap should be taken into account
+ costmap_obstacles_behind_robot_dist: 6.0   # Specify distance for how far behind the car an object can be in order to make the local costmap take the object into accout while planning route
+ obstacle_poses_affected: 15                # Each obstacle position is attached to the closest pose on the trajectory in order to keep a distance. Additional neighbors can be taken into account as well.
 
- dynamic_obstacle_inflation_dist: 0.6 # Same as inflation_dist but for dynamic obstacles
- include_dynamic_obstacles: True # Specify if dynamic obstacles should be taken into account. Movement of these is predicted assuming constant velocity
+ dynamic_obstacle_inflation_dist: 1.0       # Same as inflation_dist but for dynamic obstacles
+ include_dynamic_obstacles: True            # Specify if dynamic obstacles should be taken into account. Movement of these is predicted assuming constant velocity
 
  costmap_converter_plugin: ""               # Define plugin name in order to convert costmap cells to points/lines/polygons. Set an empty string to disable the conversion such that all cells are treated as point-obstacles.
  costmap_converter_spin_thread: True        # If set to true, the costmap converter invokes its callback queue in a different thread.
@@ -80,7 +80,7 @@ TebLocalPlannerROS:
  weight_kinematics_turning_radius: 1 # Opt. weight for forcing a minimum turning radius.
  weight_optimaltime: 1 # Opt. weight for contracting the trajectory with respect to transition/exec time. Must be > 0 
  weight_shortest_path: 0 # Opt. weight for contracting the trajectory with respect to path length.
- weight_obstacle: 100 # Opt. weight for minimum separation from obstacles.
+ weight_obstacle: 50 # Opt. weight for minimum separation from obstacles.
  weight_inflation: 0.2  # Opt. weight for inflation penalty (Should be small according to ros docs for navstack)
  weight_dynamic_obstacle: 10 # Same as weight_obstacle but for dynamic obstacles, not in use yet
  weight_dynamic_obstacle_inflation: 0.2 # Same as for weight_inflation but for dynamic obstacles.
