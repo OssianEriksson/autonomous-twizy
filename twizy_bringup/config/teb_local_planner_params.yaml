@@ -34,8 +34,8 @@ TebLocalPlannerROS:
 
  footprint_model: # types: "point", "circular", "two_circles", "line", "polygon"
    type: "line"           
-   line_start: [1.0, 0.0] # for type "line"
-   line_end: [-1.0, 0.0] # for type "line"
+   line_start: [0.0, 0.0] # for type "line", The robot (axis of rotation) is assumed to be at [0,0] (Unit: meters)
+   line_end: [1.686, 0.0] # for type "line"
 
 #    type: "circular"
 #    radius: "1.0"
