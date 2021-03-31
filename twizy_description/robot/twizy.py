@@ -51,7 +51,7 @@ def quote(s):
     return f'"{s}"'
 
 
-robot_mass = physical['chassis']['mass'] / 2.0
+robot_mass = physical['chassis']['mass'] * 0.01
 
 mesh_path = description_pkg_path / 'meshes'
 

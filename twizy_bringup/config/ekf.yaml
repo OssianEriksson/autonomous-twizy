@@ -1,6 +1,8 @@
 frequency: 24
 base_link: 'base_link'
 
+# x_max: [.inf, .inf, .inf, 10.0, 3.0, 0.01, 0.01, .inf, 0.01, 0.01, 1.0]
+
 sensors:
 - topic: /gnss/left/fix
   type: sensor_msgs/NavSatFix
@@ -9,5 +11,9 @@ sensors:
   type: sensor_msgs/NavSatFix
 
 - topic: /imu/piksi/lower/imu
+  type: sensor_msgs/Imu
+  mask: [False, False, False, False, False, False, True, True, True, False, False, False, True, True, True]
+
+- topic: /imu/piksi/upper/imu
   type: sensor_msgs/Imu
   mask: [False, False, False, False, False, False, True, True, True, False, False, False, True, True, True]
