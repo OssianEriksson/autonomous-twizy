@@ -3,9 +3,8 @@ Panels:
     Help Height: 78
     Name: Displays
     Property Tree Widget:
-      Expanded:
-        - /Global Options1
-      Splitter Ratio: 0.5
+      Expanded: ~
+      Splitter Ratio: 0.6441176533699036
     Tree Height: 221
   - Class: rviz/Selection
     Name: Selection
@@ -25,7 +24,7 @@ Panels:
     Experimental: false
     Name: Time
     SyncMode: 0
-    SyncSource: Front RealSense point cloud
+    SyncSource: ""
 Preferences:
   PromptSaveOnExit: true
 Toolbars:
@@ -33,24 +32,6 @@ Toolbars:
 Visualization Manager:
   Class: ""
   Displays:
-    - Alpha: 0.5
-      Cell Size: 1
-      Class: rviz/Grid
-      Color: 160; 160; 164
-      Enabled: true
-      Line Style:
-        Line Width: 0.029999999329447746
-        Value: Lines
-      Name: Grid
-      Normal Cell Count: 0
-      Offset:
-        X: 0
-        Y: 0
-        Z: 0
-      Plane: XY
-      Plane Cell Count: 10
-      Reference Frame: <Fixed Frame>
-      Value: true
     - Alpha: 1
       Class: rviz/RobotModel
       Collision Enabled: false
@@ -89,6 +70,10 @@ Visualization Manager:
           Show Trail: false
           Value: true
         left_gnss:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        lower_piksi_imu:
           Alpha: 1
           Show Axes: false
           Show Trail: false
@@ -163,19 +148,18 @@ Visualization Manager:
       Shaft Length: 0.10000000149011612
       Topic: /move_base/TebLocalPlannerROS/local_plan
       Unreliable: false
-      Value: false
+      Value: true
     - Alpha: 1
       Buffer Length: 1
       Class: rviz/Path
-      Color: 25; 255; 0
-      Enabled: true
+      Color: 255; 0; 0
+      Enabled: false
       Head Diameter: 0.30000001192092896
       Head Length: 0.20000000298023224
       Length: 0.30000001192092896
       Line Style: Lines
       Line Width: 0.029999999329447746
       Name: TEB global plan
-      Color: 255; 0; 0;
       Offset:
         X: 0
         Y: 0
@@ -198,8 +182,27 @@ Visualization Manager:
       Topic: /move_base/local_costmap/costmap
       Unreliable: false
       Use Timestamp: false
+      Value: true
+    - Alpha: 0.699999988079071
+      Class: rviz/Map
+      Color Scheme: map
+      Draw Behind: false
+      Enabled: false
+      Name: Global map
+      Topic: /move_base/global_costmap/costmap
+      Unreliable: false
+      Use Timestamp: false
       Value: false
-      Enabled: true
+    - Alpha: 0.699999988079071
+      Class: rviz/Map
+      Color Scheme: map
+      Draw Behind: false
+      Enabled: false
+      Name: Global planner potential
+      Topic: /move_base/GlobalPlanner/potential
+      Unreliable: false
+      Use Timestamp: false
+      Value: false
   Enabled: true
   Global Options:
     Background Color: 48; 48; 48
@@ -228,7 +231,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 23.7015380859375
+      Distance: 34.45941925048828
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
@@ -244,9 +247,9 @@ Visualization Manager:
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.8814995288848877
+      Pitch: 0.6164990067481995
       Target Frame: <Fixed Frame>
-      Yaw: 2.737746000289917
+      Yaw: 2.142744541168213
     Saved: ~
 Window Geometry:
   Displays:
@@ -265,4 +268,4 @@ Window Geometry:
     collapsed: false
   Width: 970
   X: 156
-  Y: 168
+  Y: 94
