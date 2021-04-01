@@ -10,6 +10,7 @@ project(yolo_detection)
 find_package(catkin REQUIRED COMPONENTS
 message_generation
 std_msgs
+message_filters
 )
 
 ## System dependencies are found with CMake's conventions
@@ -20,7 +21,7 @@ std_msgs
 ## See http://ros.org/doc/api/catkin/html/user_guide/setup_dot_py.html
 #catkin_python_setup()
 
-################################################
+################################################message_filter
 ## Declare ROS messages, services and actions ##
 ################################################
 
@@ -162,6 +163,7 @@ include_directories(
 catkin_install_python(PROGRAMS
   scripts/yolo_test.py
   scripts/bounding_box_calc.py
+  scripts/object_detection.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
