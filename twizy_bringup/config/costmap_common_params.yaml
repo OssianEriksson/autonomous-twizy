@@ -1,7 +1,7 @@
+global_frame: map
+robot_base_frame: base_link
+publish_frequency: 1.0
 transform_tolerance: 1.0
-
-inflater_layer:
-  inflation_radius: 1.05 # Random number, very important!
 
 obstacle_layer:
   obstacle_range: 8.5
