@@ -49,8 +49,8 @@ TebLocalPlannerROS:
     
  # Obstacles
     
- min_obstacle_dist: 2.0         # This value must also include our robot's expansion, since footprint_model is set to "line".
- inflation_dist: 2.5            # Buffer zone around obstacles with non-zero penalty costs ()NOTE: Must be greater than min_obstacle_dist in order to be taken into account
+ min_obstacle_dist: 1.0         # This value must also include our robot's expansion, since footprint_model is set to "line".
+ inflation_dist: 2.0            # Buffer zone around obstacles with non-zero penalty costs ()NOTE: Must be greater than min_obstacle_dist in order to be taken into account
  include_costmap_obstacles: True # Specify if obstacles of the local costmap should be taken into account
  costmap_obstacles_behind_robot_dist: 1.0 # Specify distance for how far behind the car an object can be in order to make the local costmap take the object into accout while planning route
  obstacle_poses_affected: 15     # Each obstacle position is attached to the closest pose on the trajectory in order to keep a distance. Additional neighbors can be taken into account as well.
