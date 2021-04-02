@@ -23,15 +23,15 @@ def main():
     inertial_device = rospy.get_param('~inertial_device', None)
     frame_id = rospy.get_param('~frame_id')
     ups = rospy.get_param('~imu/ups', 30.0)
-    gyro_covariance = rospy.get_param('gyro/covariance',
+    gyro_covariance = rospy.get_param('~gyro/covariance',
                                       [0.01, 0.0, 0.0,
                                        0.0, 0.01, 0.0,
                                        0.0, 0.0, 0.01])
-    accel_covariance = rospy.get_param('accel/covariance',
+    accel_covariance = rospy.get_param('~accel/covariance',
                                        [0.01, 0.0, 0.0,
                                         0.0, 0.01, 0.0,
                                         0.0, 0.0, 0.01])
-    inertial_covariance = rospy.get_param('inertial/covariance',
+    inertial_covariance = rospy.get_param('~inertial/covariance',
                                           [0.01, 0.0, 0.0,
                                            0.0, 0.01, 0.0,
                                            0.0, 0.0, 0.01])

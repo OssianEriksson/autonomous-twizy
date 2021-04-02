@@ -69,11 +69,11 @@ Visualization Manager:
           Show Axes: false
           Show Trail: false
           Value: true
-        left_gnss:
+        left_piksi_gnss:
           Alpha: 1
           Show Axes: false
           Show Trail: false
-        lower_piksi_imu:
+        left_piksi_imu:
           Alpha: 1
           Show Axes: false
           Show Trail: false
@@ -87,7 +87,11 @@ Visualization Manager:
           Show Axes: false
           Show Trail: false
           Value: true
-        right_gnss:
+        right_piksi_gnss:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        right_piksi_imu:
           Alpha: 1
           Show Axes: false
           Show Trail: false
@@ -129,7 +133,7 @@ Visualization Manager:
       Buffer Length: 1
       Class: rviz/Path
       Color: 25; 255; 0
-      Enabled: true
+      Enabled: false
       Head Diameter: 0.30000001192092896
       Head Length: 0.20000000298023224
       Length: 0.30000001192092896
@@ -148,7 +152,7 @@ Visualization Manager:
       Shaft Length: 0.10000000149011612
       Topic: /move_base/TebLocalPlannerROS/local_plan
       Unreliable: false
-      Value: true
+      Value: false
     - Alpha: 1
       Buffer Length: 1
       Class: rviz/Path
@@ -267,5 +271,5 @@ Window Geometry:
   Views:
     collapsed: false
   Width: 970
-  X: 156
-  Y: 94
+  X: 151
+  Y: 213

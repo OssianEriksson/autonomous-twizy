@@ -66,21 +66,19 @@ def main():
     color_device = rospy.get_param('~color_device')
     depth_device = rospy.get_param('~depth_device')
     frame_id = rospy.get_param('~frame_id', color_device)
-    fps = rospy.get_param('color_depth_sensor/fps', 30.0)
-    color_distortion_model = rospy.get_param('color_depth_sensor/'
-                                             'color_distortion_model',
+    fps = rospy.get_param('~fps', 30.0)
+    color_distortion_model = rospy.get_param('~color_distortion_model',
                                              'plumb_bob')
-    color_D = rospy.get_param('color_depth_sensor/color_D', [0, 0, 0, 0, 0])
-    color_R = rospy.get_param('color_depth_sensor/color_R', [1, 0, 0,
-                                                             0, 1, 0,
-                                                             0, 0, 1])
-    depth_distortion_model = rospy.get_param('color_depth_sensor/'
-                                             'depth_distortion_model',
+    color_D = rospy.get_param('~color_D', [0, 0, 0, 0, 0])
+    color_R = rospy.get_param('~color_R', [1, 0, 0,
+                                           0, 1, 0,
+                                           0, 0, 1])
+    depth_distortion_model = rospy.get_param('~depth_distortion_model',
                                              'plumb_bob')
-    depth_D = rospy.get_param('color_depth_sensor/depth_D', [0, 0, 0, 0, 0])
-    depth_R = rospy.get_param('color_depth_sensor/depth_R', [1, 0, 0,
-                                                             0, 1, 0,
-                                                             0, 0, 1])
+    depth_D = rospy.get_param('~depth_D', [0, 0, 0, 0, 0])
+    depth_R = rospy.get_param('~depth_R', [1, 0, 0,
+                                           0, 1, 0,
+                                           0, 0, 1])
     model = rospy.get_param('twizy_webots/model_name', None)
 
     robot = twizy_webots.robot.Robot(model)

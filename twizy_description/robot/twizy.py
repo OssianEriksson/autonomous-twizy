@@ -144,32 +144,29 @@ def front_wheel(lr):
     })
 
 
-def gnss(lr):
-    return Node('GPS', {
-        'name': f'"{lr}_gnss"',
-        'translation': vector(model[f'{lr}_gnss']['position']),
-        'accuracy': model[f'{lr}_gnss']['accuracy']
-    })
-
-
-def piksi_imu(lu):
-    transformation_fields = {
-        'translation': vector(model[f'{lu}_piksi_imu']['position']),
-        'rotation': rotation(model[f'{lu}_piksi_imu']['rotation'])
+def piksi(lr):
+    imu_transformation_fields = {
+        'translation': vector(model[f'{lr}_piksi_imu']['position']),
+        'rotation': rotation(model[f'{lr}_piksi_imu']['rotation'])
     }
 
     return [
+        Node('GPS', {
+            'name': f'"{lr}_piksi_gnss"',
+            'translation': vector(model[f'{lr}_piksi_gnss']['position']),
+            'accuracy': model[f'{lr}_piksi_gnss']['accuracy']
+        }),
         Node('Solid', {
-            'name': f'"{lu}_piksi_imu"',
-            **transformation_fields
+            'name': f'"{lr}_piksi_imu"',
+            **imu_transformation_fields
         }),
         Node('Gyro', {
-            'name': f'"{lu}_piksi_gyro"',
-            **transformation_fields
+            'name': f'"{lr}_piksi_gyro"',
+            **imu_transformation_fields
         }, True),
         Node('Accelerometer', {
-            'name': f'"{lu}_piksi_accelerometer"',
-            **transformation_fields
+            'name': f'"{lr}_piksi_accelerometer"',
+            **imu_transformation_fields
         }, True)
     ]
 
@@ -185,26 +182,24 @@ def twizy():
                         ],
                         'scale': ' '.join(str(physical['chassis'][i]) for i in ['length', 'width', 'height'])
                     }),
-                    gnss('left'),
-                    gnss('right'),
-                    *piksi_imu('lower'),
-                    *piksi_imu('upper'),
+                    *piksi('left'),
+                    *piksi('right'),
                     Node('Transform', {
                         'children': [
                             Node('Transform', {
                                 'children': [
                                     Node('RangeFinder', {
-                                        'name': '"front_realsense_depth_camera"',
-                                        'fieldOfView': model['front_realsense']['depth']['fov'],
-                                        'width': model['front_realsense']['depth']['width'],
-                                        'height': model['front_realsense']['depth']['height'],
+                                        'name': '"front_realsense_aligned_depth_to_color"',
+                                        'fieldOfView': model['front_realsense']['color']['fov'],
+                                        'width': model['front_realsense']['color']['width'],
+                                        'height': model['front_realsense']['color']['height'],
                                         'maxRange': model['front_realsense']['depth']['max_range']
                                     }),
                                     Node('Camera', {
-                                        'name': '"front_realsense_aligned_depth_to_color_camera"',
-                                        'fieldOfView': model['front_realsense']['depth']['fov'],
-                                        'width': model['front_realsense']['depth']['width'],
-                                        'height': model['front_realsense']['depth']['height'],
+                                        'name': '"front_realsense_color_image_raw"',
+                                        'fieldOfView': model['front_realsense']['color']['fov'],
+                                        'width': model['front_realsense']['color']['width'],
+                                        'height': model['front_realsense']['color']['height'],
                                     })
                                 ],
 

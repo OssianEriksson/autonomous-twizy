@@ -1,6 +1,6 @@
 TebLocalPlannerROS:
 
- odom_topic: /odom #subscribes local_planner to ros odometry topic
+ odom_topic: /ekf/global/odom #subscribes local_planner to ros odometry topic
     
  # Trajectory
   
