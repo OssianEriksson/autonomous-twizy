@@ -24,9 +24,9 @@ def main():
     # and https://www.bosch-sensortec.com/products/motion-sensors/imus/bmi160/
     imu_acc_sens = rospy.get_param('~imu_acc_sens', 9.82 / 4096.0)
     imu_gyro_sens = rospy.get_param('~imu_gyro_sens', radians(1) / 262.4)
-    imu_frame = rospy.get_param('~imu_frame')
-    mag_frame = rospy.get_param('~mag_frame')
-    gnss_frame = rospy.get_param('~gnss_frame')
+    imu_frame = rospy.get_param('~imu_frame', 'piksi_imu')
+    mag_frame = rospy.get_param('~mag_frame', imu_frame)
+    gnss_frame = rospy.get_param('~gnss_frame', 'piksi_gnss')
 
     pub_imu = rospy.Publisher('imu/raw', Imu, queue_size=1)
     pub_mag = rospy.Publisher('mag/raw', MagneticField, queue_size=1)
