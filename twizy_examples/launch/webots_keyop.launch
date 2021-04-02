@@ -4,5 +4,5 @@
         <arg name="world" value="trees.wbt" />
     </include>
 
-    <include file="$(find twizy_bringup)/launch/teleop.launch" />
+    <include file="$(find twizy_bringup)/launch/keyop.launch" />
 </launch>

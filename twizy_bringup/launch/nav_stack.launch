@@ -1,9 +1,5 @@
 <?xml version="1.0"?>
 <launch>
-	<!--- Run AMCL -->
-	<!-- <include file="$(find amcl)/examples/amcl_omni.launch" /> -->
-
-	<!--  ************** Navigation ***************  -->
 	<node pkg="move_base" type="move_base" respawn="false" name="move_base" output="screen">
 		<rosparam file="$(find twizy_bringup)/config/costmap_common_params.yaml" command="load" ns="global_costmap" />
 		<rosparam file="$(find twizy_bringup)/config/costmap_common_params.yaml" command="load" ns="local_costmap" />
