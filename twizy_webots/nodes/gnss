@@ -20,13 +20,13 @@ def main():
     # Read parameters from ROS parameter server
     device = rospy.get_param('~device')
     frame_id = rospy.get_param('~frame_id', device)
-    ups = rospy.get_param('gnss/ups', 30.0)
-    status = rospy.get_param('gnss/status', None)
-    service = rospy.get_param('gnss/service', None)
+    ups = rospy.get_param('~ups', 30.0)
+    status = rospy.get_param('~status', None)
+    service = rospy.get_param('~service', None)
     model = rospy.get_param('twizy_webots/model_name', None)
-    covariance = rospy.get_param('gnss/covariance', None)
-    covariance_type = rospy.get_param('gnss/covariance_type', None)
-    origin_llh = rospy.get_param('gnss/origin_llh', [57.70716, 11.96679, 10.0])
+    covariance = rospy.get_param('~covariance', None)
+    covariance_type = rospy.get_param('~covariance_type', None)
+    origin_llh = rospy.get_param('~origin_llh', [57.70716, 11.96679, 10.0])
 
     def populate_navsatfix(msg, source=NavSatFix()):
         msg.status.status = (status or
