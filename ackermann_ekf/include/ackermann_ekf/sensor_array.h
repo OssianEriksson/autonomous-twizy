@@ -42,6 +42,8 @@ class SensorArray {
 
     std::string base_link_;
 
+    bool differential_position_ = true;
+
     Eigen::VectorXd x_max_, x_min_;
 
     void periodic_update(const ros::TimerEvent &evt);

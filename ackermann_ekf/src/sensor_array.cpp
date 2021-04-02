@@ -20,6 +20,12 @@ SensorArray::SensorArray(ros::NodeHandle &nh, ros::NodeHandle &nh_private)
     nh_private.getParam("base_link", base_link_);
     nh_private.getParam("world_frame", world_frame_);
     nh_private.getParam("frequency", frequency_);
+    nh_private.getParam("differential_position", differential_position_);
+
+    if (!differential_position_) {
+        initial_position_.setZero();
+        filter_initialized_ = true;
+    }
 
     x_max_.setConstant(std::numeric_limits<double>::max());
     x_min_.setConstant(std::numeric_limits<double>::min());
