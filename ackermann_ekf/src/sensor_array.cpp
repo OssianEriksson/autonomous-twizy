@@ -6,39 +6,44 @@
 
 namespace ackermann_ekf {
 SensorArray::SensorArray(ros::NodeHandle &nh, ros::NodeHandle &nh_private)
-    : filter_(ros::Time::now().toSec()),
-      tf_buffer_(*new tf2_ros::Buffer),
-      tf_listener_(*new tf2_ros::TransformListener(tf_buffer_)),
-      tf_broadcaster_(*new tf2_ros::TransformBroadcaster),
-      base_link_("base_link"),
-      world_frame_("map"),
-      frequency_(30.0),
-      x_max_(STATE_SIZE),
-      x_min_(STATE_SIZE) {
+    : tf_buffer_(new tf2_ros::Buffer),
+      tf_listener_(new tf2_ros::TransformListener(*tf_buffer_)),
+      tf_broadcaster_(new tf2_ros::TransformBroadcaster) {
     ROS_INFO("Initializing Ackermann EKF...");
 
     nh_private.getParam("base_link", base_link_);
     nh_private.getParam("world_frame", world_frame_);
     nh_private.getParam("frequency", frequency_);
+    nh_private.getParam("differential_position", differential_position_);
 
-    x_max_.setConstant(std::numeric_limits<double>::max());
-    x_min_.setConstant(std::numeric_limits<double>::min());
-    XmlRpc::XmlRpcValue x_max, x_min;
-    if (nh_private.getParam("x_max", x_max)) {
-        ROS_ASSERT(x_max.getType() == XmlRpc::XmlRpcValue::TypeArray);
-        ROS_ASSERT(x_max.size() == STATE_SIZE);
+    periodic_filter_time_delay_ = 1.0 / frequency_;
+    nh_private.getParam("periodic_filter_time_delay",
+                        periodic_filter_time_delay_);
+
+    if (!differential_position_) {
+        initial_position_.setZero();
+        filter_initialized_ = true;
+    }
+
+    Eigen::VectorXd x_min(STATE_SIZE), x_max(STATE_SIZE);
+    x_max.setConstant(std::numeric_limits<double>::max());
+    x_min.setConstant(std::numeric_limits<double>::min());
+    XmlRpc::XmlRpcValue x_min_value, x_max_value;
+    if (nh_private.getParam("x_max", x_max_value)) {
+        ROS_ASSERT(x_max_value.getType() == XmlRpc::XmlRpcValue::TypeArray);
+        ROS_ASSERT(x_max_value.size() == STATE_SIZE);
         for (int i = 0; i < STATE_SIZE; i++) {
-            x_max_(i) = static_cast<double>(x_max[i]);
+            x_max(i) = static_cast<double>(x_max_value[i]);
         }
     }
-    if (nh_private.getParam("x_min", x_min)) {
-        ROS_ASSERT(x_min.getType() == XmlRpc::XmlRpcValue::TypeArray);
-        ROS_ASSERT(x_min.size() == STATE_SIZE);
+    if (nh_private.getParam("x_min", x_min_value)) {
+        ROS_ASSERT(x_min_value.getType() == XmlRpc::XmlRpcValue::TypeArray);
+        ROS_ASSERT(x_min_value.size() == STATE_SIZE);
         for (int i = 0; i < STATE_SIZE; i++) {
-            x_min_(i) = static_cast<double>(x_min[i]);
+            x_min(i) = static_cast<double>(x_min_value[i]);
         }
     } else {
-        x_min_ = -x_max_;
+        x_min = -x_max;
     }
 
     XmlRpc::XmlRpcValue sensors;
@@ -62,10 +67,51 @@ SensorArray::SensorArray(ros::NodeHandle &nh, ros::NodeHandle &nh_private)
         }
     }
 
+    std::string control_topic;
+    double wheelbase = 1.0;
+    double control_acceleration_gain = 1.0, max_control_acceleration = 0.5;
+    double control_angle_speed_gain = 1.0, max_control_angle_speed = 2.0;
+    if (nh_private.getParam("control_topic", control_topic)) {
+        nh_private.getParam("wheelbase", wheelbase);
+        nh_private.getParam("control_acceleration_gain",
+                            control_acceleration_gain);
+        nh_private.getParam("max_control_acceleration",
+                            max_control_acceleration);
+        nh_private.getParam("control_angle_speed_gain",
+                            control_angle_speed_gain);
+        nh_private.getParam("max_control_angle_speed", max_control_angle_speed);
+    }
+
+    nh_private.getParam("wheelbase", wheelbase);
+
+    filter_ = std::unique_ptr<AckermannEkf>(
+        new AckermannEkf(x_min, x_max, wheelbase, control_acceleration_gain,
+                         max_control_acceleration, control_angle_speed_gain,
+                         max_control_angle_speed));
+
+    if (nh_private.hasParam("control_topic")) {
+        ROS_INFO("Subscribing to control signals on topic %s",
+                 control_topic.c_str());
+
+        control_subscriber_ = nh.subscribe(
+            control_topic, 10, &SensorArray::control_callback, this);
+    }
+
     odom_publisher_ = nh.advertise<nav_msgs::Odometry>("odom", 10);
 
     periodic_update_timer_ = nh.createTimer(
         ros::Duration(1.0 / frequency_), &SensorArray::periodic_update, this);
+}
+
+void SensorArray::control_callback(
+    const ackermann_msgs::AckermannDriveStamped::ConstPtr msg) {
+
+    ControlSignal control_signal;
+    control_signal.u(ControlSignal::speed) = msg->drive.speed;
+    control_signal.u(ControlSignal::angle) = msg->drive.steering_angle;
+    control_signal.time = msg->header.stamp.toSec();
+
+    filter_->process_control_signal(control_signal);
 }
 
 void SensorArray::periodic_update(const ros::TimerEvent &evt) {
@@ -73,30 +119,33 @@ void SensorArray::periodic_update(const ros::TimerEvent &evt) {
         return;
     }
 
+    filter_->bring_time_forward_to(evt.current_real.toSec() -
+                                   periodic_filter_time_delay_);
+
     tf2::Quaternion q;
-    q.setRPY(filter_.x(State::Roll), filter_.x(State::Pitch),
-             filter_.x(State::Yaw));
+    q.setRPY(filter_->x(State::Roll), filter_->x(State::Pitch),
+             filter_->x(State::Yaw));
 
     geometry_msgs::TransformStamped transformStamped;
 
     transformStamped.header.stamp = evt.current_real;
     transformStamped.header.frame_id = world_frame_;
     transformStamped.child_frame_id = base_link_;
-    transformStamped.transform.translation.x = filter_.x(State::X);
-    transformStamped.transform.translation.y = filter_.x(State::Y);
-    transformStamped.transform.translation.z = filter_.x(State::Z);
+    transformStamped.transform.translation.x = filter_->x(State::X);
+    transformStamped.transform.translation.y = filter_->x(State::Y);
+    transformStamped.transform.translation.z = filter_->x(State::Z);
     transformStamped.transform.rotation.x = q.x();
     transformStamped.transform.rotation.y = q.y();
     transformStamped.transform.rotation.z = q.z();
     transformStamped.transform.rotation.w = q.w();
 
-    tf_broadcaster_.sendTransform(transformStamped);
+    tf_broadcaster_->sendTransform(transformStamped);
 
     nav_msgs::Odometry odometry;
 
-    odometry.pose.pose.position.x = filter_.x(State::X);
-    odometry.pose.pose.position.y = filter_.x(State::Y);
-    odometry.pose.pose.position.z = filter_.x(State::Z);
+    odometry.pose.pose.position.x = filter_->x(State::X);
+    odometry.pose.pose.position.y = filter_->x(State::Y);
+    odometry.pose.pose.position.z = filter_->x(State::Z);
     odometry.pose.pose.orientation.x = q.x();
     odometry.pose.pose.orientation.y = q.y();
     odometry.pose.pose.orientation.z = q.z();
@@ -105,31 +154,31 @@ void SensorArray::periodic_update(const ros::TimerEvent &evt) {
     const int XYZRPY[6] = {State::X,    State::Y,     State::Z,
                            State::Roll, State::Pitch, State::Yaw};
     for (int i = 0; i < 36; i++) {
-        odometry.pose.covariance[i] = filter_.P(XYZRPY[i / 6], XYZRPY[i % 6]);
+        odometry.pose.covariance[i] = filter_->P(XYZRPY[i / 6], XYZRPY[i % 6]);
     }
 
-    const double v = filter_.x(State::speed), v2 = v * v;
-    const double Pv = filter_.P(State::speed, State::speed);
+    const double v = filter_->x(State::speed), v2 = v * v;
+    const double Pv = filter_->P(State::speed, State::speed);
 
-    odometry.twist.twist.linear.x = filter_.x(State::speed);
-    odometry.twist.twist.angular.x = filter_.x(State::droll_dx) * v;
-    odometry.twist.twist.angular.y = filter_.x(State::dpitch_dx) * v;
-    odometry.twist.twist.angular.z = filter_.x(State::dyaw_dx) * v;
+    odometry.twist.twist.linear.x = filter_->x(State::speed);
+    odometry.twist.twist.angular.x = filter_->x(State::droll_dx) * v;
+    odometry.twist.twist.angular.y = filter_->x(State::dpitch_dx) * v;
+    odometry.twist.twist.angular.z = filter_->x(State::dyaw_dx) * v;
 
     // Math is hard... This covariance is just guessed and not rigorous in any
     // way whatsoever: We e.g. use only set a diagonal covaraiance matrix
-    odometry.twist.covariance[0] = filter_.P(State::speed, State::speed);
+    odometry.twist.covariance[0] = filter_->P(State::speed, State::speed);
     odometry.twist.covariance[7] = MIN_COVARIANCE;
     odometry.twist.covariance[14] = MIN_COVARIANCE;
     odometry.twist.covariance[21] =
-        filter_.P(State::Roll, State::Roll) * v2 +
-        Pv * filter_.x(State::Roll) * filter_.x(State::Roll);
+        filter_->P(State::Roll, State::Roll) * v2 +
+        Pv * filter_->x(State::Roll) * filter_->x(State::Roll);
     odometry.twist.covariance[28] =
-        filter_.P(State::Pitch, State::Pitch) * v2 +
-        Pv * filter_.x(State::Pitch) * filter_.x(State::Pitch);
+        filter_->P(State::Pitch, State::Pitch) * v2 +
+        Pv * filter_->x(State::Pitch) * filter_->x(State::Pitch);
     odometry.twist.covariance[35] =
-        filter_.P(State::Yaw, State::Yaw) * v2 +
-        Pv * filter_.x(State::Yaw) * filter_.x(State::Yaw);
+        filter_->P(State::Yaw, State::Yaw) * v2 +
+        Pv * filter_->x(State::Yaw) * filter_->x(State::Yaw);
 
     odom_publisher_.publish(odometry);
 }
@@ -143,7 +192,7 @@ void SensorArray::process_measurement(Measurement &measurement) {
         initial_position_(2) = measurement.z[Measurement::Z];
         initial_position_ -= measurement.sensor_position;
 
-        filter_.time = measurement.time;
+        filter_->time = measurement.time;
 
         filter_initialized_ = true;
     }
@@ -156,23 +205,26 @@ void SensorArray::process_measurement(Measurement &measurement) {
         return;
     }
 
-    double D_Yaw = filter_.x[State::Yaw] - measurement.z[Measurement::Yaw];
-    measurement.z[Measurement::Yaw] += round(D_Yaw / (2 * M_PI)) * 2 * M_PI;
-
-    filter_.process_measurement(measurement);
-
-    filter_.x.noalias() = filter_.x.cwiseMax(x_min_).cwiseMin(x_max_);
+    filter_->process_measurement(measurement);
 }
 
 bool SensorArray::get_transform(geometry_msgs::TransformStamped &transform,
                                 const std_msgs::Header &header) {
     try {
-        transform = tf_buffer_.lookupTransform(base_link_, header.frame_id,
-                                               ros::Time(0));
+        transform = tf_buffer_->lookupTransform(base_link_, header.frame_id,
+                                                ros::Time(0));
     } catch (tf2::TransformException &ex) {
         ROS_WARN("%s", ex.what());
         return false;
     }
     return true;
+}
+
+SensorArray::~SensorArray() {
+    filter_.reset();
+
+    tf_buffer_.reset();
+    tf_listener_.reset();
+    tf_broadcaster_.reset();
 }
 } // namespace ackermann_ekf

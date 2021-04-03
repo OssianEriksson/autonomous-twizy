@@ -3,6 +3,9 @@ base_link: 'base_link'
 
 x_max: [.inf, .inf, .inf, 10.0, 3.0, 0.01, 0.01, .inf, 0.01, 0.01, 1.0]
 
+control_topic: /ackermann_cmd
+wheelbase: 1.686
+
 sensors:
 - topic: /piksi/left/gnss/fix
   type: sensor_msgs/NavSatFix

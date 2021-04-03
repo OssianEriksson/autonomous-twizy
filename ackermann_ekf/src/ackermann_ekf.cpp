@@ -5,11 +5,22 @@
 #include "ackermann_ekf/sensor_array.h"
 
 namespace ackermann_ekf {
-AckermannEkf::AckermannEkf(double time)
+AckermannEkf::AckermannEkf(const Eigen::VectorXd x_min,
+                           const Eigen::VectorXd x_max, double wheelbase,
+                           double control_acceleration_gain,
+                           double max_control_acceleration,
+                           double control_angle_speed_gain,
+                           double max_control_angle_speed)
     : x(STATE_SIZE),
       P(STATE_SIZE, STATE_SIZE),
       Q(STATE_SIZE, STATE_SIZE),
-      time(time) {
+      x_min_(x_min),
+      x_max_(x_max),
+      wheelbase_(wheelbase),
+      control_acceleration_gain_(control_acceleration_gain),
+      max_control_acceleration_(max_control_acceleration),
+      control_angle_speed_gain_(control_angle_speed_gain),
+      max_control_angle_speed_(max_control_angle_speed) {
     x.setZero();
     P.setIdentity();
 
@@ -22,24 +33,60 @@ AckermannEkf::AckermannEkf(double time)
     Q(State::Roll, State::Roll) = 1e-2;
     Q(State::Pitch, State::Pitch) = 1e-2;
     Q(State::Yaw, State::Yaw) = 1e-2;
+    Q(State::droll_dx, State::droll_dx) = 1e-1;
     Q(State::dpitch_dx, State::dpitch_dx) = 1e-1;
     Q(State::dyaw_dx, State::dyaw_dx) = 1e-1;
-    Q(State::droll_dx, State::droll_dx) = 1e-1;
 }
 
 void AckermannEkf::process_measurement(const Measurement &measurement) {
-    double dt = measurement.time - time;
-
-    if (dt > 0) {
-        predict(dt);
-
-        time = measurement.time;
-    }
+    bring_time_forward_to(measurement.time);
 
     correct(measurement);
 }
 
+void AckermannEkf::process_control_signal(const ControlSignal &control_signal) {
+    bring_time_forward_to(control_signal.time);
+
+    control_signal_enabled_ = true;
+    control_signal_ = control_signal;
+}
+
+void AckermannEkf::bring_time_forward_to(double time) {
+    double dt = this->time < 0 ? 0.0 : time - this->time;
+
+    if (dt > 0) {
+        predict(dt);
+
+        this->time = time;
+    }
+}
+
 void AckermannEkf::predict(double dt) {
+    if (control_signal_enabled_) {
+        double acceleration = boost::algorithm::clamp(
+            (control_signal_.u(ControlSignal::speed) - x(State::speed)) *
+                control_acceleration_gain_,
+            -max_control_acceleration_, max_control_acceleration_);
+
+        double jerk_dt = acceleration - x(State::accel);
+        x(State::accel) = acceleration;
+        x(State::speed) += jerk_dt * dt / 2;
+
+        double steering_angle = atan(wheelbase_ * x(State::dyaw_dx));
+        steering_angle +=
+            boost::algorithm::clamp(
+                (control_signal_.u(ControlSignal::angle) - steering_angle) *
+                    control_angle_speed_gain_,
+                -max_control_angle_speed_, max_control_angle_speed_) *
+            dt;
+        steering_angle = boost::algorithm::clamp(steering_angle, -M_PI * 0.499,
+                                                 M_PI * 0.499);
+
+        x(State::dyaw_dx) = tan(steering_angle) / wheelbase_;
+
+        constrain_state();
+    }
+
     Eigen::VectorXd f(STATE_SIZE);
     Eigen::MatrixXd F(STATE_SIZE, STATE_SIZE);
     f.setZero();
@@ -109,6 +156,7 @@ void AckermannEkf::predict(double dt) {
     // clang-format on
 
     x = f;
+    constrain_state();
     P = F * P * F.transpose();
     P.noalias() += dt * Q;
 }
@@ -207,9 +255,16 @@ void AckermannEkf::correct(const Measurement &measurement) {
         }
     }
 
+    y(Measurement::Yaw) -= round(y(Measurement::Yaw) / (2 * M_PI)) * 2 * M_PI;
+
     Eigen::MatrixXd K =
         P * H.transpose() * (H * P * H.transpose() + R).inverse();
     x.noalias() += K * y;
+    constrain_state();
     P = (Eigen::MatrixXd::Identity(STATE_SIZE, STATE_SIZE) - K * H) * P;
+}
+
+void AckermannEkf::constrain_state() {
+    x.noalias() = x.cwiseMax(x_min_).cwiseMin(x_max_);
 }
 } // namespace ackermann_ekf
