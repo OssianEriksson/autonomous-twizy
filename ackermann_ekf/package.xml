@@ -60,6 +60,7 @@
   <depend>std_msgs</depend>
   <depend>boost</depend>
   <depend>nav_msgs</depend>
+  <depend>ackermann_msgs</depend>
 
 
   <!-- The export tag contains other, unspecified, tags -->

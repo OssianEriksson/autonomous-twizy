@@ -5,8 +5,11 @@
 #include "ackermann_ekf/sensor.h"
 
 #include <Eigen/Dense>
+#include <ackermann_msgs/AckermannDriveStamped.h>
 #include <boost/ptr_container/ptr_vector.hpp>
 #include <geometry_msgs/TransformStamped.h>
+#include <limits>
+#include <memory>
 #include <nav_msgs/Odometry.h>
 #include <ros/ros.h>
 #include <std_msgs/Header.h>
@@ -14,44 +17,41 @@
 #include <tf2_geometry_msgs/tf2_geometry_msgs.h>
 #include <tf2_ros/transform_broadcaster.h>
 #include <tf2_ros/transform_listener.h>
-#include <limits>
 
 namespace ackermann_ekf {
 
 class SensorArray {
   private:
-    AckermannEkf filter_;
+    std::unique_ptr<AckermannEkf> filter_;
 
-    tf2_ros::Buffer &tf_buffer_;
-
-    tf2_ros::TransformListener &tf_listener_;
-
-    tf2_ros::TransformBroadcaster &tf_broadcaster_;
+    std::unique_ptr<tf2_ros::Buffer> tf_buffer_;
+    std::unique_ptr<tf2_ros::TransformListener> tf_listener_;
+    std::unique_ptr<tf2_ros::TransformBroadcaster> tf_broadcaster_;
 
     ros::Publisher odom_publisher_;
+    ros::Subscriber control_subscriber_;
 
     ros::Timer periodic_update_timer_;
 
     Eigen::Vector3d initial_position_;
-
     bool filter_initialized_ = false;
 
-    float frequency_;
-
-    std::string world_frame_;
-
-    std::string base_link_;
-
+    double frequency_ = 30.0;
+    std::string world_frame_ = "map", base_link_ = "base_link";
     bool differential_position_ = true;
-
-    Eigen::VectorXd x_max_, x_min_;
+    double periodic_filter_time_delay_;
 
     void periodic_update(const ros::TimerEvent &evt);
+
+    void
+    control_callback(const ackermann_msgs::AckermannDriveStamped::ConstPtr msg);
 
   public:
     boost::ptr_vector<Sensor> sensor_ptrs;
 
     SensorArray(ros::NodeHandle &nh, ros::NodeHandle &nh_private);
+
+    ~SensorArray();
 
     bool get_transform(geometry_msgs::TransformStamped &transform,
                        const std_msgs::Header &header);
