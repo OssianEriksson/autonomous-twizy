@@ -45,14 +45,24 @@ def main():
             image_with_boxes = yolo.draw_bboxes(cv_image, Boxes)
             ros_image_boxes = bridge.cv2_to_imgmsg(image_with_boxes, encoding="passthrough")
             image_pub.publish(ros_image_boxes)
-           #cv.imshow('image',test)
-           #cv.waitKey(1) 
+            cv.imshow('image',image_with_boxes)
+            cv.waitKey(1) 
             #print(Boxes)
             height = ros_image.height
             width = ros_image.width
+        
             for box in Boxes:
-               # print(box)
-                temp = BoundingBox( box[5],(box[0] - box[3]/2) * width ,(box[1] - box[2]/2) * height ,(box[0] + box[3]/2) * width ,(box[1] - box[2]/2) * height ,int (box[4]), yolo.config.names[box[4]])
+                xmin = (box[0] - box[3]/2) * height
+                if xmin <= 0 : xmin = 0 
+                ymin = (box[1] - box[2]/2) * width 
+                if ymin <= 0 : ymin = 0 
+                xmax = (box[0] + box[3]/2) * height 
+                if xmax >= height : xmax = height - 1 
+                ymax = (box[1] + box[2]/2) * width 
+                if ymax >= width : ymax = width - 1 
+
+                temp = BoundingBox( box[5],int (xmin),int (ymin),int (xmax),int (ymax) ,int (box[4]), yolo.config.names[box[4]])
+                print(temp)
                 msg.bounding_boxes.append(temp)
            
             # add msg header from the image and and one from yolo. 
