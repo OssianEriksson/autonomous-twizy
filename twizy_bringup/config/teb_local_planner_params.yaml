@@ -4,13 +4,13 @@ TebLocalPlannerROS:
     
  # Trajectory
   
- teb_autosize: True
- dt_ref: 0.3                              # Desired temporal resolution of the trajectory
- dt_hysteresis: 0.1                       # Hysteresis (dependecy of previous state) for automatic resizing depending on the current temporal resolution (Usually ~10% of dt_ref recommended?)
+ teb_autosize: True                       # Enable automatic resizing of the trajectory w.r.t to the temporal resolution (recommended) 
+ dt_ref: 0.4                              # Desired temporal resolution of the trajectory
+ dt_hysteresis: 0.04                      # Hysteresis (dependecy of previous state) for automatic resizing depending on the current temporal resolution (Usually ~10% of dt_ref recommended?)
  max_samples: 500                         # Search source code of teb_local_planner for more info
  global_plan_overwrite_orientation: True  # Overwrite orientation of local subgoals provided by the global planner (Because global subgoals are often 2D)
  allow_init_with_backwards_motion: True   # If true, underlying trajectories might be initialized with backwards motions in case the goal is behind the start within the local costmap (Useful if the car is equipped with rear sensors(which it is in our case, back camera))
- max_global_plan_lookahead_dist: 10.0     # Maximum cumulative Euclidean distance of the subset of the global plan taken into account for optimization. Set to 0 in order to deactivate this limitation.
+ max_global_plan_lookahead_dist: 5.0     # Maximum cumulative Euclidean distance of the subset of the global plan taken into account for optimization. Set to 0 in order to deactivate this limitation.
  global_plan_viapoint_sep: -1             # If positive, via-points are extrected from the global plan (path-following mode). The value determines the resolution of the reference path (min. separation between each two consecutive via-points along the global plan, if negative: disabled).
  global_plan_prune_distance: 1            # Distance between robot and via_points of global plan which is used for pruning
  exact_arc_length: False                  # If true, the planner uses the exact arc length in velocity, acceleration and turning rate computations (-> increased cpu time), otherwise the Euclidean approximation is used.
@@ -22,7 +22,7 @@ TebLocalPlannerROS:
  max_vel_x: 1.38            # Maximum velocity in positive x-direction [m/s]
  max_vel_x_backwards: 1.38  # Maximum velocity in negative x-direction [m/s]
  max_vel_y: 0.0             # Maximum velocity in y-direction [m/s] (Set to 0 for car-like vehicles)
- max_vel_theta: 1.38         # the angular velocity is also bounded by min_turning_radius in case of a carlike robot (r = v / omega)
+ max_vel_theta: 1.38        # the angular velocity is also bounded by min_turning_radius in case of a carlike robot (r = v / omega)
  acc_lim_x: 0.5             # Maximum Acceleration in x-direction [m/s²]
  acc_lim_theta: 0.5         # Maximum angular velocity of the whole car in radians/sec
 
