@@ -1,8 +1,6 @@
 import yaml
 import subprocess
-
-from math import *
-
+import math
 
 class _TwizyLoader(yaml.SafeLoader):
     def __init__(self, stream):
@@ -39,7 +37,11 @@ def _construct_expand(loader, node):
 
 
 def _construct_eval(loader, node):
-    env = loader.env if isinstance(loader, _TwizyLoader) else {}
+    env = {
+        **(loader.env if isinstance(loader, _TwizyLoader) else {}),
+        'math': math
+    }
+
     return eval(node.value, env)
 
 
