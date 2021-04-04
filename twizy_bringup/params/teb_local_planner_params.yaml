@@ -19,12 +19,12 @@ publish_feedback: False                  # Publish planner feedback containing t
 
 # *********************************** Robot ***********************************
 
-max_vel_x: !eval physical['max_forward_speed']            # Maximum velocity in positive x-direction [m/s]
-max_vel_x_backwards: !eval physical['max_reverse_speed']  # Maximum velocity in negative x-direction [m/s]
-max_vel_y: 0.0                                            # Maximum velocity in y-direction [m/s] (set to 0 for car-like vehicles)
-max_vel_theta: !eval physical['max_steering_velocity']    # the angular velocity is also bounded by min_turning_radius in case of a carlike robot (r = v / omega)
-acc_lim_x: !eval physical['max_steering_acceleration']    # Maximum Acceleration in x-direction [m/s²]
-acc_lim_theta: 0.5                                        # Maximum angular velocity of the whole car in radians/sec
+max_vel_x: !eval physical['max_forward_speed']              # Maximum velocity in positive x-direction [m/s]
+max_vel_x_backwards: !eval physical['max_reverse_speed']    # Maximum velocity in negative x-direction [m/s]
+acc_lim_x: !eval physical['max_acceleration']               # Maximum Acceleration in x-direction [m/s²]
+max_vel_y: 0.0                                              # Maximum velocity in y-direction [m/s] (set to 0 for car-like vehicles)
+max_vel_theta: !eval physical['max_steering_velocity']      # the angular velocity is also bounded by min_turning_radius in case of a carlike robot (r = v / omega)
+acc_lim_theta: !eval physical['max_steering_acceleration']  # Maximum angular velocity of the whole car in radians/sec
 
 footprint_model:                 # types: "point", "circular", "two_circles", "line", "polygon"
   type: "line"           
