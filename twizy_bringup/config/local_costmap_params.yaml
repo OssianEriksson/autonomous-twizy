@@ -1,12 +1,8 @@
 local_costmap:
   plugins:
   - {name: obstacle_layer, type: "costmap_2d::ObstacleLayer"}
-  - {name: inflater_layer, type: "costmap_2d::InflationLayer"}
 
-  global_frame: map
-  robot_base_frame: base_link
   update_frequency: 1.0
-  publish_frequency: 1.0
   rolling_window: true
   width: 20.0                   # Width of the local costmap
   height: 20.0                  # Height of the local costmap

@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<launch>
+    <arg name="world" default="flat.wbt" doc="Path to the world to load" />
+
+    <include file="$(find twizy_webots)/launch/webots.launch">
+        <arg name="world" value="$(arg world)" />
+    </include>
+
+    <node pkg="rqt_reconfigure" type="rqt_reconfigure" name="rqt_reconfigure"/> 
+    <include file="$(find twizy_bringup)/launch/transforms.launch" />
+    <include file="$(find twizy_bringup)/launch/rviz.launch" />
+    <include file="$(find twizy_bringup)/launch/nav_stack.launch" />
+</launch>
