@@ -21,11 +21,6 @@ yolo.load_weights("src/yolo_detection/weights/yolov4-tiny.weights", weights_type
 yolo.summary(summary_type="yolo")                                                           # summary? Don't know if needed 2021-03-31)
 bridge = CvBridge()
 
-
-
-
-
-
 def main():
     #Initialize ROS node
     rospy.init_node('listener', anonymous=True)
@@ -42,6 +37,7 @@ def main():
 
             cv.imshow('frame', cv_image)
             cv.waitKey(10)
+                        
             temp_boxes = []
             for box in boxes.bounding_boxes: # Dim(-1, (x, y, w, h, cls_id, prob))  
                 box_h =  box.ymax - box.ymin
@@ -62,7 +58,7 @@ def main():
     # subscribe to the image given from the realsense camera 
     aligned_camera = message_filters.Subscriber('/camera/aligned_depth_to_color/image_raw', Image, buff_size=10)
     boundingboxes  = message_filters.Subscriber('/boxes', BoundingBoxes, buff_size=10 )
-    ts = message_filters.TimeSynchronizer([aligned_camera, boundingboxes], 10)
+    ts = message_filters.ApproximateTimeSynchronizer([aligned_camera, boundingboxes], 10)
     ts.registerCallback(convert_image)
     try:
         rospy.spin() 

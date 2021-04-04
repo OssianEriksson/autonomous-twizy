@@ -48,9 +48,11 @@ def main():
            #cv.imshow('image',test)
            #cv.waitKey(1) 
             #print(Boxes)
+            height = ros_image.height
+            width = ros_image.width
             for box in Boxes:
                # print(box)
-                temp = BoundingBox( box[5],box[0] - box[3]/2 ,box[1] - box[2]/2 ,box[0] + box[3]/2 ,box[1] - box[2]/2 ,int (box[4]), yolo.config.names[box[4]])
+                temp = BoundingBox( box[5],(box[0] - box[3]/2) * width ,(box[1] - box[2]/2) * height ,(box[0] + box[3]/2) * width ,(box[1] - box[2]/2) * height ,int (box[4]), yolo.config.names[box[4]])
                 msg.bounding_boxes.append(temp)
            
             # add msg header from the image and and one from yolo. 
