@@ -5,12 +5,12 @@ odom_topic: /ekf/global/odom  # Subscribes local_planner to ros odometry topic
 # ******************************** Trajectory *********************************
 
 teb_autosize: True
-dt_ref: 0.5                              # Desired temporal resolution of the trajectory
-dt_hysteresis: 0.1                       # Hysteresis (dependecy of previous state) for automatic resizing depending on the current temporal resolution (Usually ~10% of dt_ref recommended?)
+dt_ref: 0.4                              # Desired temporal resolution of the trajectory
+dt_hysteresis: 0.04                      # Hysteresis (dependecy of previous state) for automatic resizing depending on the current temporal resolution (Usually ~10% of dt_ref recommended?)
 max_samples: 500                         # Search source code of teb_local_planner for more info
 global_plan_overwrite_orientation: True  # Overwrite orientation of local subgoals provided by the global planner (Because global subgoals are often 2D)
 allow_init_with_backwards_motion: True   # If true, underlying trajectories might be initialized with backwards motions in case the goal is behind the start within the local costmap (Useful if the car is equipped with rear sensors(which it is in our case, back camera))
-max_global_plan_lookahead_dist: 10.0     # Maximum cumulative Euclidean distance of the subset of the global plan taken into account for optimization. Set to 0 in order to deactivate this limitation.
+max_global_plan_lookahead_dist: 5.0      # Maximum cumulative Euclidean distance of the subset of the global plan taken into account for optimization. Set to 0 in order to deactivate this limitation.
 global_plan_viapoint_sep: -1             # If positive, via-points are extrected from the global plan (path-following mode). The value determines the resolution of the reference path (min. separation between each two consecutive via-points along the global plan, if negative: disabled).
 global_plan_prune_distance: 1            # Distance between robot and via_points of global plan which is used for pruning
 exact_arc_length: False                  # If true, the planner uses the exact arc length in velocity, acceleration and turning rate computations (-> increased cpu time), otherwise the Euclidean approximation is used.
@@ -23,12 +23,12 @@ max_vel_x: !eval physical['max_forward_speed']              # Maximum velocity i
 max_vel_x_backwards: !eval physical['max_reverse_speed']    # Maximum velocity in negative x-direction [m/s]
 acc_lim_x: !eval physical['max_acceleration']               # Maximum Acceleration in x-direction [m/s²]
 max_vel_y: 0.0                                              # Maximum velocity in y-direction [m/s] (set to 0 for car-like vehicles)
-max_vel_theta: !eval physical['max_steering_velocity']      # the angular velocity is also bounded by min_turning_radius in case of a carlike robot (r = v / omega)
-acc_lim_theta: !eval physical['max_steering_acceleration']  # Maximum angular velocity of the whole car in radians/sec
+max_vel_theta: 1.38                                         # the angular velocity is also bounded by min_turning_radius in case of a carlike robot (r = v / omega)
+acc_lim_theta: 0.5                                          # Maximum angular velocity of the whole car in radians/sec
 
 footprint_model:                 # types: "point", "circular", "two_circles", "line", "polygon"
   type: "line"           
-  line_start:                    # for type "line"
+  line_start:                    # for type "line", The robot (axis of rotation) is assumed to be at [0, 0] (Unit: meters)
   - 0.0                          # x
   - 0.0                          # y
   line_end:                      # for type "line"
@@ -47,16 +47,16 @@ cmd_angle_instead_rotvel: True                                                  
 # ****************************** Goal Tolerance *******************************
 
 xy_goal_tolerance: 0.2       # Tolerace for car position compared to end goal in meters
-yaw_goal_tolerance: 0.1      # Tolerance for car rotation compared to angular goal in radians
+yaw_goal_tolerance: 0.2      # Tolerance for car rotation compared to angular goal in radians
 free_goal_vel: False         # False makes the car arrive at goal at no speed, True allows it to arrive at any speed
 complete_global_plan: True
 
 # ********************************* Obstacles *********************************
 
-min_obstacle_dist: !eval physical['chassis']['width'] * 0.7               # This value must also include our robot's expansion, since footprint_model is set to "line".
+min_obstacle_dist: !eval physical['chassis']['width'] * 1.1               # This value must also include our robot's expansion, since footprint_model is set to "line".
 inflation_dist: &inflation_dist !eval physical['chassis']['width'] * 1.5  # Buffer zone around obstacles with non-zero penalty costs ()NOTE: Must be greater than min_obstacle_dist in order to be taken into account
 include_costmap_obstacles: True                                           # Specify if obstacles of the local costmap should be taken into account
-costmap_obstacles_behind_robot_dist: 1.0                                  # Specify distance for how far behind the car an object can be in order to make the local costmap take the object into accout while planning route
+costmap_obstacles_behind_robot_dist: 6.0                                  # Specify distance for how far behind the car an object can be in order to make the local costmap take the object into accout while planning route
 obstacle_poses_affected: 15                                               # Each obstacle position is attached to the closest pose on the trajectory in order to keep a distance. Additional neighbors can be taken into account as well.
 
 dynamic_obstacle_inflation_dist: *inflation_dist  # Same as inflation_dist but for dynamic obstacles
@@ -84,7 +84,7 @@ weight_kinematics_forward_drive: 10     # Opt. weight for forcing the robot to c
 weight_kinematics_turning_radius: 1     # Opt. weight for forcing a minimum turning radius.
 weight_optimaltime: 1                   # Opt. weight for contracting the trajectory with respect to transition/exec time. Must be > 0 
 weight_shortest_path: 0                 # Opt. weight for contracting the trajectory with respect to path length.
-weight_obstacle: 100                    # Opt. weight for minimum separation from obstacles.
+weight_obstacle: 50                     # Opt. weight for minimum separation from obstacles.
 weight_inflation: 0.2                   # Opt. weight for inflation penalty (Should be small according to ros docs for navstack)
 weight_dynamic_obstacle: 10             # Same as weight_obstacle but for dynamic obstacles, not in use yet
 weight_dynamic_obstacle_inflation: 0.2  # Same as for weight_inflation but for dynamic obstacles.
