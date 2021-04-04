@@ -9,7 +9,7 @@
     <node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher" required="true" />
 
     <node pkg="ackermann_ekf" type="ackermann_ekf" name="ackermann_ekf" required="true">
-        <rosparam command="load" file="$(find twizy_bringup)/params/ekf_params.yaml" />
+        <rosparam subst_value="true">$(eval exec('global load; from twizy_bringup.twizyparam import load') or load(f'{find("twizy_bringup")}/params/ekf_params.yaml'))</rosparam>
         <remap from="odom" to="/ekf/global/odom" />
     </node>
 </launch>

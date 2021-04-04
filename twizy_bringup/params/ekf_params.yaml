@@ -1,3 +1,5 @@
+!hidden : !include $(rospack find twizy_description)/config/physical.yaml as physical
+
 frequency: 24
 base_link: 'base_link'
 
