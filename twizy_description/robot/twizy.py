@@ -135,6 +135,7 @@ def front_wheel(lr):
                         'name': f'"front_{lr}_steering_motor"',
                         'maxTorque': physical['max_steering_torque'],
                         'maxVelocity': physical['max_steering_velocity'],
+                        'acceleration': physical['max_steering_acceleration'],
                         'sound': '""'
                     })
                 ]
