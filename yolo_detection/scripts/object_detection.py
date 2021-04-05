@@ -1,54 +1,50 @@
 #!/usr/bin/env python
 
-from cv_bridge import CvBridge, CvBridgeError
-import cv2 as cv
-from sensor_msgs.msg import Image
-import numpy as np
-from yolov4.tf import YOLOv4
 import rospy
-from std_msgs.msg import String
-from yolo_detection.msg import BoundingBoxes,BoundingBox
+import cv2 as cv
 import message_filters
-from PIL import Image as plot_image
-import numpy as np
+from std_msgs.msg import String
+from sensor_msgs.msg import Image
+from cv_bridge import CvBridge, CvBridgeError
+from yolo_detection.msg import BoundingBoxes,BoundingBox
 
-yolo = YOLOv4() #initialize Yolo
-#Remember to change weight source both for .cfg , .weights and coco.names
-yolo.config.parse_names("src/yolo_detection/coco.names")                                    #coco.names list of object names
-yolo.config.parse_cfg("src/yolo_detection/config/yolov4-tiny.cfg")                          # configure yolo with the config file 
-yolo.make_model()                                                                           # creates a model (Don't know if needed 2021-03-31)
-yolo.load_weights("src/yolo_detection/weights/yolov4-tiny.weights", weights_type="yolo")    # loads the yolo tiny weights,   
-yolo.summary(summary_type="yolo")                                                           # summary? Don't know if needed 2021-03-31)
 
-# Use cv_bridge() to convert the ROS image to OpenCV format
+#Use cv_bridge() to convert the ROS image to OpenCV format
 bridge = CvBridge()
-
 def main():
     #Initialize ROS node
     rospy.init_node('listener', anonymous=True)
-
-    prob_threshold = 0.6
+    
+    # callback function
     def convert_image(ros_image, boxes):
         try:
             #Convert the image using the default passthrough encoding
             cv_image = bridge.imgmsg_to_cv2(ros_image, desired_encoding="passthrough")
 
-            temp_boxes = []
-            for box in boxes.bounding_boxes: # Dim(-1, (x, y, w, h, cls_id, prob))  
+            # create an array for the distance,object tuple
+            distance_to_object = []
+
+            #loops over every box and calculate the avreage distance to each object by adding the distance to every pixel
+            # when we don't find any object the camera returns ymax as -106 there for we check before going inside the second loop.
+            for box in boxes.bounding_boxes:  
                 avreage = 0
                 if box.ymax > -100 : 
                     for i in range(box.xmin, box.xmax): 
                         for j in range(box.ymin, box.ymax): 
-                            avreage += cv_image[i][j]
+                            avreage += cv_image[j][i]
                     avreage = avreage / ((box.xmax - box.xmin) * (box.ymax - box.ymin))    
-                temp_boxes.append(avreage)
+                distance_to_object.append((avreage,box.Class))
 
-            print(temp_boxes)    
+            #add publisher?
+            #print(distance_to_object)    
                 
         except CvBridgeError as e: # error handling for CV
             print(e)     
     
-    # subscribe to the image given from the realsense camera 
+
+    #   subscribe to the image given from the realsense camera and the boundingboxes given from yolo
+    #   then aligne the messages so you get the rigth boxes to the rigth image.
+
     aligned_camera = message_filters.Subscriber('/camera/aligned_depth_to_color/image_raw', Image, buff_size=10)
     boundingboxes  = message_filters.Subscriber('/boxes', BoundingBoxes, buff_size=10 )
     ts = message_filters.TimeSynchronizer([aligned_camera, boundingboxes], 10)
