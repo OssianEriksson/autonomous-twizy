@@ -1,0 +1,125 @@
+!hidden : !include $(rospack find twizy_description)/config/physical.yaml as physical
+
+odom_topic: /ekf/global/odom  # Subscribes local_planner to ros odometry topic
+
+# ******************************** Trajectory *********************************
+
+teb_autosize: True
+dt_ref: 0.4                              # Desired temporal resolution of the trajectory
+dt_hysteresis: 0.04                      # Hysteresis (dependecy of previous state) for automatic resizing depending on the current temporal resolution (Usually ~10% of dt_ref recommended?)
+max_samples: 500                         # Search source code of teb_local_planner for more info
+global_plan_overwrite_orientation: True  # Overwrite orientation of local subgoals provided by the global planner (Because global subgoals are often 2D)
+allow_init_with_backwards_motion: True   # If true, underlying trajectories might be initialized with backwards motions in case the goal is behind the start within the local costmap (Useful if the car is equipped with rear sensors(which it is in our case, back camera))
+max_global_plan_lookahead_dist: 5.0      # Maximum cumulative Euclidean distance of the subset of the global plan taken into account for optimization. Set to 0 in order to deactivate this limitation.
+global_plan_viapoint_sep: -1             # If positive, via-points are extrected from the global plan (path-following mode). The value determines the resolution of the reference path (min. separation between each two consecutive via-points along the global plan, if negative: disabled).
+global_plan_prune_distance: 1            # Distance between robot and via_points of global plan which is used for pruning
+exact_arc_length: False                  # If true, the planner uses the exact arc length in velocity, acceleration and turning rate computations (-> increased cpu time), otherwise the Euclidean approximation is used.
+feasibility_check_no_poses: 2            # Specify up to which pose on the predicted plan the feasibility(genomförbarhet) should be checked each sampling interval.
+publish_feedback: False                  # Publish planner feedback containing the full trajectory and a list of active obstacles (should be enabled only for evaluation or debugging)
+
+# *********************************** Robot ***********************************
+
+max_vel_x: !eval physical['max_forward_speed']              # Maximum velocity in positive x-direction [m/s]
+max_vel_x_backwards: !eval physical['max_reverse_speed']    # Maximum velocity in negative x-direction [m/s]
+acc_lim_x: !eval physical['max_acceleration']               # Maximum Acceleration in x-direction [m/s²]
+max_vel_y: 0.0                                              # Maximum velocity in y-direction [m/s] (set to 0 for car-like vehicles)
+max_vel_theta: 1.38                                         # the angular velocity is also bounded by min_turning_radius in case of a carlike robot (r = v / omega)
+acc_lim_theta: 0.5                                          # Maximum angular velocity of the whole car in radians/sec
+
+footprint_model:                 # types: "point", "circular", "two_circles", "line", "polygon"
+  type: "line"           
+  line_start:                    # for type "line", The robot (axis of rotation) is assumed to be at [0, 0] (Unit: meters)
+  - 0.0                          # x
+  - 0.0                          # y
+  line_end:                      # for type "line"
+  - !eval physical['wheelbase']  # x
+  - 0.0                          # y
+
+# type: "circular"
+# radius: "1.0"
+
+# ************************* Carlike robot parameters **************************
+
+min_turning_radius: !eval physical['wheelbase'] / math.tan(physical['max_steering_angle'])  # Min turning radius of the carlike robot (compute value using a model or adjust with rqt_reconfigure manually)
+wheelbase: !eval physical['wheelbase']                                                      # Wheelbase of our robot
+cmd_angle_instead_rotvel: True                                                              # stage simulator takes the angle instead of the rotvel as input (twist message), this is needed by the twist_to_ackermann node
+
+# ****************************** Goal Tolerance *******************************
+
+xy_goal_tolerance: 0.2       # Tolerace for car position compared to end goal in meters
+yaw_goal_tolerance: 0.2      # Tolerance for car rotation compared to angular goal in radians
+free_goal_vel: False         # False makes the car arrive at goal at no speed, True allows it to arrive at any speed
+complete_global_plan: True
+
+# ********************************* Obstacles *********************************
+
+min_obstacle_dist: !eval physical['chassis']['width'] * 1.1               # This value must also include our robot's expansion, since footprint_model is set to "line".
+inflation_dist: &inflation_dist !eval physical['chassis']['width'] * 1.5  # Buffer zone around obstacles with non-zero penalty costs ()NOTE: Must be greater than min_obstacle_dist in order to be taken into account
+include_costmap_obstacles: True                                           # Specify if obstacles of the local costmap should be taken into account
+costmap_obstacles_behind_robot_dist: 6.0                                  # Specify distance for how far behind the car an object can be in order to make the local costmap take the object into accout while planning route
+obstacle_poses_affected: 15                                               # Each obstacle position is attached to the closest pose on the trajectory in order to keep a distance. Additional neighbors can be taken into account as well.
+
+dynamic_obstacle_inflation_dist: *inflation_dist  # Same as inflation_dist but for dynamic obstacles
+include_dynamic_obstacles: True                   # Specify if dynamic obstacles should be taken into account. Movement of these is predicted assuming constant velocity
+
+costmap_converter_plugin: ""         # Define plugin name in order to convert costmap cells to points/lines/polygons. Set an empty string to disable the conversion such that all cells are treated as point-obstacles.
+costmap_converter_spin_thread: True  # If set to true, the costmap converter invokes its callback queue in a different thread.
+costmap_converter_rate: 5            # Rate that defines how often the costmap_converter plugin processes the current costmap [Hz] (Doesn't matter when using no plugin)
+
+# ******************************* Optimization ********************************
+  
+no_inner_iterations: 5       # Number of inner iterations called in each outerloop iteration (below).
+no_outer_iterations: 4       # Each outerloop iteration automatically resizes the trajectory according to the desired temporal resolution dt_ref and invokes the internal optimizer (that performs no_inner_iterations). The total number of solver iterations in each planning cycle is therefore the product of both values.
+optimization_activate: True  # Activates/deactivates the optimization in general
+optimization_verbose: False  # Prints verbose optimization
+penalty_epsilon: 0.1         # Adds a small safety margin to penatly functions (used for hard-constraint approximations).
+obstacle_cost_exponent: 4    # Exponent for nonlinear obstacle cost (set to 1 to disable nonlinear cost).
+
+weight_max_vel_x: 2                     # Optimization weight for satisfying the maximum allowed translational velocity.
+weight_max_vel_theta: 1                 # Optimization weight for satisfying the maximum allowed angular velocity.
+weight_acc_lim_x: 1                     # Optimization weight for satisfying the maximum allowed translational acceleration 
+weight_acc_lim_theta: 1                 # Optimization weight for satisfying the maximum allowed angular acceleration
+weight_kinematics_nh: 1000              # Optimization weight for non-holonomic (e.g. cars) kinematics
+weight_kinematics_forward_drive: 10     # Opt. weight for forcing the robot to choose only forward directions. Small weights (e.g. =1) still allows going backwards, 1000 almost prevents all kinds of backwards driving.
+weight_kinematics_turning_radius: 1     # Opt. weight for forcing a minimum turning radius.
+weight_optimaltime: 1                   # Opt. weight for contracting the trajectory with respect to transition/exec time. Must be > 0 
+weight_shortest_path: 0                 # Opt. weight for contracting the trajectory with respect to path length.
+weight_obstacle: 50                     # Opt. weight for minimum separation from obstacles.
+weight_inflation: 0.2                   # Opt. weight for inflation penalty (Should be small according to ros docs for navstack)
+weight_dynamic_obstacle: 10             # Same as weight_obstacle but for dynamic obstacles, not in use yet
+weight_dynamic_obstacle_inflation: 0.2  # Same as for weight_inflation but for dynamic obstacles.
+weight_viapoint: 1                      # Opt. weight for minimizing distance to via-points.
+weight_adapt_factor: 2                  # Some special weights (currently 'weight_obstacle') are repeatedly scaled by this factor in each outer TEB iteration (weight_new = weight_old*factor); Increasing weights iteratively instead of setting a huge value a-priori leads to better numerical conditions of the underlying optimization problem.
+
+# *************************** Homotopy Class Planner **************************
+
+enable_homotopy_class_planning: True    # Homotopy classes of trajectories, arising due to the presence of obstacles, are defined as sets of trajectories that can be transformed into each other by gradual bending and stretching without colliding with obstacles.
+enable_multithreading: True             # Mult. threading for planning multiple trajectories in parallel.
+max_number_classes: 4                   # Number of alternate homotopy classes allowed.
+selection_cost_hysteresis: 1.0          # Specify value for how much cost a trajectory candidate must have compared to a prev. selected one. (selection if new_cost < old_cost*factor)
+selection_prefer_initial_plan: 0.95     # Specify a cost reduction in the interval (0,1) for the trajectory in the equivalence class of the initial plan.
+selection_obst_cost_scale: 1.0          # Extra scaling of obstacle cost terms just for selecting the best candidate.
+selection_alternative_time_cost: False  # Replaces time cost with total transition time.
+
+roadmap_graph_no_samples: 15                   # ?
+roadmap_graph_area_width: 5                    # Number of samples generated for creating the roadmap graph.
+roadmap_graph_area_length_scale: 1.0           # Sclaing factor for area/length (roadmap).
+h_signature_prescaler: 0.5                     # Scale number of obstacle value in order to allow huge number of obstacles. Do not choose it extremly low, otherwise obstacles cannot be distinguished from each other (0.2<H<=1).
+h_signature_threshold: 0.1                     # Threshold for when two h-signatures are assumed to be equal.
+obstacle_heading_threshold: 0.45               # Value of the normalized scalar product between obstacle heading and goal heading in order to take them (obstacles) into account for exploration [0,1].
+switching_blocking_period: 0.0                 # Time duration in seconds that needs to pass before a switch to a new equivalence class is allowed.
+viapoints_all_candidates: True                 # Decides whether all trajectories of different topologies are attached to the set of via-points.
+delete_detours_backwards: True                 # If enabled, the planner will discard the plans detouring backwards with respect to the best plan.
+max_ratio_detours_duration_best_duration: 3.0  # Discards detours if their execution time is over this value.
+visualize_hc_graph: False                      # Visualizes a graph that is created for exploring new homotopy classes.
+visualize_with_time_as_z_axis_scale: False     # If this value is bigger than 0, the trajectory and obstacles are visualized in 3d using the time as the z-axis scaled by this value. Most useful for dynamic obstacles.
+
+# ********************************* Recovery **********************************
+
+shrink_horizon_backup: True            # Allows planner to shrink horizon temporarily (by 50%) in case of automatically detected issues.
+shrink_horizon_min_duration: 10        # Minimum duration for the reduced horizon in case an infeasible trajectory is detected. [s]
+oscillation_recovery: True             # Try to detect and resolve oscillations between multiple solutions in the same equivalence class (when the car frequently switches between left/right/forward/backwards)
+oscillation_v_eps: 0.1                 # Threshold for the average normalized linear velocity.
+oscillation_omega_eps: 0.1             # Threshold for the average normalized angular velocity.
+oscillation_recovery_min_duration: 10  # Minimum duration for when the recovery mode is activated after an oscillation is detected. [s]
+oscillation_filter_duration: 10        # Filter duration for the detection of oscillations. [s]

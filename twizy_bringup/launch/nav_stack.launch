@@ -1,12 +1,10 @@
 <?xml version="1.0"?>
 <launch>
 	<node pkg="move_base" type="move_base" respawn="false" name="move_base" output="screen">
-		<rosparam file="$(find twizy_bringup)/config/costmap_common_params.yaml" command="load" ns="global_costmap" />
-		<rosparam file="$(find twizy_bringup)/config/costmap_common_params.yaml" command="load" ns="local_costmap" />
-		<rosparam file="$(find twizy_bringup)/config/local_costmap_params.yaml" command="load" />
-		<rosparam file="$(find twizy_bringup)/config/global_costmap_params.yaml" command="load" />
-		<rosparam file="$(find twizy_bringup)/config/teb_local_planner_params.yaml" command="load" />
-		<rosparam file="$(find twizy_bringup)/config/global_planner_params.yaml" command="load" />
+		<rosparam ns="global_costmap" subst_value="true">$(eval exec('global load; from twizy_bringup.twizyparam import load') or load(f'{find("twizy_bringup")}/params/global_costmap_params.yaml'))</rosparam>
+		<rosparam ns="local_costmap" subst_value="true">$(eval exec('global load; from twizy_bringup.twizyparam import load') or load(f'{find("twizy_bringup")}/params/local_costmap_params.yaml'))</rosparam>
+		<rosparam ns="GlobalPlanner" subst_value="true">$(eval exec('global load; from twizy_bringup.twizyparam import load') or load(f'{find("twizy_bringup")}/params/global_planner_params.yaml'))</rosparam>
+		<rosparam ns="TebLocalPlannerROS" subst_value="true">$(eval exec('global load; from twizy_bringup.twizyparam import load') or load(f'{find("twizy_bringup")}/params/teb_local_planner_params.yaml'))</rosparam>
 
 		<param name="base_global_planner" value="global_planner/GlobalPlanner" />
 		<param name="planner_frequency" value="1.0" />

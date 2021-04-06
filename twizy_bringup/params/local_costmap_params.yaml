@@ -1,0 +1,11 @@
+!expand : !include $(rospack find twizy_bringup)/params/include/costmap_common_params.yaml
+
+plugins:
+- {name: obstacle_layer, type: "costmap_2d::ObstacleLayer"}
+
+update_frequency: 1.0
+rolling_window: true
+width: 20.0                   # Width of the local costmap
+height: 20.0                  # Height of the local costmap
+resolution: 0.2
+
