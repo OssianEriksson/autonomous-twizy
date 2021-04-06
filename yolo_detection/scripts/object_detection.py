@@ -3,7 +3,7 @@
 import rospy
 import cv2 as cv
 import message_filters
-from std_msgs.msg import String
+from std_msgs.msg import String, Bool
 from sensor_msgs.msg import Image
 from cv_bridge import CvBridge, CvBridgeError
 from yolo_detection.msg import BoundingBoxes,BoundingBox
@@ -21,9 +21,10 @@ def main():
             #Convert the image using the default passthrough encoding
             cv_image = bridge.imgmsg_to_cv2(ros_image, desired_encoding="passthrough")
 
-            # create an array for the distance,object tuple
-            distance_to_object = []
+            msg = rospy.Publisher('object_detection', Bool , queue_size=10)
 
+            # create an bool  to bee sent if the car identifies an object
+            msg_to_publish = False
             #loops over every box and calculate the avreage distance to each object by adding the distance to every pixel
             # when we don't find any object the camera returns ymax as -106 there for we check before going inside the second loop.
             for box in boxes.bounding_boxes:  
@@ -33,10 +34,15 @@ def main():
                         for j in range(box.ymin, box.ymax): 
                             avreage += cv_image[j][i]
                     avreage = avreage / ((box.xmax - box.xmin) * (box.ymax - box.ymin))    
-                distance_to_object.append((avreage,box.Class))
-
-            #add publisher?
-            #print(distance_to_object)    
+                
+                if   ((box.Class == "person" or box.Class == "dog" or 
+                        box.Class == "cat" or box.Class == "horse") and avreage <= 3000): 
+                        msg_to_publish = True
+                elif (box.Class == "stop sign" and avreage <= 2500):
+                        msg_to_publish = True
+                        rospy.sleep(10.)
+                        
+            msg.publish(msg_to_publish)    
                 
         except CvBridgeError as e: # error handling for CV
             print(e)     

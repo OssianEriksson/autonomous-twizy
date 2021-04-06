@@ -59,9 +59,9 @@ def main():
             # we also make sure that the pixels are inside the image
             for box in Boxes:
                 xmin = (box[0] - box[2]/2) * width
-                if xmin <= 0 : xmin = 0 
+                if xmin <= 0 : xmin = 1 
                 ymin = (box[1] - box[3]/2) * height 
-                if ymin <= 0 : ymin = 0 
+                if ymin <= 0 : ymin = 1 
                 xmax = (box[0] + box[2]/2) * width 
                 if xmax >= width : xmax = width - 1 
                 ymax = (box[1] + box[3]/2) * height 

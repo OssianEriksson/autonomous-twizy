@@ -3,9 +3,10 @@
 import rospy
 from ackermann_msgs.msg import AckermannDriveStamped
 from geometry_msgs.msg import Twist
-
+from std_msgs.msg import Bool
 
 def main():
+    object_in_the_way = False
     # Initialize ROS node
     rospy.init_node('twist_to_ackermann')
 
@@ -24,12 +25,20 @@ def main():
         # angle in its angular component instead of angular velocity
         msg.drive.steering_angle = min(
             max(data.angular.z, -max_steering_angle), max_steering_angle)
-        msg.drive.speed = data.linear.x
+        
+        if object_in_the_way :
+            msg.drive.speed = 0.0
+        else :     
+            msg.drive.speed = data.linear.x
 
         pub.publish(msg)
 
-    rospy.Subscriber('cmd_vel', Twist, cmd_callback, queue_size=1)
+    def stop_indicator(value) :
+        global object_in_the_way 
+        object_in_the_way = value
 
+    rospy.Subscriber('cmd_vel', Twist, cmd_callback, queue_size=1)
+    rospy.Subscriber('object_detection', Bool, stop_indicator)
     try:
         rospy.spin()
     except rospy.ROSInterruptException:
