@@ -11,12 +11,13 @@ find_package(catkin REQUIRED COMPONENTS
   ackermann_teleop
   ackermann_ekf
   twizy_description
-  twizy_webots
   rviz
   move_base
   teb_local_planner
   global_planner
-  #amcl
+  robot_state_publisher
+  joint_state_publisher
+  twizy_control
 )
 
 ## System dependencies are found with CMake's conventions

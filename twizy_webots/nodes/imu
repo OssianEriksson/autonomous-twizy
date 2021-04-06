@@ -1,0 +1,107 @@
+#!/usr/bin/python3
+
+import rospy
+
+import twizy_webots.robot
+import message_filters
+
+from sensor_msgs.msg import Imu
+from webots_ros.srv import camera_get_info, range_finder_get_info
+
+
+NO_DATA = [-1] + [0] * 8
+
+
+def main():
+    # Initialize ROS node. There might be multiple versions of this node
+    # running at once with the same name, anonymous=True allows this
+    rospy.init_node('color_depth_sensor', anonymous=True)
+
+    # Read parameters from ROS parameter server
+    gyro_device = rospy.get_param('~gyro_device', None)
+    accel_device = rospy.get_param('~accel_device', None)
+    inertial_device = rospy.get_param('~inertial_device', None)
+    frame_id = rospy.get_param('~frame_id')
+    ups = rospy.get_param('~imu/ups', 30.0)
+    gyro_covariance = rospy.get_param('~gyro/covariance',
+                                      [0.01, 0.0, 0.0,
+                                       0.0, 0.01, 0.0,
+                                       0.0, 0.0, 0.01])
+    accel_covariance = rospy.get_param('~accel/covariance',
+                                       [0.01, 0.0, 0.0,
+                                        0.0, 0.01, 0.0,
+                                        0.0, 0.0, 0.01])
+    inertial_covariance = rospy.get_param('~inertial/covariance',
+                                          [0.01, 0.0, 0.0,
+                                           0.0, 0.01, 0.0,
+                                           0.0, 0.0, 0.01])
+    model = rospy.get_param('twizy_webots/model_name', None)
+
+    robot = twizy_webots.robot.Robot(model)
+
+    subscribers = []
+
+    # Tell the webots ROS controller to images
+    for device, topic in [(gyro_device, 'values'),
+                          (accel_device, 'values'),
+                          (inertial_device, 'quaternion')]:
+        if device is not None:
+            if not robot.call_enable(device, ups):
+                rospy.logfatal(f'Unable to enable device {device}')
+                return
+            subscribers.append(message_filters.Subscriber(
+                robot.topic_name(f'{device}/{topic}'), Imu, queue_size=1))
+
+    pub_imu = rospy.Publisher('imu', Imu, queue_size=1)
+
+    imu = Imu()
+    imu.header.frame_id = frame_id
+
+    def cb(*msgs):
+        imu.header.stamp = rospy.Time.now()
+
+        orient = next(
+            (x for x in msgs if x.orientation_covariance[0] != -1),
+            None
+        )
+        angular_vel = next(
+            (x for x in msgs if x.angular_velocity_covariance[0] != -1),
+            None
+        )
+        linear_accel = next(
+            (x for x in msgs if x.linear_acceleration_covariance[0] != -1),
+            None
+        )
+
+        if orient:
+            imu.orientation = orient.orientation
+            imu.orientation_covariance = inertial_covariance
+        else:
+            imu.orientation_covariance = NO_DATA
+
+        if angular_vel:
+            imu.angular_velocity = angular_vel.angular_velocity
+            imu.angular_velocity_covariance = gyro_covariance
+        else:
+            imu.angular_velocity_covariance = NO_DATA
+
+        if linear_accel:
+            imu.linear_acceleration = linear_accel.linear_acceleration
+            imu.linear_acceleration_covariance = accel_covariance
+        else:
+            imu.linear_acceleration_covariance = NO_DATA
+
+        pub_imu.publish(imu)
+
+    ts = message_filters.ApproximateTimeSynchronizer(subscribers, 2, 2.0 / ups)
+    ts.registerCallback(cb)
+
+    # Wait for shutdown
+    try:
+        rospy.spin()
+    except rospy.ROSInterruptException:
+        pass
+
+
+if __name__ == '__main__':
+    main()

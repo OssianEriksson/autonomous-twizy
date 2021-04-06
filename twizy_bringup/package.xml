@@ -52,15 +52,16 @@
   <depend>ackermann_teleop</depend>
   <depend>ackermann_ekf</depend>
   <depend>twizy_description</depend>
-  <depend>twizy_webots</depend>
   <depend>rviz</depend>
   <depend>move_base</depend>
   <depend>teb_local_planner</depend>
   <depend>global_planner</depend>
   <depend>amcl</depend>
   <depend>realsense2_camera</depend>
-
-
+  <depend>depth_image_proc</depend>
+  <depend>robot_state_publisher</depend>
+  <depend>joint_state_publisher</depend>
+  <depend>twizy_control</depend>
 
 
 

@@ -1,0 +1,48 @@
+#VRML_SIM R2021a utf8
+WorldInfo {
+  coordinateSystem "NUE"
+  contactProperties [
+    ContactProperties {
+      softCFM 0.0001
+    }
+  ]
+}
+Viewpoint {
+  orientation -0.30701421794563033 0.9174762429466939 0.2529419174586373 2.192844829452034
+  position 7.7614461554409075 8.414295906491061 -5.9554869753767
+}
+TexturedBackground {
+}
+TexturedBackgroundLight {
+}
+RectangleArena {
+  floorSize 100 100
+}
+Twizy {
+  translation -2.46397e-05 0.0130192 -0.888661
+  rotation 0.5770605990358749 0.5770491714963732 0.5779405840704616 -2.093492750379218
+}
+WoodenBox {
+  translation 0.46 0.5 2.51
+  size 1 1 1
+}
+WoodenBox {
+  translation 2.16 0.5 2.51
+  name "wooden box(1)"
+  size 1 1 1
+}
+WoodenBox {
+  translation -1.71 0.5 2.51
+  name "wooden box(2)"
+  size 1 1 1
+}
+WoodenBox {
+  translation -1.69 0.5 0.58
+  name "wooden box(3)"
+  size 1 1 1
+}
+WoodenBox {
+  translation 2.14 0.5 0.68
+  name "wooden box(4)"
+  size 1 1 1
+}

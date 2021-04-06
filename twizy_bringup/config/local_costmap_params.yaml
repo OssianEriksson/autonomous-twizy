@@ -1,12 +1,10 @@
 local_costmap:
-  global_frame: map
-  robot_base_frame: base_link
-  update_frequency: 5.0
-  publish_frequency: 2.0
-  static_map: false
+  plugins:
+  - {name: obstacle_layer, type: "costmap_2d::ObstacleLayer"}
+
+  update_frequency: 1.0
   rolling_window: true
-  width: 20.0
-  height: 20.0
+  width: 20.0                   # Width of the local costmap
+  height: 20.0                  # Height of the local costmap
   resolution: 0.2
-  tranform_tolerance: 1.0
 

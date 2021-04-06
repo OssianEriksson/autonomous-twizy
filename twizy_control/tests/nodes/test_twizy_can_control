@@ -1,0 +1,164 @@
+#!/usr/bin/python3
+
+import rostest
+import roslaunch
+import rospy
+
+from canlib import canlib
+import unittest
+import subprocess
+from subprocess import DEVNULL, PIPE
+import tkinter as tk
+import tkinter.simpledialog
+import tkinter.messagebox
+
+from ackermann_msgs.msg import AckermannDriveStamped
+
+
+NODE = 'twizy_can_control'
+MAX_STEERING_ANGLE = 1.0
+MAX_FORWARD_SPEED = 2.0
+MAX_REVERSE_SPEED = 1.0
+
+
+def validate_password(password):
+    p = subprocess.Popen('sudo -S true', shell=True,
+                         stdin=PIPE, stdout=DEVNULL, stderr=DEVNULL)
+    p.communicate(f'{password}\n'.encode())
+    return p.wait() == 0
+
+
+def sudo(command, message='Enter password:'):
+    password = ''
+    while not validate_password(password):
+        password = tkinter.simpledialog.askstring(
+            'Password', message, show='*')
+
+        if password is None:
+            return None
+
+    command = f'sudo -S {command}'
+    p = subprocess.Popen(command, shell=True, stdin=PIPE,
+                         stdout=DEVNULL, stderr=DEVNULL)
+    p.communicate(f'{password}\n'.encode())
+    return p.wait()
+
+
+def kvvirtualcan_started():
+    return subprocess.run(
+        'lsmod | grep -e ^kvvirtualcan',
+        shell=True
+    ).returncode == 0
+
+
+class TestTwizyCanControl(unittest.TestCase):
+
+    @classmethod
+    def setUpClass(cls):
+        tk.Tk().withdraw()
+
+        cls.run_can_tests = tkinter.messagebox.askokcancel(
+            title='Important!',
+            message='The test twizy_control/tests/test_twizy_can_control.py '
+                    'should not be run on the phyiscal Twizy\'s computer as '
+                    'the test includes writing to CAN which might cause the '
+                    'real car to move around in an unsafe manner! Would you '
+                    'like to continue with CAN related tests?'
+        )
+
+        if cls.run_can_tests:
+            if not kvvirtualcan_started():
+                returncode = sudo(
+                    '/usr/sbin/virtualcan.sh start',
+                    'Your sudo password is needed for starting the virtual \n'
+                    'CAN device using "sudo /usr/sbin/virtualcan.sh start". \n'
+                    'Pressing "Cancel" will abort CAN related tests.'
+                )
+
+                if returncode is None:
+                    cls.run_can_tests = False
+
+            cls.virtualcan = kvvirtualcan_started()
+
+        if cls.run_can_tests:
+            rospy.init_node(f'test_{NODE}')
+
+            rospy.set_param(f'{NODE}/max_steering_angle', MAX_STEERING_ANGLE)
+            rospy.set_param(f'{NODE}/max_forward_speed', MAX_FORWARD_SPEED)
+            rospy.set_param(f'{NODE}/max_reverse_speed', MAX_REVERSE_SPEED)
+            rospy.set_param(f'max_steering_angle', MAX_STEERING_ANGLE)
+
+            node = roslaunch.core.Node('twizy_control', NODE, name=NODE)
+
+            launch = roslaunch.scriptapi.ROSLaunch()
+            launch.start()
+
+            cls.process = launch.launch(node)
+
+            cls.channel = canlib.openChannel(1, flags=canlib.Open.ACCEPT_VIRTUAL,
+                                             bitrate=canlib.canBITRATE_500K)
+            cls.channel.setBusOutputControl(canlib.Driver.NORMAL)
+            cls.channel.busOn()
+
+            cls.pub = rospy.Publisher('ackermann_cmd', AckermannDriveStamped,
+                                      queue_size=1)
+
+            final = rospy.Time.now() + rospy.Duration(10)
+            while cls.pub.get_num_connections() < 1 and rospy.Time.now() <= final:
+                rospy.sleep(1.0)
+            cls.subscribers_connected = cls.pub.get_num_connections() == 1
+
+    def setUp(self):
+        if not TestTwizyCanControl.run_can_tests:
+            self.skipTest('Testing CAN was cancelled')
+        if not TestTwizyCanControl.subscribers_connected:
+            self.fail(f'{NODE} did not subscribe to topics')
+        if not TestTwizyCanControl.virtualcan:
+            self.fail('virtualcan has not been started. Have you installed '
+                      'Kvaser\'s linux driver?')
+
+    def test_messages_arrive_on_can_bus(self):
+        channel = TestTwizyCanControl.channel
+
+        a = AckermannDriveStamped()
+
+        num = 100.0
+        for i in range(int(num)):
+            speed_factor = (0.5 - i / num) * 2.0
+            a.drive.steering_angle = (1 - speed_factor) * MAX_STEERING_ANGLE
+            a.drive.speed = speed_factor * \
+                MAX_FORWARD_SPEED if speed_factor > 0 else MAX_REVERSE_SPEED
+
+            TestTwizyCanControl.pub.publish(a)
+
+            angle_frame = channel.read(timeout=10000)
+            speed_frame = channel.read(timeout=10000)
+
+            self.assertEqual(angle_frame.id, 150)
+            self.assertTrue(angle_frame.data[1] ==
+                            (0 if a.drive.steering_angle < 0 else 255)
+                            or angle_frame.data[0] == 0)
+            self.assertEqual(angle_frame.dlc, 8)
+            self.assertEqual(len(angle_frame.data), 8)
+            self.assertTrue(not any(angle_frame.data[2:]))
+
+            self.assertEqual(speed_frame.id, 154)
+            self.assertTrue(speed_frame.data[1] ==
+                            (0 if a.drive.speed > 0 else 255)
+                            or speed_frame.data[0] == 0)
+            self.assertEqual(speed_frame.dlc, 8)
+            self.assertEqual(len(speed_frame.data), 8)
+            self.assertTrue(not any(speed_frame.data[2:]))
+
+    @classmethod
+    def tearDownClass(cls):
+        if cls.run_can_tests:
+            cls.process.stop()
+
+            # Close can channel
+            cls.channel.busOff()
+            cls.channel.close()
+
+
+if __name__ == '__main__':
+    rostest.rosrun('twizy_control', f'test_{NODE}', TestTwizyCanControl)

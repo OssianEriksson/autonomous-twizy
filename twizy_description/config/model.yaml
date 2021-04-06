@@ -4,34 +4,63 @@
 # for example as included in messages a ROS node can subscribe to
 
 
-left_gnss:
+left_piksi_gnss:
   position:  # In chassis frame: x forward z up, (0, 0, 0) centered on chassis floor 
-    x: 0.0
-    y: 0.4
-    z: 1.2
-  accuracy: 0.005  # Standard deviation
+    x: 0.058
+    y: 0.325
+    z: 1.41
+  accuracy: 0.01  # Standard deviation
 
 
-right_gnss:
+right_piksi_gnss:
+  position:  # In chassis frame: x forward z up, (0, 0, 0) centered on chassis floor 
+    x: 0.058
+    y: -0.345
+    z: 1.41
+  accuracy: 0.01  # Standard deviation
+
+
+left_piksi_imu:
   position:  # In chassis frame: x forward z up, (0, 0, 0) centered on chassis floor 
     x: 0.0
-    y: -0.4
-    z: 1.2
-  accuracy: 0.005  # Standard deviation
+    y: 0.0
+    z: 0.7
+  rotation:  # Axis angle in chassis frame
+    x: 0.0
+    y: 1.0
+    z: 0.0
+    angle: 3.1415  # Imu forward originally facing towards x in chassis frame
+  accelerometer_accuracy: 0.05  # Standard deviation (m/s^2)
+  gyro_accuracy: 0.05  # Standard deviation (rad/s)
+
+
+right_piksi_imu:
+  position:  # In chassis frame: x forward z up, (0, 0, 0) centered on chassis floor 
+    x: 0.0
+    y: 0.0
+    z: 0.65
+  rotation:  # Axis angle in chassis frame
+    x: 0.0
+    y: 1.0
+    z: 0.0
+    angle: 3.1415  # Imu forward originally facing towards x in chassis frame
+  accelerometer_accuracy: 0.05  # Standard deviation (m/s^2)
+  gyro_accuracy: 0.05  # Standard deviation (rad/s)
 
 
 front_realsense:
   position:  # In chassis frame: x forward z up, (0, 0, 0) centered on chassis floor 
-    x: 1.2
+    x: 0.068
     y: 0.0
-    z: 1.2
+    z: 1.375
   rotation:  # Axis angle in chassis frame
     x: 0.0
     y: 1.0
     z: 0.0
     angle: 0.2  # Camera originally looking at x in chassis frame
+  color:
+    fov: 1.117010721276371  # Horizontal FOV (64°)
+    width: 640
+    height: 480
   depth:
-    width: 640  # (px)
-    height: 480  # (px)
-    fov: 1.5707963267948966
     max_range: 10.0

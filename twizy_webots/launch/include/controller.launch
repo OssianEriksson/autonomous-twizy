@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<launch>
+    <node pkg="twizy_webots" type="ackermann_controller" name="ackermann_controller" required="true">
+        <remap from="~drive_wheel_radius" to="/physical/rear_wheel/radius" />
+        <remap from="~max_forward_speed" to="/physical/max_forward_speed" />
+        <remap from="~max_reverse_speed" to="/physical/max_reverse_speed" />
+        <remap from="~max_steering_angle" to="/physical/max_steering_angle" />
+        <remap from="~wheelbase" to="/physical/wheelbase" />
+        <remap from="~track" to="/physical/front_track" />
+        <rosparam param="drive_motors">[rear_left_wheel_motor, rear_right_wheel_motor]</rosparam>
+        <param name="~steering_motor_left" value="front_left_steering_motor" />
+        <param name="~steering_motor_right" value="front_right_steering_motor" />
+    </node>
+</launch>

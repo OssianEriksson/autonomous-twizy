@@ -11,7 +11,7 @@ import twizy_webots.robot
 
 def main():
     # Initialize ROS node
-    rospy.init_node('twizy_controller')
+    rospy.init_node('ackermann_controller')
 
     # Read parameters from ROS parameter server
     drive_wheel_radius = rospy.get_param('~drive_wheel_radius')
@@ -65,7 +65,10 @@ def main():
     rospy.Subscriber('ackermann_cmd', AckermannDriveStamped, cb, queue_size=1)
 
     # Wait for shutdown
-    rospy.spin()
+    try:
+        rospy.spin()
+    except rospy.ROSInterruptException:
+        pass
 
 
 if __name__ == '__main__':
