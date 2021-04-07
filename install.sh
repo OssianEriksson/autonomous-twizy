@@ -14,12 +14,7 @@ function append_to_bashrc {
 # Default value for ROS_DISTRO is noetic
 ROS_DISTRO=${ROS_DISTRO:-noetic}
 
-if [[ -z "${GITHUB_ACTION}" ]]; then # If running on local computer 
-	# Clone the repo into what will become the catkin workspace if no prior clone exists at the target location
-	if ! git -C ~/autonomous-twizy/src branch > /dev/null && ! git clone git@github.com:OssianEriksson/autonomous-twizy.git ~/autonomous-twizy/src; then
-		exit 1
-	fi
-else # If running as Github action
+if [[ ! -z "${GITHUB_ACTION}" ]]; then # If running as Github action
 	# Create symlinks to clone location
 	mkdir -p ~
 	ln -s "${GITHUB_WORKSPACE}" ~/autonomous-twizy
