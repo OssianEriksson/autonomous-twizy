@@ -10,7 +10,7 @@ source /opt/ros/$ROS_DISTRO/setup.bash
 cd ~/autonomous-twizy
 
 # Build all packages in the workspace
-catkin_make || exit 4
+catkin_make
 source devel/setup.bash
 
 # Run unit and integration tests
