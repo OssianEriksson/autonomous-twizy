@@ -54,7 +54,7 @@ sudo make install
 
 # Install python packages not indexed by rosdep
 sudo apt-get install -y python3-pip
-pip3 install canlib sbp
+sudo -H pip3 install -U canlib sbp
 
 if [[ -z "${GITHUB_ACTION}" ]] && [[ -z "${TWIZY_ONBOARD}" ]]; then # If running on local computer which is not the Twizy's on-board computer
 	# Install webots according to https://www.cyberbotics.com/doc/guide/installation-procedure#installing-the-debian-package-with-the-advanced-packaging-tool-apt

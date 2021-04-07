@@ -45,4 +45,5 @@ jobs:
             "${GITHUB_WORKSPACE}/src/.github/set_status.sh" success "Catkin Tests" "Tests passed"
           else
             "${GITHUB_WORKSPACE}/src/.github/set_status.sh" failure "Catkin Tests" "Tests failed"
+            exit 1
           fi
