@@ -3,12 +3,12 @@ authors: ''
 brief: ''
 bugtracker: ''
 depends:
-- python3-catkin-pkg
+- python3-collada-pip
 - python-transforms3d-pip
 - urdf
-- catkin
 - python3-numpy
-- python3-collada-pip
+- catkin
+- python3-catkin-pkg
 description: Physical descrition of Twizy and configs
 license: Apache 2.0
 maintainers: Ossian Eriksson <ossiane@student.chalmers.se>
