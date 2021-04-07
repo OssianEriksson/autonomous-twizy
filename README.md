@@ -47,7 +47,7 @@ View pre-build code api on [Github pages](https://ossianeriksson.github.io/auton
 
 ## ROS
 
-See README in root directory of the corresponding ROS package
+See READMEs in root directory of the corresponding ROS package
 
 # Licence
 
