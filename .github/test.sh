@@ -13,8 +13,8 @@ cd ~/autonomous-twizy
 catkin_make
 source devel/setup.bash
 
-ROS_HOSTNAME=`hostname`
-ROS_MASTER_URI="http://$ROS_HOSTNAME:11311"
+ROS_HOSTNAME=localhost
+ROS_MASTER_URI="http://localhost:11311"
 
 # Run unit and integration tests
 catkin_make run_tests
