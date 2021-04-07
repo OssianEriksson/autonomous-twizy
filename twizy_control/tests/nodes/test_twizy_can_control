@@ -5,6 +5,7 @@ import roslaunch
 import rospy
 
 from canlib import canlib
+import os
 import unittest
 import subprocess
 from subprocess import DEVNULL, PIPE
@@ -57,14 +58,21 @@ class TestTwizyCanControl(unittest.TestCase):
     def setUpClass(cls):
         tk.Tk().withdraw()
 
-        cls.run_can_tests = tkinter.messagebox.askokcancel(
-            title='Important!',
-            message='The test twizy_control/tests/test_twizy_can_control.py '
-                    'should not be run on the phyiscal Twizy\'s computer as '
-                    'the test includes writing to CAN which might cause the '
-                    'real car to move around in an unsafe manner! Would you '
-                    'like to continue with CAN related tests?'
-        )
+        if 'GITHUB_ACTION' in os.environ: 
+            cls.run_can_tests = False
+        elif 'TWIZY_ONBOARD' in os.environ:
+            cls.run_can_tests = bool(os.environ['TWIZY_ONBOARD'])
+        else:
+            cls.run_can_tests = tkinter.messagebox.askokcancel(
+                title='Important!',
+                message='The test twizy_control/tests/test_twizy_can_control '
+                        'should not be run on the phyiscal Twizy\'s computer '
+                        'as the test includes writing to CAN which might '
+                        'cause the real car to move around in an unsafe '
+                        'manner! Would you like to continue with CAN related '
+                        'tests? To always allow this test to run, set the '
+                        'enviroment variable TWIZY_ONBOARD to 0'
+            )
 
         if cls.run_can_tests:
             if not kvvirtualcan_started():
