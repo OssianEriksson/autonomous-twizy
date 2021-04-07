@@ -59,7 +59,7 @@ class TestTwizyCanControl(unittest.TestCase):
         tk.Tk().withdraw()
 
         if 'GITHUB_ACTION' in os.environ: 
-            cls.run_can_tests = False
+            cls.run_can_tests = True
         elif 'TWIZY_ONBOARD' in os.environ:
             cls.run_can_tests = bool(os.environ['TWIZY_ONBOARD'])
         else:
