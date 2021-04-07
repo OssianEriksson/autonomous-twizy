@@ -29,7 +29,7 @@ For more detailed information see the [wiki](https://github.com/OssianEriksson/a
 
 3. Running Example Launch Files
    
-   Keyboard operation demo in webots
+   Keyboard control demo in webots:
    ```sh
    roslaunch twizy_examples webots_keyop.launch
    ```
