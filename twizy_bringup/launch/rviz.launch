@@ -1,8 +1,0 @@
-<launch>
-    <arg name="rvizconfig" default="$(find twizy_bringup)/rviz/full.rviz" doc="rviz configuration file" />
-    <arg name="robot" default="$(find twizy_description)/robot/twizy.py" />
-
-    <param name="robot_description" command="$(arg robot) urdf" />
-
-    <node pkg="rviz" type="rviz" name="rviz" args="-d $(arg rvizconfig)" />
-</launch>

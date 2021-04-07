@@ -1,5 +1,8 @@
-# autonomous-twizy
+# autonomous-twizy gh-pages
 
-This repository contains ROS packages for control of an autonomous Renault Twizy at the Department of Electrical Engineering, Chalmers University of Technology, Sweden.
+This branch is used for content visible on [Github Pages](ossianeriksson.github.io/autonomous-twizy). All files here are automatically managed by Github Actions, except
 
-For more information see the [wiki](https://github.com/OssianEriksson/autonomous-twizy/wiki).
+* [README.md](README.md)
+* [.nojekyll][.nojekyll]
+
+If you push other files to this branch they will get automatically deleted!

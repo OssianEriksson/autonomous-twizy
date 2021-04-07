@@ -1,4 +1,0 @@
-<?xml version="1.0"?>
-<launch>
-    <test test-name="test_piksi_multi_rtk" pkg="piksi_multi_rtk" type="test_piksi_multi_rtk" />
-</launch>

@@ -1,8 +1,0 @@
-<?xml version="1.0"?>
-<launch>
-    <rosparam command="load" param="physical" file="$(find twizy_description)/config/physical.yaml" />
-
-    <node pkg="twizy_control" type="twist_to_ackermann" name="twist_to_ackermann" required="true">
-        <remap from="~max_steering_angle" to="/physical/max_steering_angle" />
-    </node>
-</launch>
