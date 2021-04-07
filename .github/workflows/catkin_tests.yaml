@@ -1,0 +1,49 @@
+name: Catkin Tests
+
+# Controls when the action will run. 
+on:
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+  
+  # Trigger the workflow on pull request, but only for the main branch
+  pull_request:
+    branches:
+      - master
+    paths-ignore:
+      - "**/README.md"
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This workflow contains a single job called "build"
+  build:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-20.04
+    
+    env:
+      # Run tests on ROS noetic
+      ROS_DISTRO: noetic
+
+      # Pass along generated Github token
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # We are not running on the Twizy's on-board computer
+      TWIZY_ONBOARD: 0
+      
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out the master branch under $GITHUB_WORKSPACE/src
+      - uses: actions/checkout@v2
+        with:
+          path: src
+          fetch-depth: 2
+
+      # Run unit and integration tests. All testing is compressed into a single step/script so we can detect failiure and set the corresponding status
+      - name: Run Tests
+        run: |
+          "${GITHUB_WORKSPACE}/src/.github/set_status.sh" pending "Catkin Tests" "Waiting for test results..."
+          if "${GITHUB_WORKSPACE}/src/.github/test.sh"; then
+            "${GITHUB_WORKSPACE}/src/.github/set_status.sh" success "Catkin Tests" "Tests passed"
+          else
+            "${GITHUB_WORKSPACE}/src/.github/set_status.sh" failure "Catkin Tests" "Tests failed"
+            exit 1
+          fi

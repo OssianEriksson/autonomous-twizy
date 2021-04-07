@@ -1,3 +1,10 @@
+"""Module for generating proto and urdf files
+
+The physics/robotics simulator webots uses files in a proto format while most
+ROS-packages work with urdf, which is an xml format.
+"""
+
+
 from transforms3d.axangles import axangle2aff
 from transforms3d.affines import decompose44
 from transforms3d.euler import mat2euler
