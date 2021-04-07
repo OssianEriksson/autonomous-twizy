@@ -1,0 +1,19 @@
+actions: []
+authors: ''
+brief: ''
+bugtracker: ''
+depends:
+- python3-catkin-pkg
+- python-transforms3d-pip
+- urdf
+- catkin
+- python3-numpy
+- python3-collada-pip
+description: Physical descrition of Twizy and configs
+license: Apache 2.0
+maintainers: Ossian Eriksson <ossiane@student.chalmers.se>
+msgs: []
+package_type: package
+repo_url: ''
+srvs: []
+url: ''
