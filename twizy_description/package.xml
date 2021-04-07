@@ -50,7 +50,7 @@
   <!--   <doc_depend>doxygen</doc_depend> -->
   <buildtool_depend>catkin</buildtool_depend>
   <depend>urdf</depend>
-  <exec_depend>python-numpy</exec_depend>
+  <exec_depend>python3-numpy</exec_depend>
   <exec_depend>python-transforms3d-pip</exec_depend>
   <exec_depend>python3-collada-pip</exec_depend>
   <build_depend>python3-catkin-pkg</build_depend>

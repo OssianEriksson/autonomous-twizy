@@ -8,7 +8,7 @@ source /opt/ros/$ROS_DISTRO/setup.bash
 # Install documentation dependencies if not already available
 ! rosdoc_lite --help > /dev/null && sudo apt-get install -y ros-$ROS_DISTRO-rosdoc-lite
 ! doxygen -v > /dev/null && sudo apt-get install -y doxygen
-! sphinx-build --version > /dev/null && sudo apt-get install python-sphinx
+! sphinx-build --version > /dev/null && sudo apt-get install python3-sphinx
 
 # Set up environment
 mkdir -p ~/autonomous-twizy/docs
