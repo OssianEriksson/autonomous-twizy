@@ -75,7 +75,7 @@ append_to_bashrc "[ -f ~/autonomous-twizy/devel/setup.bash ] && source ~/autonom
 
 if [[ -z "${GITHUB_ACTION}" ]]; then # If running on a local computer
 	echo -e "\n\nInstallation completed!"
-	echo -e "\nThe repository has been cloned to ~/autonomous-twizy/src, and the catkin workspace is located at ~/autonomous-twizy. If you have trouble building or running please read through the installation log above and look for errors"
+	echo -e "\nThe repository has been cloned to ~/autonomous-twizy/src, and the catkin workspace is located at ~/autonomous-twizy."
 	echo -e "\nFinally, please run"
 	echo -e "\n    source ~/.bashrc\n"
 fi
