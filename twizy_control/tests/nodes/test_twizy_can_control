@@ -1,5 +1,7 @@
 #!/usr/bin/python3
 
+print('module')
+
 import rostest
 import roslaunch
 import rospy
@@ -14,6 +16,8 @@ import tkinter.simpledialog
 import tkinter.messagebox
 
 from ackermann_msgs.msg import AckermannDriveStamped
+
+print('imports')
 
 
 NODE = 'twizy_can_control'
@@ -56,7 +60,10 @@ class TestTwizyCanControl(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
+        print('setUpClass')
         tk.Tk().withdraw()
+
+        print('tk')
 
         if 'GITHUB_ACTION' in os.environ: 
             cls.run_can_tests = True
@@ -74,8 +81,12 @@ class TestTwizyCanControl(unittest.TestCase):
                         'enviroment variable TWIZY_ONBOARD to 0'
             )
 
+        print(f'run_can_tests {cls.run_can_tests}')
+
         if cls.run_can_tests:
+            print('Kvvirtualcan status')
             if not kvvirtualcan_started():
+                print('Start kvvirtualcan')
                 returncode = sudo(
                     '/usr/sbin/virtualcan.sh start',
                     'Your sudo password is needed for starting the virtual \n'
@@ -89,6 +100,7 @@ class TestTwizyCanControl(unittest.TestCase):
             cls.virtualcan = kvvirtualcan_started()
 
         if cls.run_can_tests:
+            print('Init node')
             rospy.init_node(f'test_{NODE}')
 
             rospy.set_param(f'{NODE}/max_steering_angle', MAX_STEERING_ANGLE)
@@ -115,8 +127,11 @@ class TestTwizyCanControl(unittest.TestCase):
             while cls.pub.get_num_connections() < 1 and rospy.Time.now() <= final:
                 rospy.sleep(1.0)
             cls.subscribers_connected = cls.pub.get_num_connections() == 1
+        
+        print('exit setUpClass')
 
     def setUp(self):
+        print('setUp')
         if not TestTwizyCanControl.run_can_tests:
             self.skipTest('Testing CAN was cancelled')
         if not TestTwizyCanControl.subscribers_connected:
@@ -124,8 +139,10 @@ class TestTwizyCanControl(unittest.TestCase):
         if not TestTwizyCanControl.virtualcan:
             self.fail('virtualcan has not been started. Have you installed '
                       'Kvaser\'s linux driver?')
+        print('exit setUp')
 
     def test_messages_arrive_on_can_bus(self):
+        print('test...')
         channel = TestTwizyCanControl.channel
 
         a = AckermannDriveStamped()
@@ -157,16 +174,26 @@ class TestTwizyCanControl(unittest.TestCase):
             self.assertEqual(speed_frame.dlc, 8)
             self.assertEqual(len(speed_frame.data), 8)
             self.assertTrue(not any(speed_frame.data[2:]))
+        
+        print('exit test...')
 
     @classmethod
     def tearDownClass(cls):
+        print('tearDownClass')
         if cls.run_can_tests:
             cls.process.stop()
 
+            print('Stop roslaunch')
             # Close can channel
             cls.channel.busOff()
             cls.channel.close()
+        
+        print('exit tearDownClass')
 
 
 if __name__ == '__main__':
+    print('main')
+
     rostest.rosrun('twizy_control', f'test_{NODE}', TestTwizyCanControl)
+
+    print('rostest finished')
