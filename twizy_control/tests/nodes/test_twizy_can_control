@@ -12,22 +12,19 @@ from canlib import canlib
 import rospy
 import roslaunch
 import rostest
-print('module')
-
-
-print('imports')
-
-try:
-    tk.Tk().withdraw()
-    _display = True
-except:
-    _display = False
 
 
 NODE = 'twizy_can_control'
 MAX_STEERING_ANGLE = 1.0
 MAX_FORWARD_SPEED = 2.0
 MAX_REVERSE_SPEED = 1.0
+
+
+try:
+    tk.Tk().withdraw()
+    _display = True
+except:
+    _display = False
 
 
 def validate_password(password):
@@ -64,10 +61,6 @@ class TestTwizyCanControl(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        print('setUpClass')
-
-        print('tk')
-
         if 'GITHUB_ACTION' in os.environ:
             cls.run_can_tests = True
         elif 'TWIZY_ONBOARD' in os.environ:
@@ -84,12 +77,8 @@ class TestTwizyCanControl(unittest.TestCase):
                         'enviroment variable TWIZY_ONBOARD to 0'
             )
 
-        print(f'run_can_tests {cls.run_can_tests}')
-
         if cls.run_can_tests:
-            print('Kvvirtualcan status')
             if not kvvirtualcan_started():
-                print('Start kvvirtualcan')
                 returncode = sudo(
                     '/usr/sbin/virtualcan.sh start',
                     'Your sudo password is needed for starting the virtual \n'
@@ -103,7 +92,6 @@ class TestTwizyCanControl(unittest.TestCase):
             cls.virtualcan = kvvirtualcan_started()
 
         if cls.run_can_tests:
-            print('Init node')
             rospy.init_node(f'test_{NODE}')
 
             rospy.set_param(f'{NODE}/max_steering_angle', MAX_STEERING_ANGLE)
@@ -131,10 +119,7 @@ class TestTwizyCanControl(unittest.TestCase):
                 rospy.sleep(1.0)
             cls.subscribers_connected = cls.pub.get_num_connections() == 1
 
-        print('exit setUpClass')
-
     def setUp(self):
-        print('setUp')
         if not TestTwizyCanControl.run_can_tests:
             self.skipTest('Testing CAN was cancelled')
         if not TestTwizyCanControl.subscribers_connected:
@@ -144,10 +129,8 @@ class TestTwizyCanControl(unittest.TestCase):
                       'Kvaser\'s linux driver? If sudo was not available you '
                       'might have to start virtualcan manually before running '
                       'tests using "sudo /usr/sbin/virtualcan.sh start"')
-        print('exit setUp')
 
     def test_messages_arrive_on_can_bus(self):
-        print('test...')
         channel = TestTwizyCanControl.channel
 
         a = AckermannDriveStamped()
@@ -180,25 +163,15 @@ class TestTwizyCanControl(unittest.TestCase):
             self.assertEqual(len(speed_frame.data), 8)
             self.assertTrue(not any(speed_frame.data[2:]))
 
-        print('exit test...')
-
     @classmethod
     def tearDownClass(cls):
-        print('tearDownClass')
         if cls.run_can_tests:
             cls.process.stop()
 
-            print('Stop roslaunch')
             # Close can channel
             cls.channel.busOff()
             cls.channel.close()
 
-        print('exit tearDownClass')
-
 
 if __name__ == '__main__':
-    print('main')
-
     rostest.rosrun('twizy_control', f'test_{NODE}', TestTwizyCanControl)
-
-    print('rostest finished')
