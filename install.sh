@@ -14,7 +14,7 @@ function append_to_bashrc {
 # Default value for ROS_DISTRO is noetic
 ROS_DISTRO=${ROS_DISTRO:-noetic}
 
-if [[ -z "${GITHUB_ACTION}" ]]; then # If running as Github action
+if [[ ! -z "${GITHUB_ACTION}" ]]; then # If running as Github action
 	# Create symlinks to clone location
 	mkdir -p ~
 	ln -s "${GITHUB_WORKSPACE}" ~/autonomous-twizy
