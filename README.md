@@ -49,6 +49,6 @@ View pre-built code API on [Github pages](https://ossianeriksson.github.io/auton
 
 See READMEs in root directory of the corresponding ROS package
 
-# Licence
+# License
 
 Distributed under the Apache 2.0 License. See [LICENSE](LICENSE) for more information.
