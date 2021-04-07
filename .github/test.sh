@@ -15,3 +15,5 @@ source devel/setup.bash
 
 # Run unit and integration tests
 catkin_make run_tests
+# Needed for exit code (and debugging)
+catkin_test_results --verbose
