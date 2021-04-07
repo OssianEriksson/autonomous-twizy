@@ -38,14 +38,14 @@ For more detailed information see the [wiki](https://github.com/OssianEriksson/a
 
 # API Documentation
 
-## Python/C++
+## Python/C++ API
 
 View pre-built code API on [Github pages](https://ossianeriksson.github.io/autonomous-twizy/) or build locally with
 ```sh
 ~/autonomous-twizy/src/build_docs.sh
 ```
 
-## ROS
+## ROS API
 
 See READMEs in root directory of the corresponding ROS package
 
