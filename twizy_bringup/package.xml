@@ -62,6 +62,7 @@
   <depend>robot_state_publisher</depend>
   <depend>joint_state_publisher</depend>
   <depend>twizy_control</depend>
+  <depend>rqt_reconfigure</depend>
 
 
 
