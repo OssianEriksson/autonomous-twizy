@@ -162,7 +162,7 @@ include_directories(
 catkin_install_python(PROGRAMS
   nodes/twizy_can_control
   nodes/twist_to_ackermann
-  nodes/object_detection
+  nodes/object_avoidance
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 

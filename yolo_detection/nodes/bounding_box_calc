@@ -25,6 +25,10 @@ bridge = CvBridge()
 def main():
     #Initialize ROS node
     rospy.init_node('listener', anonymous=True)
+    
+    #assign the publishers to publish the specific data type
+    image_pub = rospy.Publisher('image_with_boxes', Image, queue_size=1)
+    box_pub = rospy.Publisher('boxes', BoundingBoxes , queue_size=1)
 
     # threshold value
     prob_threshold = 0.6
@@ -35,9 +39,6 @@ def main():
             cv_image = bridge.imgmsg_to_cv2(ros_image, desired_encoding="bgr8")
 
 
-            #assign the publishers to publish the specific data type
-            box_pub = rospy.Publisher('boxes', BoundingBoxes , queue_size=10)
-            image_pub = rospy.Publisher('/image_with_boxes', Image, queue_size=10)
 
             # Because the msg is a "selfmade msg" of a "selfmade msg" we have to create a new instans of the msg.  
             msg = BoundingBoxes()
