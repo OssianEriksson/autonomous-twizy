@@ -60,6 +60,7 @@
   <exec_depend>python-utm-pip</exec_depend>
   <depend>ackermann_msgs</depend>
   <depend>message_filters</depend>
+  <depend>nav_msgs</depend>
 
 
   <!-- The export tag contains other, unspecified, tags -->
