@@ -3,8 +3,10 @@
 import rospy
 from ackermann_msgs.msg import AckermannDriveStamped
 from geometry_msgs.msg import Twist
+from std_msgs.msg import Bool
 
-
+object_in_the_way_rear = False
+object_in_the_way_front = False
 def main():
     # Initialize ROS node
     rospy.init_node('twist_to_ackermann')
@@ -16,6 +18,8 @@ def main():
     pub = rospy.Publisher('ackermann_cmd', AckermannDriveStamped, queue_size=1)
 
     def cmd_callback(data):
+        global object_in_the_way_front
+        global object_in_the_way_rear
         msg = AckermannDriveStamped()
         msg.header.stamp = rospy.Time.now()
         msg.header.frame_id = frame_id
@@ -24,12 +28,27 @@ def main():
         # angle in its angular component instead of angular velocity
         msg.drive.steering_angle = min(
             max(data.angular.z, -max_steering_angle), max_steering_angle)
-        msg.drive.speed = data.linear.x
+        
+        if object_in_the_way_front and data.linear.x > 0.0 or object_in_the_way_rear and data.linear.x < 0.0:
+            msg.drive.speed = 0.0
+        else :     
+            msg.drive.speed = data.linear.x
 
         pub.publish(msg)
 
-    rospy.Subscriber('cmd_vel', Twist, cmd_callback, queue_size=1)
+    def stop_indicator_front(value) :
+        global object_in_the_way_front 
+        object_in_the_way_front = value.data
+    
+    def stop_indicator_rear(value) :
+        global object_in_the_way_rear 
+        object_in_the_way_rear = value.data
 
+
+
+    rospy.Subscriber('cmd_vel', Twist, cmd_callback, queue_size=1)
+    rospy.Subscriber('object_detection_front', Bool, stop_indicator_front)
+    rospy.Subscriber('object_detection_rear', Bool, stop_indicator_rear)
     try:
         rospy.spin()
     except rospy.ROSInterruptException:
