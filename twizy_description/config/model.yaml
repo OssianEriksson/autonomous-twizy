@@ -64,3 +64,29 @@ front_realsense:
     height: 480
   depth:
     max_range: 10.0
+
+
+rear_realsense:
+  position:  # In chassis frame: x forward z up, (0, 0, 0) centered on chassis floor 
+    x: -1.133
+    y: 0.0
+    z: 0.68
+  rotation:  # Axis angle in chassis frame
+    x: 0.0
+    y: 0.0
+    z: 1.0
+    angle: 3.141592653589793  # Camera originally looking at x in chassis frame
+  color:
+    fov: 1.117010721276371  # Horizontal FOV (64°)
+    width: 640
+    height: 480
+  depth:
+    max_range: 10.0
+
+
+left_wheel_encoder:
+  noise: 0.01  # Standard deviation (rad)
+
+
+right_wheel_encoder:
+  noise: 0.01  # Standard deviation (rad)
