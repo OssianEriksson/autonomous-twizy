@@ -3,11 +3,11 @@ authors: ''
 brief: ''
 bugtracker: ''
 depends:
-- python3-collada-pip
 - catkin
 - python3-catkin-pkg
-- urdf
 - python3-numpy
+- python3-collada-pip
+- urdf
 - python-transforms3d-pip
 description: Physical descrition of Twizy and configs
 license: Apache 2.0
