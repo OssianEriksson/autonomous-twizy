@@ -4,6 +4,8 @@
 #include "ackermann_ekf/sensor.h"
 #include "ackermann_ekf/sensor_array.h"
 
+#include <iostream>
+
 namespace ackermann_ekf {
 AckermannEkf::AckermannEkf(const Eigen::VectorXd x_min,
                            const Eigen::VectorXd x_max, double wheelbase,
@@ -235,31 +237,67 @@ void AckermannEkf::correct(const Measurement &measurement) {
 
     // clang-format on
 
-    Eigen::MatrixXd R = measurement.R;
-    Eigen::VectorXd y(MEASUREMENT_SIZE);
+    std::vector<int> measurement_indices;
     for (int i = 0; i < MEASUREMENT_SIZE; i++) {
-        if (measurement.mask[i] && !isnan(measurement.z(i))) {
-            y(i) = measurement.z(i) - h(i);
-
-            if (R(i, i) < MIN_COVARIANCE) {
-                R(i, i) = MIN_COVARIANCE;
-            }
-        } else {
-            y(i) = 0.0;
-
-            R.row(i).setConstant(0.0);
-            R.col(i).setConstant(0.0);
-            R(i, i) = INF_COVARIANCE;
+        if (measurement.mask[i]) {
+            measurement_indices.push_back(i);
         }
     }
 
-    y(Measurement::Yaw) -= round(y(Measurement::Yaw) / (2 * M_PI)) * 2 * M_PI;
+    Eigen::MatrixXd R(measurement_indices.size(), measurement_indices.size());
+    Eigen::VectorXd y(measurement_indices.size());
+    Eigen::MatrixXd H_subset(measurement_indices.size(), STATE_SIZE);
+    for (int i_ = 0; i_ < measurement_indices.size(); i_++) {
+        int i = measurement_indices[i_];
+
+        y(i_) = measurement.z(i) - h(i);
+        if (i_ == Measurement::Yaw) {
+            y(i_) -= round(y(i_) / (2 * M_PI)) * 2 * M_PI;
+        }
+
+        for (int j_ = 0; j_ < measurement_indices.size(); j_++) {
+            int j = measurement_indices[j_];
+
+            R(i_, j_) = measurement.R(i, j);
+        }
+
+        for (int j = 0; j < STATE_SIZE; j++) {
+            H_subset(i_, j) = H(i, j);
+        }
+    }
 
     Eigen::MatrixXd K =
-        P * H.transpose() * (H * P * H.transpose() + R).inverse();
+        P * H_subset.transpose() * (H_subset * P * H_subset.transpose() + R).inverse();
     x.noalias() += K * y;
     constrain_state();
-    P = (Eigen::MatrixXd::Identity(STATE_SIZE, STATE_SIZE) - K * H) * P;
+    P = (Eigen::MatrixXd::Identity(STATE_SIZE, STATE_SIZE) - K * H_subset) * P;
+
+    // Eigen::MatrixXd R = measurement.R;
+    // Eigen::VectorXd y(MEASUREMENT_SIZE);
+    // for (int i = 0; i < MEASUREMENT_SIZE; i++) {
+    //     if (measurement.mask[i] && !isnan(measurement.z(i))) {
+    //         y(i) = measurement.z(i) - h(i);
+
+    //         if (R(i, i) < MIN_COVARIANCE) {
+    //             R(i, i) = MIN_COVARIANCE;
+    //         }
+    //     } else {
+    //         y(i) = 0.0;
+
+    //         R.row(i).setConstant(0.0);
+    //         R.col(i).setConstant(0.0);
+    //         R(i, i) = INF_COVARIANCE;
+    //     }
+    // }
+
+    // y(Measurement::Yaw) -= round(y(Measurement::Yaw) / (2 * M_PI)) * 2 *
+    // M_PI;
+
+    // Eigen::MatrixXd K =
+    //     P * H.transpose() * (H * P * H.transpose() + R).inverse();
+    // x.noalias() += K * y;
+    // constrain_state();
+    // P = (Eigen::MatrixXd::Identity(STATE_SIZE, STATE_SIZE) - K * H) * P;
 }
 
 void AckermannEkf::constrain_state() {
