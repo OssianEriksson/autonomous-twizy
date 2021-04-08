@@ -111,6 +111,10 @@ def rear_wheel(lr):
                         'maxTorque': physical['max_drive_torque'],
                         'acceleration': physical['max_acceleration'] / physical['rear_wheel']['radius'],
                         'sound': '""'
+                    }),
+                    Node('PositionSensor', {
+                        'name': f'"{lr}_wheel_encoder"',
+                        'noise': model[f'{lr}_wheel_encoder']['noise']
                     })
                 ]
             })
