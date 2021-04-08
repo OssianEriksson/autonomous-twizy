@@ -1,0 +1,60 @@
+name: Code API Docs
+
+# Controls when the action will run. 
+on:
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+  
+  # Trigger the workflow on push, but only for the main branch
+  push:
+    branches:
+      - master
+    paths-ignore:
+      '**/README.md'
+
+  # Also trigger on release created events
+  release:
+    types:
+      - created
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This workflow contains a single job called "build"
+  build:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-20.04
+    
+    env:
+      # Run tests on ROS noetic
+      ROS_DISTRO: noetic
+
+      # Pass along generated Github token
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # We are not running on the Twizy's on-board computer
+      TWIZY_ONBOARD: 0
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out the master branch under $GITHUB_WORKSPACE/src
+      - uses: actions/checkout@v2
+        with:
+          path: src
+      
+      # Checks-out the gh-pages branch under $GITHUB_WORKSPACE/docs
+      - uses: actions/checkout@v2
+        with:
+          path: docs
+          ref: gh-pages
+      
+      # Installs the repo, ROS, ROS packages and other required dependencies
+      - name: Run Install Script
+        run: "${GITHUB_WORKSPACE}/src/install.sh"   
+      
+      # Builds Code API documentation
+      - name: Build Documentation
+        run: "${GITHUB_WORKSPACE}/src/build_docs.sh"
+      
+      # Commits and pushes changes to gh-pages
+      - name: Push gh-pages
+        run: "${GITHUB_WORKSPACE}/src/.github/push_docs.sh"

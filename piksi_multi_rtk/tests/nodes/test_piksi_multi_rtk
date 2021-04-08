@@ -97,6 +97,9 @@ class TestPiksiMultiRTK(unittest.TestCase):
             rospy.sleep(0.1)
         cls.topics_are_published = topics_are_published()
 
+        # Just some extra delay in case the system needs it idk...
+        rospy.sleep(1.0)
+
     def setUp(self):
         if not TestPiksiMultiRTK.topics_are_published:
             self.fail('Topics were not published in time')

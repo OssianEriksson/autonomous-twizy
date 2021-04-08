@@ -1,24 +1,30 @@
 #!/usr/bin/python3
 
-import rostest
-import roslaunch
-import rospy
-
-from canlib import canlib
-import unittest
-import subprocess
-from subprocess import DEVNULL, PIPE
-import tkinter as tk
-import tkinter.simpledialog
-import tkinter.messagebox
-
 from ackermann_msgs.msg import AckermannDriveStamped
+import tkinter.messagebox
+import tkinter.simpledialog
+import tkinter as tk
+from subprocess import DEVNULL, PIPE
+import subprocess
+import unittest
+import os
+from canlib import canlib
+import rospy
+import roslaunch
+import rostest
 
 
 NODE = 'twizy_can_control'
 MAX_STEERING_ANGLE = 1.0
 MAX_FORWARD_SPEED = 2.0
 MAX_REVERSE_SPEED = 1.0
+
+
+try:
+    tk.Tk().withdraw()
+    _display = True
+except:
+    _display = False
 
 
 def validate_password(password):
@@ -31,10 +37,10 @@ def validate_password(password):
 def sudo(command, message='Enter password:'):
     password = ''
     while not validate_password(password):
-        password = tkinter.simpledialog.askstring(
+        password = _display and tkinter.simpledialog.askstring(
             'Password', message, show='*')
 
-        if password is None:
+        if not password:
             return None
 
     command = f'sudo -S {command}'
@@ -55,16 +61,21 @@ class TestTwizyCanControl(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        tk.Tk().withdraw()
-
-        cls.run_can_tests = tkinter.messagebox.askokcancel(
-            title='Important!',
-            message='The test twizy_control/tests/test_twizy_can_control.py '
-                    'should not be run on the phyiscal Twizy\'s computer as '
-                    'the test includes writing to CAN which might cause the '
-                    'real car to move around in an unsafe manner! Would you '
-                    'like to continue with CAN related tests?'
-        )
+        if 'GITHUB_ACTION' in os.environ:
+            cls.run_can_tests = True
+        elif 'TWIZY_ONBOARD' in os.environ:
+            cls.run_can_tests = bool(os.environ['TWIZY_ONBOARD'])
+        else:
+            cls.run_can_tests = _display and tkinter.messagebox.askokcancel(
+                title='Important!',
+                message='The test twizy_control/tests/test_twizy_can_control '
+                        'should not be run on the phyiscal Twizy\'s computer '
+                        'as the test includes writing to CAN which might '
+                        'cause the real car to move around in an unsafe '
+                        'manner! Would you like to continue with CAN related '
+                        'tests? To always allow this test to run, set the '
+                        'enviroment variable TWIZY_ONBOARD to 0'
+            )
 
         if cls.run_can_tests:
             if not kvvirtualcan_started():
@@ -115,7 +126,9 @@ class TestTwizyCanControl(unittest.TestCase):
             self.fail(f'{NODE} did not subscribe to topics')
         if not TestTwizyCanControl.virtualcan:
             self.fail('virtualcan has not been started. Have you installed '
-                      'Kvaser\'s linux driver?')
+                      'Kvaser\'s linux driver? If sudo was not available you '
+                      'might have to start virtualcan manually before running '
+                      'tests using "sudo /usr/sbin/virtualcan.sh start"')
 
     def test_messages_arrive_on_can_bus(self):
         channel = TestTwizyCanControl.channel
