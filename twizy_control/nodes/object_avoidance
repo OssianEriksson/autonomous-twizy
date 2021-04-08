@@ -41,9 +41,13 @@ def main():
                     if   ((box.Class == "person" or box.Class == "dog" or 
                             box.Class == "cat" or box.Class == "horse") and avreage <= 3000): 
                             msg_to_publish = True
-                    elif (box.Class == "stop sign" and avreage <= 2500):
+                    elif (box.Class == "stop sign" and avreage <= 3000):
                             msg_to_publish = True
+                            msg.publish(msg_to_publish)
                             rospy.sleep(10.)
+                            msg_to_publish = False
+                            msg.publish(msg_to_publish)
+                            rospy.sleep(1.5)
                                  
             msg.publish(msg_to_publish)    
                 
