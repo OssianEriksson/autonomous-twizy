@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import rospy
 import cv2 as cv
@@ -48,8 +48,8 @@ def main():
             ros_image_boxes = bridge.cv2_to_imgmsg(image_with_boxes, encoding="passthrough")
 
             # used to vizuallise the image without rviz (ploting it with openCV instead)
-            cv.imshow('image',image_with_boxes)
-            cv.waitKey(1) 
+            #cv.imshow('image',image_with_boxes)
+            #cv.waitKey(1) 
 
             #grabbing the images width and heigth
             height = ros_image.height
