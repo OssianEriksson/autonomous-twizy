@@ -172,6 +172,41 @@ def piksi(lr):
     ]
 
 
+def realsense(fr):
+    return Node('Transform', {
+        'children': [
+            Node('Transform', {
+                'children': [
+                    Node('RangeFinder', {
+                        'name': f'"{fr}_realsense_aligned_depth_to_color"',
+                        'fieldOfView': model[f'{fr}_realsense']['color']['fov'],
+                        'width': model[f'{fr}_realsense']['color']['width'],
+                        'height': model[f'{fr}_realsense']['color']['height'],
+                        'maxRange': model[f'{fr}_realsense']['depth']['max_range']
+                    }),
+                    Node('Camera', {
+                        'name': f'"{fr}_realsense_color_image_raw"',
+                        'fieldOfView': model[f'{fr}_realsense']['color']['fov'],
+                        'width': model[f'{fr}_realsense']['color']['width'],
+                        'height': model[f'{fr}_realsense']['color']['height'],
+                    })
+                ],
+
+                # Webots camera has -z forward, x right, y up
+                'rotation': f'{1.0 / sqrt(3)} {-1.0 / sqrt(3)} {-1.0 / sqrt(3)} {2.0 * pi / 3}'
+            }, True),
+            Node('Solid', {
+                'name': f'"{fr}_realsense"',
+
+                # ROS Image has z forward x right -y up
+                'rotation': f'{-1.0 / sqrt(3)} {1.0 / sqrt(3)} {-1.0 / sqrt(3)} {2.0 * pi / 3}'
+            }),
+        ],
+        'translation': vector(model[f'{fr}_realsense']['position']),
+        'rotation': rotation(model[f'{fr}_realsense']['rotation'])
+    })
+
+
 def twizy():
     return Node('Robot', {
         'children': [
@@ -185,38 +220,8 @@ def twizy():
                     }),
                     *piksi('left'),
                     *piksi('right'),
-                    Node('Transform', {
-                        'children': [
-                            Node('Transform', {
-                                'children': [
-                                    Node('RangeFinder', {
-                                        'name': '"front_realsense_aligned_depth_to_color"',
-                                        'fieldOfView': model['front_realsense']['color']['fov'],
-                                        'width': model['front_realsense']['color']['width'],
-                                        'height': model['front_realsense']['color']['height'],
-                                        'maxRange': model['front_realsense']['depth']['max_range']
-                                    }),
-                                    Node('Camera', {
-                                        'name': '"front_realsense_color_image_raw"',
-                                        'fieldOfView': model['front_realsense']['color']['fov'],
-                                        'width': model['front_realsense']['color']['width'],
-                                        'height': model['front_realsense']['color']['height'],
-                                    })
-                                ],
-
-                                # Webots camera has -z forward, x right, y up
-                                'rotation': f'{1.0 / sqrt(3)} {-1.0 / sqrt(3)} {-1.0 / sqrt(3)} {2.0 * pi / 3}'
-                            }, True),
-                            Node('Solid', {
-                                'name': '"front_realsense"',
-
-                                # ROS Image has z forward x right -y up
-                                'rotation': f'{-1.0 / sqrt(3)} {1.0 / sqrt(3)} {-1.0 / sqrt(3)} {2.0 * pi / 3}'
-                            }),
-                        ],
-                        'translation': vector(model['front_realsense']['position']),
-                        'rotation': rotation(model['front_realsense']['rotation'])
-                    })
+                    realsense('front'),
+                    realsense('rear'),
                 ],
                 'physics': Node('Physics', {
                     'centerOfMass': [vector(physical['chassis']['com'])],
