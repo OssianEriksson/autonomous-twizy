@@ -25,17 +25,17 @@ AckermannEkf::AckermannEkf(const Eigen::VectorXd x_min,
     P.setIdentity();
 
     Q.setZero();
-    Q(State::X, State::X) = 1e-3;
-    Q(State::Y, State::Y) = 1e-3;
-    Q(State::Z, State::Z) = 1e-3;
+    Q(State::X, State::X) = 1e-4;
+    Q(State::Y, State::Y) = 1e-4;
+    Q(State::Z, State::Z) = 1e-4;
     Q(State::speed, State::speed) = 1e-2;
-    Q(State::accel, State::accel) = 1e-1;
-    Q(State::Roll, State::Roll) = 1e-2;
-    Q(State::Pitch, State::Pitch) = 1e-2;
+    Q(State::accel, State::accel) = 1e-0;
+    Q(State::Roll, State::Roll) = 1e-3;
+    Q(State::Pitch, State::Pitch) = 1e-3;
     Q(State::Yaw, State::Yaw) = 1e-2;
     Q(State::droll_dx, State::droll_dx) = 1e-1;
     Q(State::dpitch_dx, State::dpitch_dx) = 1e-1;
-    Q(State::dyaw_dx, State::dyaw_dx) = 1e-1;
+    Q(State::dyaw_dx, State::dyaw_dx) = 1e-0;
 }
 
 void AckermannEkf::process_measurement(const Measurement &measurement) {
@@ -52,11 +52,10 @@ void AckermannEkf::process_control_signal(const ControlSignal &control_signal) {
 }
 
 void AckermannEkf::bring_time_forward_to(double time) {
-    double dt = this->time < 0 ? 0.0 : time - this->time;
-
-    if (dt > 0) {
-        predict(dt);
-
+    if (time > this->time) {
+        if (this->time >= 0) {
+            predict(time - this->time);
+        }
         this->time = time;
     }
 }
@@ -157,8 +156,7 @@ void AckermannEkf::predict(double dt) {
 
     x = f;
     constrain_state();
-    P = F * P * F.transpose();
-    P.noalias() += dt * Q;
+    P = F * P * F.transpose() + dt * Q;
 }
 
 void AckermannEkf::correct(const Measurement &measurement) {

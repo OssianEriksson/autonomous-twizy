@@ -16,7 +16,7 @@ SensorArray::SensorArray(ros::NodeHandle &nh, ros::NodeHandle &nh_private)
     nh_private.getParam("frequency", frequency_);
     nh_private.getParam("differential_position", differential_position_);
 
-    periodic_filter_time_delay_ = 1.0 / frequency_;
+    periodic_filter_time_delay_ = 2.0 / frequency_;
     nh_private.getParam("periodic_filter_time_delay",
                         periodic_filter_time_delay_);
 
@@ -69,8 +69,8 @@ SensorArray::SensorArray(ros::NodeHandle &nh, ros::NodeHandle &nh_private)
 
     std::string control_topic;
     double wheelbase = 1.0;
-    double control_acceleration_gain = 1.0, max_control_acceleration = 0.5;
-    double control_angle_speed_gain = 1.0, max_control_angle_speed = 2.0;
+    double control_acceleration_gain = 1.0, max_control_acceleration = 1.0;
+    double control_angle_speed_gain = 1.0, max_control_angle_speed = 1.0;
     if (nh_private.getParam("control_topic", control_topic)) {
         nh_private.getParam("wheelbase", wheelbase);
         nh_private.getParam("control_acceleration_gain",

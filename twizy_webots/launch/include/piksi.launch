@@ -2,18 +2,8 @@
 <launch>
     <arg name="gnss_covariance" default="[0.01, 0.0, 0.0, 0.0, 0.01, 0.0, 0.0, 0.0, 0.01]" />
     <arg name="gnss_covariance_type" default="1" />
-    <arg name="gyro_covariance" default="[0.1, 0.0, 0.0, 0.0, 0.1, 0.0, 0.0, 0.0, 0.1]" />
-    <arg name="accel_covariance" default="[0.1, 0.0, 0.0, 0.0, 0.1, 0.0, 0.0, 0.0, 0.1]" />
-    <rosparam param="piksi/gnss/covariance">[0.01, 0.0, 0.0,
-                                             0.0, 0.01, 0.0,
-                                             0.0, 0.0, 0.01]</rosparam>
-    <param name="piksi/gnss/covariance_type" value="1" />
-    <rosparam param="piksi/gyro/covariance">[0.1, 0.0, 0.0,
-                                             0.0, 0.1, 0.0,
-                                             0.0, 0.0, 0.1]</rosparam>
-    <rosparam param="piksi/accel/covariance">[0.1, 0.0, 0.0,
-                                              0.0, 0.1, 0.0,
-                                              0.0, 0.0, 0.1]</rosparam>
+    <arg name="gyro_covariance" default="[0.01, 0.0, 0.0, 0.0, 0.01, 0.0, 0.0, 0.0, 0.01]" />
+    <arg name="accel_covariance" default="[0.01, 0.0, 0.0, 0.0, 0.01, 0.0, 0.0, 0.0, 0.01]" />
 
     <node pkg="twizy_webots" type="gnss" name="left_piksi_gnss" required="true">
         <rosparam param="covariance" subst_value="true">$(arg gnss_covariance)</rosparam>
