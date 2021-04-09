@@ -20,7 +20,8 @@ def main():
     max_steering_angle = rospy.get_param('~max_steering_angle')
     wheelbase = rospy.get_param('~wheelbase')
     track = rospy.get_param('~track')
-    drive_motors = rospy.get_param('~drive_motors')
+    drive_motor_left = rospy.get_param('~drive_motor_left')
+    drive_motor_right = rospy.get_param('~drive_motor_right')
     steering_motor_left = rospy.get_param('~steering_motor_left')
     steering_motor_right = rospy.get_param('~steering_motor_right')
     model = rospy.get_param('twizy_webots/model_name', None)
@@ -29,23 +30,28 @@ def main():
 
     steering_device_left = robot.set_position(steering_motor_left)
     steering_device_right = robot.set_position(steering_motor_right)
-    drive_devices = [robot.set_velocity(device) for device in drive_motors]
+    drive_device_left = robot.set_velocity(drive_motor_left)
+    drive_device_right = robot.set_velocity(drive_motor_right)
 
     def cb(msg):
         # Clamp value within allowed bounds
         angle = max(min(msg.drive.steering_angle, max_steering_angle),
                     -max_steering_angle)
         speed = max(min(msg.drive.speed, max_forward_speed),
-                    -max_reverse_speed)
+                    -max_reverse_speed) / drive_wheel_radius
 
         # Ackermann steering
-        centerline_to_intersection = (
-            wheelbase / tan(angle)) if abs(angle) > 1e-10 else float('inf')
-        angle_l = atan(wheelbase / (centerline_to_intersection - track / 2.0))
-        angle_r = atan(wheelbase / (centerline_to_intersection + track / 2.0))
+        turning_radius = (wheelbase / tan(angle)
+                          ) if abs(angle) > 1e-10 else float('inf')
+        angle_l = atan(wheelbase / (turning_radius - track / 2.0))
+        angle_r = atan(wheelbase / (turning_radius + track / 2.0))
 
-        # Convert from linear to angular velocity
-        angular_vel = speed / drive_wheel_radius
+        if turning_radius > 1e6:
+            speed_l = speed_r = speed
+        else:
+            turning_radius = wheelbase / tan(angle)
+            speed_l = speed * (turning_radius - track / 2.0) / turning_radius
+            speed_r = speed * (turning_radius + track / 2.0) / turning_radius
 
         # Set steering angles
         if not steering_device_left(angle_l):
@@ -54,10 +60,10 @@ def main():
             rospy.logwarn('Unable to set right side steering angle')
 
         # Set wheel speeds
-        for i, drive_device in enumerate(drive_devices):
-            if not drive_device(angular_vel):
-                rospy.logwarn('Unable to set velocity of device '
-                              f'{drive_motors[i]}')
+        if not drive_device_left(speed_l):
+            rospy.logwarn('Unable to set left side velocity')
+        if not drive_device_right(speed_r):
+            rospy.logwarn('Unable to set right side velocity')
 
     # Subscribe to topic where reference control values will be published
     # Increasing the queue_size will create INSANE amount of accumulative input
