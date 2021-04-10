@@ -18,6 +18,7 @@ find_package(catkin REQUIRED COMPONENTS
   std_msgs
   nav_msgs
   ackermann_msgs
+  twizy_wheel_encoder
 )
 
 ## System dependencies are found with CMake's conventions
@@ -136,6 +137,7 @@ add_library(ackermann_ekf
   src/sensor.cpp
   src/navsatfix_sensor.cpp
   src/imu_sensor.cpp
+  src/wheelencoder_sensor.cpp
 )
 
 ## Add cmake target dependencies of the library

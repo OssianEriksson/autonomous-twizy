@@ -58,15 +58,15 @@ void ImuSensor::callback(const sensor_msgs::Imu::ConstPtr &msg) {
                          msg->linear_acceleration.z);
 
     tf2::Matrix3x3(orientation)
-        .getRPY(measurement_.z[Measurement::Roll],
-                measurement_.z[Measurement::Pitch],
-                measurement_.z[Measurement::Yaw]);
-    measurement_.z[Measurement::droll_dt] = angular_velocity.x();
-    measurement_.z[Measurement::dpitch_dt] = angular_velocity.y();
-    measurement_.z[Measurement::dyaw_dt] = angular_velocity.z();
-    measurement_.z[Measurement::d2x_dt2] = linear_acceleration.x();
-    measurement_.z[Measurement::d2y_dt2] = linear_acceleration.y();
-    measurement_.z[Measurement::d2z_dt2] = linear_acceleration.z();
+        .getRPY(measurement_.z(Measurement::Roll),
+                measurement_.z(Measurement::Pitch),
+                measurement_.z(Measurement::Yaw));
+    measurement_.z(Measurement::droll_dt) = angular_velocity.x();
+    measurement_.z(Measurement::dpitch_dt) = angular_velocity.y();
+    measurement_.z(Measurement::dyaw_dt) = angular_velocity.z();
+    measurement_.z(Measurement::d2x_dt2) = linear_acceleration.x();
+    measurement_.z(Measurement::d2y_dt2) = linear_acceleration.y();
+    measurement_.z(Measurement::d2z_dt2) = linear_acceleration.z();
 
     int RPY[3] = {Measurement::Roll, Measurement::Pitch, Measurement::Yaw};
     int drpy_dt[3] = {Measurement::droll_dt, Measurement::dpitch_dt,

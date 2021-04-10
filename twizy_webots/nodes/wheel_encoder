@@ -44,7 +44,7 @@ def main():
 
     # Read parameters from ROS parameter server
     device = rospy.get_param('~device')
-    frame_id = rospy.get_param('~frame_id', device)
+    frame_id = rospy.get_param('~frame_id')
     ups = rospy.get_param('~ups', 30.0)
     wheel_radius = rospy.get_param('~wheel_radius')
     position_covariance = rospy.get_param('~position_covariance')

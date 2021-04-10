@@ -61,6 +61,7 @@
   <depend>boost</depend>
   <depend>nav_msgs</depend>
   <depend>ackermann_msgs</depend>
+  <depend>twizy_wheel_encoder</depend>
 
 
   <!-- The export tag contains other, unspecified, tags -->
