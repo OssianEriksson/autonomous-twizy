@@ -4,14 +4,16 @@
 
     <node pkg="twizy_webots" type="wheel_encoder" name="left_wheel_encoder" required="true">
         <param name="device" value="left_wheel_encoder" />
+        <param name="frame_id" value="rear_left_wheel" />
         <param name="position_covariance" value="$(arg position_covariance)" />
         <remap from="~wheel_radius" to="/physical/rear_wheel/radius" />
-        <remap from="wheel/odom" to="/wheel/left/odom" />
+        <remap from="wheel_encoder" to="/wheel/left/encoder" />
     </node>
     <node pkg="twizy_webots" type="wheel_encoder" name="right_wheel_encoder" required="true">
         <param name="device" value="right_wheel_encoder" />
+        <param name="frame_id" value="rear_right_wheel" />
         <param name="position_covariance" value="$(arg position_covariance)" />
         <remap from="~wheel_radius" to="/physical/rear_wheel/radius" />
-        <remap from="wheel/odom" to="/wheel/right/odom" />
+        <remap from="wheel_encoder" to="/wheel/right/encoder" />
     </node>
 </launch>

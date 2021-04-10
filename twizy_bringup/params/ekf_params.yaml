@@ -9,6 +9,12 @@ control_topic: /ackermann_cmd
 wheelbase: !eval physical['wheelbase']
 
 sensors:
+- topic: /wheel/left/encoder
+  type: twizy_wheel_encoder/WheelEncoder
+
+- topic: /wheel/right/encoder
+  type: twizy_wheel_encoder/WheelEncoder
+
 - topic: /piksi/left/gnss/fix
   type: sensor_msgs/NavSatFix
 

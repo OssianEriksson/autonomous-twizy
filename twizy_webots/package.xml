@@ -61,6 +61,7 @@
   <depend>ackermann_msgs</depend>
   <depend>message_filters</depend>
   <depend>nav_msgs</depend>
+  <depend>twizy_wheel_encoder</depend>
 
 
   <!-- The export tag contains other, unspecified, tags -->

@@ -2,6 +2,7 @@
 #include "ackermann_ekf/ackermann_ekf.h"
 #include "ackermann_ekf/imu_sensor.h"
 #include "ackermann_ekf/navsatfix_sensor.h"
+#include "ackermann_ekf/wheelencoder_sensor.h"
 #include "ackermann_ekf/sensor.h"
 
 namespace ackermann_ekf {
@@ -60,6 +61,8 @@ SensorArray::SensorArray(ros::NodeHandle &nh, ros::NodeHandle &nh_private)
             sensor_ptrs.push_back(new NavSatFixSensor(*this, sensors[i], nh));
         } else if (type == "sensor_msgs/Imu") {
             sensor_ptrs.push_back(new ImuSensor(*this, sensors[i], nh));
+        } else if (type == "twizy_wheel_encoder/WheelEncoder") {
+            sensor_ptrs.push_back(new WheelencoderSensor(*this, sensors[i], nh));
         } else {
             ROS_WARN("Unknown sensor type %s",
                      static_cast<std::string>(type).c_str());
@@ -84,7 +87,7 @@ SensorArray::SensorArray(ros::NodeHandle &nh, ros::NodeHandle &nh_private)
 
     nh_private.getParam("wheelbase", wheelbase);
 
-    filter_ = std::unique_ptr<AckermannEkf>(
+    filter = std::unique_ptr<AckermannEkf>(
         new AckermannEkf(x_min, x_max, wheelbase, control_acceleration_gain,
                          max_control_acceleration, control_angle_speed_gain,
                          max_control_angle_speed));
@@ -111,7 +114,7 @@ void SensorArray::control_callback(
     control_signal.u(ControlSignal::angle) = msg->drive.steering_angle;
     control_signal.time = msg->header.stamp.toSec();
 
-    filter_->process_control_signal(control_signal);
+    filter->process_control_signal(control_signal);
 }
 
 void SensorArray::periodic_update(const ros::TimerEvent &evt) {
@@ -119,21 +122,21 @@ void SensorArray::periodic_update(const ros::TimerEvent &evt) {
         return;
     }
 
-    filter_->bring_time_forward_to(evt.current_real.toSec() -
-                                   periodic_filter_time_delay_);
+    this->bring_time_forward_to(evt.current_real.toSec() -
+                                periodic_filter_time_delay_);
 
     tf2::Quaternion q;
-    q.setRPY(filter_->x(State::Roll), filter_->x(State::Pitch),
-             filter_->x(State::Yaw));
+    q.setRPY(filter->x(State::Roll), filter->x(State::Pitch),
+             filter->x(State::Yaw));
 
     geometry_msgs::TransformStamped transformStamped;
 
     transformStamped.header.stamp = evt.current_real;
     transformStamped.header.frame_id = world_frame_;
     transformStamped.child_frame_id = base_link_;
-    transformStamped.transform.translation.x = filter_->x(State::X);
-    transformStamped.transform.translation.y = filter_->x(State::Y);
-    transformStamped.transform.translation.z = filter_->x(State::Z);
+    transformStamped.transform.translation.x = filter->x(State::X);
+    transformStamped.transform.translation.y = filter->x(State::Y);
+    transformStamped.transform.translation.z = filter->x(State::Z);
     transformStamped.transform.rotation.x = q.x();
     transformStamped.transform.rotation.y = q.y();
     transformStamped.transform.rotation.z = q.z();
@@ -143,9 +146,9 @@ void SensorArray::periodic_update(const ros::TimerEvent &evt) {
 
     nav_msgs::Odometry odometry;
 
-    odometry.pose.pose.position.x = filter_->x(State::X);
-    odometry.pose.pose.position.y = filter_->x(State::Y);
-    odometry.pose.pose.position.z = filter_->x(State::Z);
+    odometry.pose.pose.position.x = filter->x(State::X);
+    odometry.pose.pose.position.y = filter->x(State::Y);
+    odometry.pose.pose.position.z = filter->x(State::Z);
     odometry.pose.pose.orientation.x = q.x();
     odometry.pose.pose.orientation.y = q.y();
     odometry.pose.pose.orientation.z = q.z();
@@ -154,31 +157,31 @@ void SensorArray::periodic_update(const ros::TimerEvent &evt) {
     const int XYZRPY[6] = {State::X,    State::Y,     State::Z,
                            State::Roll, State::Pitch, State::Yaw};
     for (int i = 0; i < 36; i++) {
-        odometry.pose.covariance[i] = filter_->P(XYZRPY[i / 6], XYZRPY[i % 6]);
+        odometry.pose.covariance[i] = filter->P(XYZRPY[i / 6], XYZRPY[i % 6]);
     }
 
-    const double v = filter_->x(State::speed), v2 = v * v;
-    const double Pv = filter_->P(State::speed, State::speed);
+    const double v = filter->x(State::speed), v2 = v * v;
+    const double Pv = filter->P(State::speed, State::speed);
 
-    odometry.twist.twist.linear.x = filter_->x(State::speed);
-    odometry.twist.twist.angular.x = filter_->x(State::droll_dx) * v;
-    odometry.twist.twist.angular.y = filter_->x(State::dpitch_dx) * v;
-    odometry.twist.twist.angular.z = filter_->x(State::dyaw_dx) * v;
+    odometry.twist.twist.linear.x = filter->x(State::speed);
+    odometry.twist.twist.angular.x = filter->x(State::droll_dx) * v;
+    odometry.twist.twist.angular.y = filter->x(State::dpitch_dx) * v;
+    odometry.twist.twist.angular.z = filter->x(State::dyaw_dx) * v;
 
     // Math is hard... This covariance is just guessed and not rigorous in any
     // way whatsoever: We e.g. use only set a diagonal covaraiance matrix
-    odometry.twist.covariance[0] = filter_->P(State::speed, State::speed);
+    odometry.twist.covariance[0] = filter->P(State::speed, State::speed);
     odometry.twist.covariance[7] = MIN_COVARIANCE;
     odometry.twist.covariance[14] = MIN_COVARIANCE;
     odometry.twist.covariance[21] =
-        filter_->P(State::Roll, State::Roll) * v2 +
-        Pv * filter_->x(State::Roll) * filter_->x(State::Roll);
+        filter->P(State::Roll, State::Roll) * v2 +
+        Pv * filter->x(State::Roll) * filter->x(State::Roll);
     odometry.twist.covariance[28] =
-        filter_->P(State::Pitch, State::Pitch) * v2 +
-        Pv * filter_->x(State::Pitch) * filter_->x(State::Pitch);
+        filter->P(State::Pitch, State::Pitch) * v2 +
+        Pv * filter->x(State::Pitch) * filter->x(State::Pitch);
     odometry.twist.covariance[35] =
-        filter_->P(State::Yaw, State::Yaw) * v2 +
-        Pv * filter_->x(State::Yaw) * filter_->x(State::Yaw);
+        filter->P(State::Yaw, State::Yaw) * v2 +
+        Pv * filter->x(State::Yaw) * filter->x(State::Yaw);
 
     odom_publisher_.publish(odometry);
 }
@@ -187,25 +190,33 @@ void SensorArray::process_measurement(Measurement &measurement) {
     if (!filter_initialized_ &&
         (measurement.mask[Measurement::X] && measurement.mask[Measurement::Y] &&
          measurement.mask[Measurement::Z])) {
-        initial_position_(0) = measurement.z[Measurement::X];
-        initial_position_(1) = measurement.z[Measurement::Y];
-        initial_position_(2) = measurement.z[Measurement::Z];
+        initial_position_(0) = measurement.z(Measurement::X);
+        initial_position_(1) = measurement.z(Measurement::Y);
+        initial_position_(2) = measurement.z(Measurement::Z);
         initial_position_ -= measurement.sensor_position;
 
-        filter_->time = measurement.time;
+        filter->time = measurement.time;
 
         filter_initialized_ = true;
     }
 
     if (filter_initialized_) {
-        measurement.z[Measurement::X] -= initial_position_(0);
-        measurement.z[Measurement::Y] -= initial_position_(1);
-        measurement.z[Measurement::Z] -= initial_position_(2);
+        measurement.z(Measurement::X) -= initial_position_(0);
+        measurement.z(Measurement::Y) -= initial_position_(1);
+        measurement.z(Measurement::Z) -= initial_position_(2);
     } else {
         return;
     }
 
-    filter_->process_measurement(measurement);
+    filter->process_measurement(measurement);
+}
+
+bool SensorArray::bring_time_forward_to(double time) {
+    if (filter_initialized_) {
+        filter->bring_time_forward_to(time);
+        return true;
+    }
+    return false;
 }
 
 bool SensorArray::get_transform(geometry_msgs::TransformStamped &transform,
@@ -221,7 +232,7 @@ bool SensorArray::get_transform(geometry_msgs::TransformStamped &transform,
 }
 
 SensorArray::~SensorArray() {
-    filter_.reset();
+    filter.reset();
 
     tf_buffer_.reset();
     tf_listener_.reset();

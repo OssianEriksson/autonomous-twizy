@@ -22,8 +22,6 @@ namespace ackermann_ekf {
 
 class SensorArray {
   private:
-    std::unique_ptr<AckermannEkf> filter_;
-
     std::unique_ptr<tf2_ros::Buffer> tf_buffer_;
     std::unique_ptr<tf2_ros::TransformListener> tf_listener_;
     std::unique_ptr<tf2_ros::TransformBroadcaster> tf_broadcaster_;
@@ -48,6 +46,7 @@ class SensorArray {
 
   public:
     boost::ptr_vector<Sensor> sensor_ptrs;
+    std::unique_ptr<AckermannEkf> filter;
 
     SensorArray(ros::NodeHandle &nh, ros::NodeHandle &nh_private);
 
@@ -57,6 +56,7 @@ class SensorArray {
                        const std_msgs::Header &header);
 
     void process_measurement(Measurement &measurement);
+    bool bring_time_forward_to(double time);
 };
 } // namespace ackermann_ekf
 

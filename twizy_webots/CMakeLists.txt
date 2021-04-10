@@ -19,6 +19,7 @@ find_package(catkin REQUIRED COMPONENTS
   ackermann_msgs
   message_filters
   nav_msgs
+  twizy_wheel_encoder
 )
 
 ## System dependencies are found with CMake's conventions

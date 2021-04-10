@@ -43,9 +43,9 @@ void NavSatFixSensor::callback(const sensor_msgs::NavSatFix::ConstPtr &msg) {
     llh.altitude = msg->altitude;
     geodesy::UTMPoint utm(llh);
 
-    measurement_.z[Measurement::X] = utm.easting;
-    measurement_.z[Measurement::Y] = utm.northing;
-    measurement_.z[Measurement::Z] = utm.altitude;
+    measurement_.z(Measurement::X) = utm.easting;
+    measurement_.z(Measurement::Y) = utm.northing;
+    measurement_.z(Measurement::Z) = utm.altitude;
 
     const int XYZ[3] = {Measurement::X, Measurement::Y, Measurement::Z};
     for (int i = 0; i < 9; i++) {
