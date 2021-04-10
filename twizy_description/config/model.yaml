@@ -26,10 +26,10 @@ left_piksi_imu:
     y: 0.0
     z: 0.7
   rotation:  # Axis angle in chassis frame
-    x: 0.0
-    y: 1.0
-    z: 0.0
-    angle: 3.1415  # Imu forward originally facing towards x in chassis frame
+    x: 0.01836127
+    y: 0.99983031
+    z: 0.00149044
+    angle: -3.09397341  # Imu forward originally facing towards x in chassis frame
   accelerometer_accuracy: 0.05  # Standard deviation (m/s^2)
   gyro_accuracy: 0.05  # Standard deviation (rad/s)
 
@@ -40,10 +40,10 @@ right_piksi_imu:
     y: 0.0
     z: 0.65
   rotation:  # Axis angle in chassis frame
-    x: 0.0
-    y: 1.0
-    z: 0.0
-    angle: 3.1415  # Imu forward originally facing towards x in chassis frame
+    x: -0.02674506
+    y: -0.99953344
+    z: 0.01475112
+    angle: 3.09830016  # Imu forward originally facing towards x in chassis frame
   accelerometer_accuracy: 0.05  # Standard deviation (m/s^2)
   gyro_accuracy: 0.05  # Standard deviation (rad/s)
 
