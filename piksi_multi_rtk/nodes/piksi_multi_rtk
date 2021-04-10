@@ -24,7 +24,10 @@ def main():
     # and https://www.bosch-sensortec.com/products/motion-sensors/imus/bmi160/
     imu_acc_sens = rospy.get_param('~imu_acc_sens', 9.82 / 4096.0)
     imu_gyro_sens = rospy.get_param('~imu_gyro_sens', radians(1) / 262.4)
+    imu_gyro_offset = rospy.get_param('~imu_gyro_offset', [0.0] * 3)
     imu_frame = rospy.get_param('~imu_frame', 'piksi_imu')
+    mag_sense = rospy.get_param('~mag_sense', 1e-6)
+    mag_offset = rospy.get_param('~mag_offset', [0.0] * 3)
     mag_frame = rospy.get_param('~mag_frame', imu_frame)
     gnss_frame = rospy.get_param('~gnss_frame', 'piksi_gnss')
 
@@ -55,9 +58,9 @@ def main():
 
     def publish_imu_msg(msg, **metadata):
         imu.header.stamp = rospy.Time.now()
-        imu.angular_velocity.x = msg.gyr_x * imu_gyro_sens
-        imu.angular_velocity.y = msg.gyr_y * imu_gyro_sens
-        imu.angular_velocity.z = msg.gyr_z * imu_gyro_sens
+        imu.angular_velocity.x = msg.gyr_x * imu_gyro_sens + imu_gyro_offset[0]
+        imu.angular_velocity.y = msg.gyr_y * imu_gyro_sens + imu_gyro_offset[1]
+        imu.angular_velocity.z = msg.gyr_z * imu_gyro_sens + imu_gyro_offset[2]
         imu.linear_acceleration.x = msg.acc_x * imu_acc_sens
         imu.linear_acceleration.y = msg.acc_y * imu_acc_sens
         imu.linear_acceleration.z = msg.acc_z * imu_acc_sens
@@ -65,10 +68,9 @@ def main():
 
     def publish_mag_msg(msg, **metadata):
         mag.header.stamp = rospy.Time.now()
-        # Convert from μT to T
-        mag.magnetic_field.x = msg.mag_x * 1e-6
-        mag.magnetic_field.y = msg.mag_y * 1e-6
-        mag.magnetic_field.z = msg.mag_z * 1e-6
+        mag.magnetic_field.x = msg.mag_x * mag_sense + mag_offset[0]
+        mag.magnetic_field.y = msg.mag_y * mag_sense + mag_offset[1]
+        mag.magnetic_field.z = msg.mag_z * mag_sense + mag_offset[2]
         pub_mag.publish(mag)
 
     def publish_llh_msg(msg, **metadata):

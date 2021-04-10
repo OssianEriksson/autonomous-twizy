@@ -7,6 +7,8 @@
         <param name="tcp_addr" value="192.168.0.223" />
         <param name="gnss_frame" value="left_piksi_gnss" />
         <param name="imu_frame" value="left_piksi_imu" />
+        <param name="imu_acc_sens" value="0.002364351739572385" />
+        <rosparam param="imu_gyro_offset">[-0.00327981, 0.00273438, 0.01203292]</rosparam>
     </node>
 
     <node pkg="piksi_multi_rtk" type="piksi_multi_rtk" name="right_piksi" required="true">
@@ -16,5 +18,7 @@
         <param name="tcp_addr" value="192.168.0.222" />
         <param name="gnss_frame" value="right_piksi_gnss" />
         <param name="imu_frame" value="right_piksi_imu" />
+        <param name="imu_acc_sens" value="0.002375855971980177" />
+        <rosparam param="imu_gyro_offset">[-0.00907899, -0.01345205, -0.00288244]</rosparam>
     </node>
 </launch>
