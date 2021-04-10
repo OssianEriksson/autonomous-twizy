@@ -3,10 +3,10 @@ authors: ''
 brief: ''
 bugtracker: ''
 depends:
-- python3-numpy
 - python3-catkin-pkg
-- catkin
+- python3-numpy
 - python-transforms3d-pip
+- catkin
 - urdf
 - python3-collada-pip
 description: Physical descrition of Twizy and configs
