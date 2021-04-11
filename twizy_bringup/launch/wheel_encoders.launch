@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<launch>
+    <rosparam command="load" param="physical" file="$(find twizy_description)/config/physical.yaml" />
+
+    <remap from="/wheel_encoders/wheel_radius" to="/physical/rear_wheel/radius" />
+    <include file="$(find twizy_wheel_encoder)/launch/wheel_encoders.launch">
+        <arg name="port" value="/dev/ttyACM0" />
+        <arg name="cycles_per_revolution" value="29" />
+        <arg name="wheel_radius" value="0" /> <!-- Dummy value -->
+        <arg name="covariance" value="0.01" />
+        <arg name="left_frame_id" value="rear_left_wheel" />
+        <arg name="right_frame_id" value="rear_right_wheel" />
+    </include>
+</launch>

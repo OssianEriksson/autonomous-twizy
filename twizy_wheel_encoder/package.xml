@@ -50,6 +50,8 @@
   <!--   <doc_depend>doxygen</doc_depend> -->
   <buildtool_depend>catkin</buildtool_depend>
   <depend>rospy</depend>
+  <depend>rosserial_python</depend>
+  <depend>rosserial_arduino</depend>
 
 
   <!-- The export tag contains other, unspecified, tags -->

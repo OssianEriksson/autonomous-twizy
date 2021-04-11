@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<launch>
+    <arg name="port" />
+    <arg name="cycles_per_revolution" />
+    <arg name="wheel_radius" />
+    <arg name="frequency" default="20" />
+    <arg name="covariance" />
+    <arg name="left_frame_id" />
+    <arg name="right_frame_id" />
+
+    <node pkg="rosserial_python" type="serial_node.py" name="wheel_encoders" required="true">
+        <param name="port" value="$(arg port)" />
+        
+        <param name="cycles_per_revolution" type="int" value="$(arg cycles_per_revolution)" />
+        <param name="wheel_radius" type="double" value="$(arg wheel_radius)" />
+        <param name="frequency" type="double" value="$(arg frequency)" />
+        <param name="covariance" type="double" value="$(arg covariance)" />
+        <param name="left_frame_id" type="str" value="$(arg left_frame_id)" />
+        <param name="right_frame_id" type="str" value="$(arg right_frame_id)" />
+    </node>
+</launch>
