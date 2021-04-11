@@ -4,6 +4,7 @@ import rospy
 
 import twizy_webots.robot
 import message_filters
+from math import isnan
 
 from sensor_msgs.msg import Imu
 from webots_ros.srv import camera_get_info, range_finder_get_info
@@ -73,19 +74,19 @@ def main():
             None
         )
 
-        if orient:
+        if orient and not isnan(orient.orientation.x):
             imu.orientation = orient.orientation
             imu.orientation_covariance = inertial_covariance
         else:
             imu.orientation_covariance = NO_DATA
 
-        if angular_vel:
+        if angular_vel and not isnan(angular_vel.angular_velocity.x):
             imu.angular_velocity = angular_vel.angular_velocity
             imu.angular_velocity_covariance = gyro_covariance
         else:
             imu.angular_velocity_covariance = NO_DATA
 
-        if linear_accel:
+        if linear_accel and not isnan(linear_accel.linear_acceleration.x):
             imu.linear_acceleration = linear_accel.linear_acceleration
             imu.linear_acceleration_covariance = accel_covariance
         else:

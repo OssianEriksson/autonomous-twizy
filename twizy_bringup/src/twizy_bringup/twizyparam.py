@@ -1,94 +1,98 @@
 import yaml
 import subprocess
+import re
+from pathlib import Path
+import copy
 import math
 
-class _TwizyLoader(yaml.SafeLoader):
-    def __init__(self, stream):
-        self.env = {}
 
-        super().__init__(stream)
+class _Eval:
+    def __init__(self, expr):
+        self.expr = expr
 
-
-class _Hidden(yaml.YAMLObject):
-    pass
-
-
-class _Expand(yaml.YAMLObject):
-    pass
+    @staticmethod
+    def constructor(loader, node):
+        return _Eval(node.value)
 
 
-def _construct_include(loader, node):
-    parts = node.value.rsplit(' as ', 1)
-    path = subprocess.getoutput(f'echo {parts[0].strip()}')
-    parsed = parse(path)
+class _Include:
+    @staticmethod
+    def constructor(loader, node):
+        return parse(subprocess.getoutput(f'echo {node.value}'))
 
-    if len(parts) > 1 and isinstance(loader, _TwizyLoader):
-        loader.env[parts[1].strip()] = parsed
+
+class _Merge:
+    @staticmethod
+    def constructor(loader, node):
+        return _Merge()
+
+
+class _Variable:
+    def __init__(self, name):
+        self.name = name
+
+    @staticmethod
+    def constructor(loader, node):
+        return _Variable(node.value)
+
+
+def _merge(src, dst):
+    for key, value in src.items():
+        if isinstance(value, dict):
+            _merge(value, dst.setdefault(key, {}))
+        elif key not in dst:
+            dst[key] = value
+    return dst
+
+
+def _traverse_dict(d, callback):
+    kv = d.copy().items() if isinstance(d, dict) else enumerate(d.copy())
+    for k, v in kv:
+        for a in (k, v):
+            if isinstance(a, (dict, list)):
+                _traverse_dict(a, callback)
+        callback(d, k, v)
+
+
+yaml.add_constructor('!merge', _Merge.constructor, yaml.SafeLoader)
+yaml.add_constructor('!eval', _Eval.constructor, yaml.SafeLoader)
+yaml.add_constructor('!include', _Include.constructor, yaml.SafeLoader)
+yaml.add_constructor('!variable', _Variable.constructor, yaml.SafeLoader)
+
+
+def parse(path):
+    text = Path(path).read_text()
+    text = re.sub(r'^( *)<< *: *!include ',
+                  r'\1!merge : !include ', text, flags=re.M)
+    parsed = yaml.load(text, yaml.SafeLoader)
+
+    def merge(root, k, v):
+        if isinstance(k, _Merge):
+            del root[k]
+            _merge(v, root)
+    _traverse_dict(parsed, merge)
+
+    def extract_variables(root, k, v):
+        if isinstance(k, _Variable):
+            del root[k]
+            variables[k.name] = v
+        elif isinstance(v, _Eval):
+            del root[k]
+    variables = copy.deepcopy(parsed)
+    _traverse_dict(variables, extract_variables)
+
+    def eval_expressions(root, k, v):
+        if isinstance(v, _Eval):
+            root[k] = eval(v.expr, {
+                'math': math,
+                **variables
+            })
+        elif isinstance(k, _Variable):
+            del root[k]
+    _traverse_dict(parsed, eval_expressions)
 
     return parsed
 
 
-def _construct_hidden(loader, node):
-    return _Hidden()
-
-
-def _construct_expand(loader, node):
-    return _Expand()
-
-
-def _construct_eval(loader, node):
-    env = {
-        **(loader.env if isinstance(loader, _TwizyLoader) else {}),
-        'math': math
-    }
-
-    return eval(node.value, env)
-
-
-yaml.add_constructor('!include', _construct_include, _TwizyLoader)
-yaml.add_constructor('!hidden', _construct_hidden, _TwizyLoader)
-yaml.add_constructor('!expand', _construct_expand, _TwizyLoader)
-yaml.add_constructor('!eval', _construct_eval, _TwizyLoader)
-
-
-def parse(path):
-    with open(path, 'r') as f:
-        parsed = yaml.load(f, _TwizyLoader)
-
-    def reconstruct(src, dst=None):
-        dst = type(src)() if dst is None else dst
-
-        if isinstance(src, dict):
-            kv = list(src.items())
-            def add(k, v): dst[k] = v
-        elif isinstance(src, list):
-            kv = enumerate(src)
-            def add(k, v): dst.append(v)
-        else:
-            return src
-
-        for k, v in kv:
-            if isinstance(k, _Hidden):
-                pass
-            elif isinstance(k, _Expand):
-                if not isinstance(v, (dict, list)):
-                    raise ValueError('Can only !expand dicts and lists')
-                if not isinstance(src, type(v)):
-                    raise ValueError('Can only !expand into same type')
-
-                for vk, vv in v.items():
-                    add(vk, vv)
-            elif isinstance(v, (list, dict)):
-                child = type(v)()
-                add(k, child)
-                reconstruct(v, child)
-            else:
-                add(k, v)
-        return dst
-
-    return reconstruct(parsed)
-
-
 def load(path):
-    return yaml.dump(parse(path))
-
+    return yaml.safe_dump(parse(path))

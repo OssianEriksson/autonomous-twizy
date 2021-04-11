@@ -25,6 +25,7 @@ AckermannEkf::AckermannEkf(const Eigen::VectorXd x_min,
       max_control_angle_speed_(max_control_angle_speed) {
     x.setZero();
     P.setIdentity();
+    P *= 1e1;
 
     Q.setZero();
     Q(State::X, State::X) = 1e-4;
