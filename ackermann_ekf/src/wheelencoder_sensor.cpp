@@ -25,8 +25,6 @@ void WheelencoderSensor::callback(
     const twizy_wheel_encoder::WheelEncoder::ConstPtr &msg) {
     measurement_.time = msg->header.stamp.toSec();
 
-    ROS_INFO("Callback called");
-
     geometry_msgs::TransformStamped transform;
     if (!sensor_array_.get_transform(transform, msg->header) ||
         !sensor_array_.bring_time_forward_to(measurement_.time)) {
@@ -38,8 +36,6 @@ void WheelencoderSensor::callback(
     measurement_.z(Measurement::dx_dt) =
         sensor_array_.filter->x(State::speed) > 0 ? msg->speed : -msg->speed;
     measurement_.R(Measurement::dx_dt, Measurement::dx_dt) = msg->covariance;
-
-    ROS_INFO("Processing measurement");
 
     sensor_array_.process_measurement(measurement_);
 }

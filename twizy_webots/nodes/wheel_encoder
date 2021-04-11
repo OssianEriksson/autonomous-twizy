@@ -3,6 +3,7 @@
 import rospy
 
 import twizy_webots.robot
+from math import isnan
 
 from twizy_wheel_encoder.msg import WheelEncoder
 from webots_ros.msg import Float64Stamped
@@ -29,7 +30,8 @@ class Encoder:
                     msg.data - self.last_msg.data) / dt)
                 enc.covariance = 2 * position_covariance / dt**2
 
-                pub.publish(enc)
+                if not isnan(enc.speed):
+                    pub.publish(enc)
 
             self.last_msg = msg
 
