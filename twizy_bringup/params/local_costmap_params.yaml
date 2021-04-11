@@ -1,4 +1,4 @@
-!expand : !include $(rospack find twizy_bringup)/params/include/costmap_common_params.yaml
+<<: !include $(rospack find twizy_bringup)/params/include/costmap_common_params.yaml
 
 plugins:
 - {name: obstacle_layer, type: "costmap_2d::ObstacleLayer"}

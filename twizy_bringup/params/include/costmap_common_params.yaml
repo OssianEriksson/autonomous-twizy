@@ -1,4 +1,4 @@
-!hidden : !include $(rospack find twizy_description)/config/physical.yaml as physical
+!variable physical: !include $(rospack find twizy_description)/config/physical.yaml
 
 global_frame: map
 robot_base_frame: base_link
