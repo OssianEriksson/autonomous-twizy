@@ -15,6 +15,16 @@ ImuSensor::ImuSensor(SensorArray &sensor_array,
     measurement_.mask[Measurement::dy_dt] = false;
     measurement_.mask[Measurement::dz_dt] = false;
 
+    accel_mask_ = measurement_.mask[Measurement::d2x_dt2] ||
+                  measurement_.mask[Measurement::d2y_dt2] ||
+                  measurement_.mask[Measurement::d2z_dt2];
+    angular_vel_mask_ = measurement_.mask[Measurement::droll_dt] ||
+                        measurement_.mask[Measurement::dpitch_dt] ||
+                        measurement_.mask[Measurement::dyaw_dt];
+    orientation_mask_ = measurement_.mask[Measurement::Roll] ||
+                        measurement_.mask[Measurement::Pitch] ||
+                        measurement_.mask[Measurement::Yaw];
+
     std::string topic = static_cast<std::string>(params["topic"]);
 
     ROS_INFO("Adding Imu sensor on topic %s", topic.c_str());
@@ -36,6 +46,12 @@ void ImuSensor::set_cov_xyz(const tf2::Transform transform, const int index[3],
 }
 
 void ImuSensor::callback(const sensor_msgs::Imu::ConstPtr &msg) {
+    if ((accel_mask_ && msg->linear_acceleration_covariance[0] == -1) ||
+        (angular_vel_mask_ && msg->linear_acceleration_covariance[0] == -1) ||
+        (orientation_mask_ && msg->linear_acceleration_covariance[0] == -1)) {
+        return;
+    }
+
     geometry_msgs::TransformStamped transform;
     if (!sensor_array_.get_transform(transform, msg->header)) {
         return;

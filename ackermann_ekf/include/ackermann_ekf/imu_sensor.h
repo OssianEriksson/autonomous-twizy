@@ -14,6 +14,8 @@
 namespace ackermann_ekf {
 class ImuSensor : public Sensor {
   private:
+    bool accel_mask_, angular_vel_mask_, orientation_mask_;
+
     ros::Subscriber subscriber_;
 
     void callback(const sensor_msgs::Imu::ConstPtr &msg);

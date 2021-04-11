@@ -63,6 +63,8 @@ fi
 
 if [[ ! -z "${TWIZY_ONBOARD}" ]]; then # If running on the Twizy's on-board computer
 	append_to_bashrc "export TWIZY_ONBOARD=1"
+else # If not running on the Twizy's on-board computer
+	append_to_bashrc "export TWIZY_ONBOARD=0"
 fi
 
 # Automatically source the workspace's setup.bash in new shells
