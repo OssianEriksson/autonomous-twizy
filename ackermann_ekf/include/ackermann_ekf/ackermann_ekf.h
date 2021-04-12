@@ -2,10 +2,9 @@
 #define ACKERMANN_EKF_ACKERMANN_EKF
 
 #include <Eigen/Dense>
-#include <boost/algorithm/clamp.hpp>
-#include <math.h>
 
 namespace ackermann_ekf {
+
 struct Measurement {
   public:
     enum Index : int {
@@ -113,6 +112,7 @@ const int MEASUREMENT_SIZE = Measurement::SIZE;
 const int CONTROL_SIGNAL_SIZE = ControlSignal::SIZE;
 const int INF_COVARIANCE = 1e6;
 const int MIN_COVARIANCE = 1e-6;
+
 } // namespace ackermann_ekf
 
 #endif

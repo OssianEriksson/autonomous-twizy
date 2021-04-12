@@ -1,9 +1,11 @@
 #include "ackermann_ekf/wheelencoder_sensor.h"
 #include "ackermann_ekf/ackermann_ekf.h"
-#include "ackermann_ekf/sensor.h"
-#include "ackermann_ekf/sensor_array.h"
+
+#include <geometry_msgs/TransformStamped.h>
+#include <string>
 
 namespace ackermann_ekf {
+
 WheelencoderSensor::WheelencoderSensor(SensorArray &sensor_array,
                                        const XmlRpc::XmlRpcValue &params,
                                        ros::NodeHandle &nh)
@@ -39,4 +41,5 @@ void WheelencoderSensor::callback(
 
     sensor_array_.process_measurement(measurement_);
 }
+
 } // namespace ackermann_ekf

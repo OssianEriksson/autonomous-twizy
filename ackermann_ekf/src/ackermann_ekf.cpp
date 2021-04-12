@@ -1,12 +1,11 @@
 #include "ackermann_ekf/ackermann_ekf.h"
-#include "ackermann_ekf/imu_sensor.h"
-#include "ackermann_ekf/navsatfix_sensor.h"
-#include "ackermann_ekf/sensor.h"
-#include "ackermann_ekf/sensor_array.h"
 
-#include <iostream>
+#include <boost/algorithm/clamp.hpp>
+#include <math.h>
+#include <vector>
 
 namespace ackermann_ekf {
+
 AckermannEkf::AckermannEkf(const Eigen::VectorXd x_min,
                            const Eigen::VectorXd x_max, double wheelbase,
                            double control_acceleration_gain,
@@ -262,13 +261,11 @@ void AckermannEkf::correct(const Measurement &measurement) {
             R(i_, j_) = measurement.R(i, j);
         }
 
-        for (int j = 0; j < STATE_SIZE; j++) {
-            H_subset(i_, j) = H(i, j);
-        }
+        for (int j = 0; j < STATE_SIZE; j++) { H_subset(i_, j) = H(i, j); }
     }
 
-    Eigen::MatrixXd K =
-        P * H_subset.transpose() * (H_subset * P * H_subset.transpose() + R).inverse();
+    Eigen::MatrixXd K = P * H_subset.transpose() *
+                        (H_subset * P * H_subset.transpose() + R).inverse();
     x.noalias() += K * y;
     constrain_state();
     P = (Eigen::MatrixXd::Identity(STATE_SIZE, STATE_SIZE) - K * H_subset) * P;
@@ -304,4 +301,5 @@ void AckermannEkf::correct(const Measurement &measurement) {
 void AckermannEkf::constrain_state() {
     x.noalias() = x.cwiseMax(x_min_).cwiseMin(x_max_);
 }
+
 } // namespace ackermann_ekf

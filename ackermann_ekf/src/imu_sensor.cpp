@@ -1,10 +1,10 @@
 #include "ackermann_ekf/imu_sensor.h"
-#include "ackermann_ekf/ackermann_ekf.h"
-#include "ackermann_ekf/navsatfix_sensor.h"
-#include "ackermann_ekf/sensor.h"
-#include "ackermann_ekf/sensor_array.h"
+
+#include <geometry_msgs/TransformStamped.h>
+#include <string>
 
 namespace ackermann_ekf {
+
 ImuSensor::ImuSensor(SensorArray &sensor_array,
                      const XmlRpc::XmlRpcValue &params, ros::NodeHandle &nh)
     : Sensor(sensor_array, params) {
@@ -98,4 +98,5 @@ void ImuSensor::callback(const sensor_msgs::Imu::ConstPtr &msg) {
 
     sensor_array_.process_measurement(measurement_);
 }
+
 } // namespace ackermann_ekf

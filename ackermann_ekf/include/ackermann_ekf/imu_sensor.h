@@ -1,17 +1,16 @@
 #ifndef ACKERMANN_EKF_IMU_SENSOR
 #define ACKERMANN_EKF_IMU_SENSOR
 
-#include "ackermann_ekf/ackermann_ekf.h"
 #include "ackermann_ekf/sensor.h"
+#include "ackermann_ekf/sensor_array.h"
 
 #include <boost/array.hpp>
-#include <geometry_msgs/TransformStamped.h>
 #include <ros/ros.h>
 #include <sensor_msgs/Imu.h>
-#include <string>
 #include <tf2_geometry_msgs/tf2_geometry_msgs.h>
 
 namespace ackermann_ekf {
+
 class ImuSensor : public Sensor {
   private:
     bool accel_mask_, angular_vel_mask_, orientation_mask_;
@@ -27,6 +26,7 @@ class ImuSensor : public Sensor {
     ImuSensor(SensorArray &sensor_array, const XmlRpc::XmlRpcValue &params,
               ros::NodeHandle &nh);
 };
+
 } // namespace ackermann_ekf
 
 #endif

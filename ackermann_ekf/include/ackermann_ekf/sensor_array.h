@@ -8,17 +8,16 @@
 #include <ackermann_msgs/AckermannDriveStamped.h>
 #include <boost/ptr_container/ptr_vector.hpp>
 #include <geometry_msgs/TransformStamped.h>
-#include <limits>
 #include <memory>
-#include <nav_msgs/Odometry.h>
 #include <ros/ros.h>
 #include <std_msgs/Header.h>
 #include <string>
-#include <tf2_geometry_msgs/tf2_geometry_msgs.h>
 #include <tf2_ros/transform_broadcaster.h>
 #include <tf2_ros/transform_listener.h>
 
 namespace ackermann_ekf {
+
+class Sensor;
 
 class SensorArray {
   private:
@@ -58,6 +57,7 @@ class SensorArray {
     void process_measurement(Measurement &measurement);
     bool bring_time_forward_to(double time);
 };
+
 } // namespace ackermann_ekf
 
 #endif

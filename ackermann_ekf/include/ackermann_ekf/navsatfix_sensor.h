@@ -1,17 +1,14 @@
 #ifndef ACKERMANN_EKF_NAVSATFIX_SENSOR
 #define ACKERMANN_EKF_NAVSATFIX_SENSOR
 
-#include "ackermann_ekf/ackermann_ekf.h"
 #include "ackermann_ekf/sensor.h"
+#include "ackermann_ekf/sensor_array.h"
 
-#include <geodesy/utm.h>
-#include <geographic_msgs/GeoPoint.h>
-#include <geometry_msgs/TransformStamped.h>
 #include <ros/ros.h>
 #include <sensor_msgs/NavSatFix.h>
-#include <string>
 
 namespace ackermann_ekf {
+
 class NavSatFixSensor : public Sensor {
   private:
     ros::Subscriber subscriber_;
@@ -22,6 +19,7 @@ class NavSatFixSensor : public Sensor {
     NavSatFixSensor(SensorArray &sensor_array,
                     const XmlRpc::XmlRpcValue &params, ros::NodeHandle &nh);
 };
+
 } // namespace ackermann_ekf
 
 #endif

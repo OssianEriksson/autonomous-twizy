@@ -3,9 +3,14 @@
 #include "ackermann_ekf/imu_sensor.h"
 #include "ackermann_ekf/navsatfix_sensor.h"
 #include "ackermann_ekf/wheelencoder_sensor.h"
-#include "ackermann_ekf/sensor.h"
+
+#include <geometry_msgs/TransformStamped.h>
+#include <limits>
+#include <nav_msgs/Odometry.h>
+#include <tf2_geometry_msgs/tf2_geometry_msgs.h>
 
 namespace ackermann_ekf {
+
 SensorArray::SensorArray(ros::NodeHandle &nh, ros::NodeHandle &nh_private)
     : tf_buffer_(new tf2_ros::Buffer),
       tf_listener_(new tf2_ros::TransformListener(*tf_buffer_)),
@@ -62,7 +67,8 @@ SensorArray::SensorArray(ros::NodeHandle &nh, ros::NodeHandle &nh_private)
         } else if (type == "sensor_msgs/Imu") {
             sensor_ptrs.push_back(new ImuSensor(*this, sensors[i], nh));
         } else if (type == "twizy_wheel_encoder/WheelEncoder") {
-            sensor_ptrs.push_back(new WheelencoderSensor(*this, sensors[i], nh));
+            sensor_ptrs.push_back(
+                new WheelencoderSensor(*this, sensors[i], nh));
         } else {
             ROS_WARN("Unknown sensor type %s",
                      static_cast<std::string>(type).c_str());
@@ -238,4 +244,5 @@ SensorArray::~SensorArray() {
     tf_listener_.reset();
     tf_broadcaster_.reset();
 }
+
 } // namespace ackermann_ekf

@@ -2,11 +2,13 @@
 #define ACKERMANN_EKF_SENSOR
 
 #include "ackermann_ekf/ackermann_ekf.h"
+#include "ackermann_ekf/sensor_array.h"
 
 #include <geometry_msgs/TransformStamped.h>
 #include <ros/ros.h>
 
 namespace ackermann_ekf {
+
 class SensorArray;
 
 class Sensor {
@@ -19,6 +21,7 @@ class Sensor {
 
     void set_sensor_position(const geometry_msgs::TransformStamped &transform);
 };
+
 } // namespace ackermann_ekf
 
 #endif

@@ -1,10 +1,12 @@
 #include "ackermann_ekf/navsatfix_sensor.h"
-#include "ackermann_ekf/imu_sensor.h"
-#include "ackermann_ekf/ackermann_ekf.h"
-#include "ackermann_ekf/sensor.h"
-#include "ackermann_ekf/sensor_array.h"
+
+#include <geodesy/utm.h>
+#include <geographic_msgs/GeoPoint.h>
+#include <geometry_msgs/TransformStamped.h>
+#include <string>
 
 namespace ackermann_ekf {
+
 NavSatFixSensor::NavSatFixSensor(SensorArray &sensor_array,
                                  const XmlRpc::XmlRpcValue &params,
                                  ros::NodeHandle &nh)
@@ -56,4 +58,5 @@ void NavSatFixSensor::callback(const sensor_msgs::NavSatFix::ConstPtr &msg) {
 
     sensor_array_.process_measurement(measurement_);
 }
+
 } // namespace ackermann_ekf

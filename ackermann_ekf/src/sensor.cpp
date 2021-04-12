@@ -1,10 +1,8 @@
 #include "ackermann_ekf/sensor.h"
 #include "ackermann_ekf/ackermann_ekf.h"
-#include "ackermann_ekf/imu_sensor.h"
-#include "ackermann_ekf/navsatfix_sensor.h"
-#include "ackermann_ekf/sensor_array.h"
 
 namespace ackermann_ekf {
+
 Sensor::Sensor(SensorArray &sensor_array, const XmlRpc::XmlRpcValue &params)
     : sensor_array_(sensor_array) {
     if (params.hasMember("mask")) {
