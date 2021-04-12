@@ -1,0 +1,20 @@
+actions: []
+authors: Ossian Eriksson <ossiane@student.chalmers.se>
+brief: ''
+bugtracker: https://github.com/OssianEriksson/autonomous-twizy/issues
+depends:
+- message_generation
+- catkin
+- message_runtime
+- rosserial_arduino
+- rospy
+- rosserial_python
+description: Publishes measurements from Twizy's wheel encoders
+license: Apache 2.0
+maintainers: Ossian Eriksson <ossiane@student.chalmers.se>
+msgs:
+- WheelEncoder
+package_type: package
+repo_url: https://github.com/OssianEriksson/autonomous-twizy.git
+srvs: []
+url: https://github.com/OssianEriksson/autonomous-twizy/tree/master/twizy_wheel_encoder

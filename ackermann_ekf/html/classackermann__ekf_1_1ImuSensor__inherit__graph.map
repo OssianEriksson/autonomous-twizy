@@ -1,0 +1,4 @@
+<map id="ackermann_ekf::ImuSensor" name="ackermann_ekf::ImuSensor">
+<area shape="rect" id="node1" title="IMU sensor for EKF." alt="" coords="5,80,204,107"/>
+<area shape="rect" id="node2" href="$classackermann__ekf_1_1Sensor.html" title="Class for a sensor whose value is to be integrated into an instance of AckermannEkf." alt="" coords="18,5,191,32"/>
+</map>

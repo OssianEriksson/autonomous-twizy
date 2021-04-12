@@ -1,0 +1,16 @@
+actions: []
+authors: Ossian Eriksson <ossiane@student.chalmers.se>
+brief: ''
+bugtracker: https://github.com/OssianEriksson/autonomous-twizy/issues
+depends:
+- rospy
+- ackermann_msgs
+- catkin
+description: Remote control of ackermann vehicle
+license: Apache 2.0
+maintainers: Ossian Eriksson <ossiane@student.chalmers.se>
+msgs: []
+package_type: package
+repo_url: https://github.com/OssianEriksson/autonomous-twizy.git
+srvs: []
+url: https://github.com/OssianEriksson/autonomous-twizy/tree/master/ackermann_teleop

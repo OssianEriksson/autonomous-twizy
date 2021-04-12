@@ -1,0 +1,6 @@
+<map id="ackermann_ekf::Sensor" name="ackermann_ekf::Sensor">
+<area shape="rect" id="node1" title="Class for a sensor whose value is to be integrated into an instance of AckermannEkf." alt="" coords="5,64,179,91"/>
+<area shape="rect" id="node2" href="$classackermann__ekf_1_1ImuSensor.html" title="IMU sensor for EKF." alt="" coords="239,5,437,32"/>
+<area shape="rect" id="node3" href="$classackermann__ekf_1_1NavSatFixSensor.html" title="GNSS sensor for EKF." alt="" coords="241,57,435,98"/>
+<area shape="rect" id="node4" href="$classackermann__ekf_1_1WheelencoderSensor.html" title="Wheel encoder sensor for EKF." alt="" coords="227,122,449,163"/>
+</map>

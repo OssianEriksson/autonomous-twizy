@@ -1,0 +1,16 @@
+actions: []
+authors: Ossian Eriksson <ossiane@student.chalmers.se>
+brief: ''
+bugtracker: https://github.com/OssianEriksson/autonomous-twizy/issues
+depends:
+- twizy_bringup
+- catkin
+- twizy_webots
+description: Example launch files for the Twizy
+license: Apache 2.0
+maintainers: Ossian Eriksson <ossiane@student.chalmers.se>
+msgs: []
+package_type: package
+repo_url: https://github.com/OssianEriksson/autonomous-twizy.git
+srvs: []
+url: https://github.com/OssianEriksson/autonomous-twizy/tree/master/twizy_examples

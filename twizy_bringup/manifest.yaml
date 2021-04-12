@@ -1,0 +1,28 @@
+actions: []
+authors: "Ossian Eriksson <ossiane@student.chalmers.se>, Albin Ekelund Karlsson <ekalbin@sstudent.chalmers.se>,\
+  \ Arvid Enliden <enliden96@hotmail.com>, Emil H\xF6lvold <holvold@student.chalmers.se>"
+brief: ''
+bugtracker: https://github.com/OssianEriksson/autonomous-twizy/issues
+depends:
+- global_planner
+- move_base
+- rqt_reconfigure
+- joint_state_publisher
+- depth_image_proc
+- realsense2_camera
+- catkin
+- rviz
+- robot_state_publisher
+- twizy_control
+- ackermann_ekf
+- twizy_description
+- ackermann_teleop
+- teb_local_planner
+description: Launch files for the Twizy
+license: Apache 2.0
+maintainers: Ossian Eriksson <ossiane@student.chalmers.se>
+msgs: []
+package_type: package
+repo_url: https://github.com/OssianEriksson/autonomous-twizy.git
+srvs: []
+url: https://github.com/OssianEriksson/autonomous-twizy/tree/master/twizy_bringup

@@ -1,0 +1,18 @@
+actions: []
+authors: Ossian Eriksson <ossiane@student.chalmers.se>
+brief: ''
+bugtracker: https://github.com/OssianEriksson/autonomous-twizy/issues
+depends:
+- rostest
+- catkin
+- roslaunch
+- sensor_msgs
+- rospy
+description: Interfacing with the Piksi Multi RTK GNSS module
+license: Apache 2.0
+maintainers: Ossian Eriksson <ossiane@student.chalmers.se>
+msgs: []
+package_type: package
+repo_url: https://github.com/OssianEriksson/autonomous-twizy.git
+srvs: []
+url: https://github.com/OssianEriksson/autonomous-twizy/tree/master/piksi_multi_rtk

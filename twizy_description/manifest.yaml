@@ -1,19 +1,19 @@
 actions: []
-authors: ''
+authors: Ossian Eriksson <ossiane@student.chalmers.se>
 brief: ''
-bugtracker: ''
+bugtracker: https://github.com/OssianEriksson/autonomous-twizy/issues
 depends:
-- python3-numpy
-- python-transforms3d-pip
-- python3-collada-pip
-- python3-catkin-pkg
 - catkin
+- python3-numpy
+- python3-collada-pip
+- python-transforms3d-pip
 - urdf
+- python3-catkin-pkg
 description: Physical descrition of Twizy and configs
 license: Apache 2.0
 maintainers: Ossian Eriksson <ossiane@student.chalmers.se>
 msgs: []
 package_type: package
-repo_url: ''
+repo_url: https://github.com/OssianEriksson/autonomous-twizy.git
 srvs: []
-url: ''
+url: https://github.com/OssianEriksson/autonomous-twizy/tree/master/twizy_description

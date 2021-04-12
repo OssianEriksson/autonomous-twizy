@@ -1,0 +1,4 @@
+<map id="ackermann_ekf::NavSatFixSensor" name="ackermann_ekf::NavSatFixSensor">
+<area shape="rect" id="node1" title="GNSS sensor for EKF." alt="" coords="5,80,200,121"/>
+<area shape="rect" id="node2" href="$classackermann__ekf_1_1Sensor.html" title="Class for a sensor whose value is to be integrated into an instance of AckermannEkf." alt="" coords="16,5,189,32"/>
+</map>
