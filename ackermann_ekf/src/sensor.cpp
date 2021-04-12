@@ -5,6 +5,7 @@ namespace ackermann_ekf {
 
 Sensor::Sensor(SensorArray &sensor_array, const XmlRpc::XmlRpcValue &params)
     : sensor_array_(sensor_array) {
+    // Parse mask vector
     if (params.hasMember("mask")) {
         XmlRpc::XmlRpcValue mask = params["mask"];
         ROS_ASSERT(mask.getType() == XmlRpc::XmlRpcValue::TypeArray);
@@ -13,6 +14,9 @@ Sensor::Sensor(SensorArray &sensor_array, const XmlRpc::XmlRpcValue &params)
             measurement_.mask[i] = static_cast<bool>(mask[i]);
         }
     } else {
+        // All measurement components are fused into filter. Sensors extending
+        // this class are then expexted to remove components from the mask which
+        // cannot physically be measured by that sensor
         for (int i = 0; i < MEASUREMENT_SIZE; i++) {
             measurement_.mask[i] = true;
         }

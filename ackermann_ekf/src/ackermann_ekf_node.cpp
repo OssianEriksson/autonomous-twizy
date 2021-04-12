@@ -1,5 +1,5 @@
 /**
- * @file ackermann_ekf_node.h
+ * @file ackermann_ekf_node.cpp
  *
  * @brief ROS node for sensor fusion using EKF based on Ackermann steering model
  *
