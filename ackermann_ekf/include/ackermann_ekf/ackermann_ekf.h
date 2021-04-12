@@ -21,7 +21,7 @@ namespace ackermann_ekf {
  * @brief Representation of measurement
  *
  * See the <a
- * href="https://github.com/OssianEriksson/autonomous-twizy/tree/master/ackermann_ekf/README.md#coordinate-frames">package
+ * href="https://github.com/OssianEriksson/autonomous-twizy/tree/master/ackermann_ekf#coordinate-frames">package
  * documentation</a> for definition of the coordinate frames and Euler angle
  * conventions used.
  */
@@ -203,7 +203,7 @@ struct ControlSignal {
  * @brief Representation of a filter state
  *
  * See the <a
- * href="https://github.com/OssianEriksson/autonomous-twizy/tree/master/ackermann_ekf/README.md#coordinate-frames">package
+ * href="https://github.com/OssianEriksson/autonomous-twizy/tree/master/ackermann_ekf#coordinate-frames">package
  * documentation</a> for definition of the coordinate frames and Euler angle
  * conventions used.
  */
