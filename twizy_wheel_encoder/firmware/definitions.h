@@ -9,6 +9,7 @@
 #define OUTPUT_SIZE 150
 
 namespace twizy_wheel_encoder {
+
 typedef ros::NodeHandle_<ArduinoHardware, MAX_SUBSCRIBERS, MAX_PUBLISHERS,
                          INPUT_SIZE, OUTPUT_SIZE>
     NodeHandle;
@@ -23,6 +24,7 @@ struct Parameters {
     unsigned int mspt = 0;
     Side left, right;
 };
+
 } // namespace twizy_wheel_encoder
 
 #endif

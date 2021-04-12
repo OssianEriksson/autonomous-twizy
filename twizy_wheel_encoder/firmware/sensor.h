@@ -2,9 +2,11 @@
 #define TWIZY_WHEEL_ENCODER_SENSOR
 
 #include "definitions.h"
+
 #include <twizy_wheel_encoder/WheelEncoder.h>
 
 namespace twizy_wheel_encoder {
+
 class Sensor {
   private:
     WheelEncoder msg_;
@@ -25,6 +27,7 @@ class Sensor {
     void publish(const ros::Time &stamp);
     void tick();
 };
+
 } // namespace twizy_wheel_encoder
 
 #endif

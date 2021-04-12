@@ -3,6 +3,7 @@
 
 #include "definitions.h"
 #include "sensor.h"
+
 #include <ros.h>
 
 twizy_wheel_encoder::NodeHandle nh;
