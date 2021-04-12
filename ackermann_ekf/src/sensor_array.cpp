@@ -3,9 +3,14 @@
 #include "ackermann_ekf/imu_sensor.h"
 #include "ackermann_ekf/navsatfix_sensor.h"
 #include "ackermann_ekf/wheelencoder_sensor.h"
-#include "ackermann_ekf/sensor.h"
+
+#include <geometry_msgs/TransformStamped.h>
+#include <limits>
+#include <nav_msgs/Odometry.h>
+#include <tf2_geometry_msgs/tf2_geometry_msgs.h>
 
 namespace ackermann_ekf {
+
 SensorArray::SensorArray(ros::NodeHandle &nh, ros::NodeHandle &nh_private)
     : tf_buffer_(new tf2_ros::Buffer),
       tf_listener_(new tf2_ros::TransformListener(*tf_buffer_)),
@@ -17,12 +22,14 @@ SensorArray::SensorArray(ros::NodeHandle &nh, ros::NodeHandle &nh_private)
     nh_private.getParam("frequency", frequency_);
     nh_private.getParam("differential_position", differential_position_);
 
+    // Default value of periodic_filter_time_delay is two update cycles
     periodic_filter_time_delay_ = 2.0 / frequency_;
     nh_private.getParam("periodic_filter_time_delay",
                         periodic_filter_time_delay_);
 
     if (!differential_position_) {
         initial_position_.setZero();
+        // filter_initialized_ is true as soon as initial_position_ has been set
         filter_initialized_ = true;
     }
 
@@ -44,6 +51,7 @@ SensorArray::SensorArray(ros::NodeHandle &nh, ros::NodeHandle &nh_private)
             x_min(i) = static_cast<double>(x_min_value[i]);
         }
     } else {
+        // Default x_min value is -x_max
         x_min = -x_max;
     }
 
@@ -52,6 +60,9 @@ SensorArray::SensorArray(ros::NodeHandle &nh, ros::NodeHandle &nh_private)
     ROS_ASSERT(sensors.getType() == XmlRpc::XmlRpcValue::TypeArray);
 
     for (int i = 0; i < sensors.size(); i++) {
+        // For some reason an empty array (I think) is contained in sensors,
+        // even when I dont see a reason why. To prevent issues with such
+        // things, skip all entries which are not structs/dicts
         if (sensors[i].getType() != XmlRpc::XmlRpcValue::TypeStruct) {
             continue;
         }
@@ -62,7 +73,8 @@ SensorArray::SensorArray(ros::NodeHandle &nh, ros::NodeHandle &nh_private)
         } else if (type == "sensor_msgs/Imu") {
             sensor_ptrs.push_back(new ImuSensor(*this, sensors[i], nh));
         } else if (type == "twizy_wheel_encoder/WheelEncoder") {
-            sensor_ptrs.push_back(new WheelencoderSensor(*this, sensors[i], nh));
+            sensor_ptrs.push_back(
+                new WheelencoderSensor(*this, sensors[i], nh));
         } else {
             ROS_WARN("Unknown sensor type %s",
                      static_cast<std::string>(type).c_str());
@@ -102,6 +114,7 @@ SensorArray::SensorArray(ros::NodeHandle &nh, ros::NodeHandle &nh_private)
 
     odom_publisher_ = nh.advertise<nav_msgs::Odometry>("odom", 10);
 
+    // Periodically call back to periodic_update
     periodic_update_timer_ = nh.createTimer(
         ros::Duration(1.0 / frequency_), &SensorArray::periodic_update, this);
 }
@@ -118,10 +131,15 @@ void SensorArray::control_callback(
 }
 
 void SensorArray::periodic_update(const ros::TimerEvent &evt) {
+    // If the callback called this function twise for the same timestamp, i.e.
+    // the current time is the same as the last time don't try and republish
+    // values for the same timestamp
     if (evt.current_real == evt.last_real) {
         return;
     }
 
+    // Force filter state forward so it doesn't get left behind if there are no
+    // measurement values
     this->bring_time_forward_to(evt.current_real.toSec() -
                                 periodic_filter_time_delay_);
 
@@ -187,24 +205,35 @@ void SensorArray::periodic_update(const ros::TimerEvent &evt) {
 }
 
 void SensorArray::process_measurement(Measurement &measurement) {
+    // If the initial position has not already been determined and the provided
+    // measurement contains the neccesary position data set the initial position
+    // equal to that
     if (!filter_initialized_ &&
         (measurement.mask[Measurement::X] && measurement.mask[Measurement::Y] &&
          measurement.mask[Measurement::Z])) {
         initial_position_(0) = measurement.z(Measurement::X);
         initial_position_(1) = measurement.z(Measurement::Y);
         initial_position_(2) = measurement.z(Measurement::Z);
+        // This subtraction is not neccessary, but is mostly so that the robot
+        // will start with height close to zeor (if the robot was upright when
+        // the measurement was taken)
         initial_position_ -= measurement.sensor_position;
 
-        filter->time = measurement.time;
-
+        // The filter is initialized as soon as initial_position_ has been set
         filter_initialized_ = true;
+
+        // The initial time of the filter is now, when the filtering has been
+        // initialized
+        filter->time = measurement.time;
     }
 
     if (filter_initialized_) {
+        // Subtract initial position
         measurement.z(Measurement::X) -= initial_position_(0);
         measurement.z(Measurement::Y) -= initial_position_(1);
         measurement.z(Measurement::Z) -= initial_position_(2);
     } else {
+        // Wait unitil filter_initialized_ before continuing
         return;
     }
 
@@ -212,6 +241,8 @@ void SensorArray::process_measurement(Measurement &measurement) {
 }
 
 bool SensorArray::bring_time_forward_to(double time) {
+    // There is no point in bringing time forward if the filter has not been
+    // initialized and we have no idea what the state should be
     if (filter_initialized_) {
         filter->bring_time_forward_to(time);
         return true;
@@ -238,4 +269,5 @@ SensorArray::~SensorArray() {
     tf_listener_.reset();
     tf_broadcaster_.reset();
 }
+
 } // namespace ackermann_ekf

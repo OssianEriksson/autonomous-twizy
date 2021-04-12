@@ -4,6 +4,7 @@
 #include <twizy_wheel_encoder/WheelEncoder.h>
 
 namespace twizy_wheel_encoder {
+
 Sensor::Sensor(const char *topic_name, const Parameters &params,
                const Parameters::Side &side)
     : params_(params), side_(side), publisher(topic_name, &msg_) {
@@ -35,4 +36,5 @@ void Sensor::tick() {
     msg_.speed = params_.sensitivity / (time - last_time_);
     last_time_ = time;
 }
+
 } // namespace twizy_wheel_encoder

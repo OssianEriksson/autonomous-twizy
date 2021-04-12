@@ -1,13 +1,15 @@
 #include "ackermann_ekf/imu_sensor.h"
-#include "ackermann_ekf/ackermann_ekf.h"
-#include "ackermann_ekf/navsatfix_sensor.h"
-#include "ackermann_ekf/sensor.h"
-#include "ackermann_ekf/sensor_array.h"
+
+#include <geometry_msgs/TransformStamped.h>
+#include <string>
 
 namespace ackermann_ekf {
+
 ImuSensor::ImuSensor(SensorArray &sensor_array,
                      const XmlRpc::XmlRpcValue &params, ros::NodeHandle &nh)
     : Sensor(sensor_array, params) {
+    // Disallow measurements which cannot be measured by this sensor from beeing
+    // fused
     measurement_.mask[Measurement::X] = false;
     measurement_.mask[Measurement::Y] = false;
     measurement_.mask[Measurement::Z] = false;
@@ -46,6 +48,11 @@ void ImuSensor::set_cov_xyz(const tf2::Transform transform, const int index[3],
 }
 
 void ImuSensor::callback(const sensor_msgs::Imu::ConstPtr &msg) {
+    // If we have been told to include some piece of data (*_mask_ is true) but
+    // the data doesn't exist (*_covariance[0] == -1) we return.
+    // \todo Update imu mask depending on whether data is present or not for
+    // acceleration, angular velocity and orientation separately instead of
+    // togheter
     if ((accel_mask_ && msg->linear_acceleration_covariance[0] == -1) ||
         (angular_vel_mask_ && msg->linear_acceleration_covariance[0] == -1) ||
         (orientation_mask_ && msg->linear_acceleration_covariance[0] == -1)) {
@@ -54,6 +61,8 @@ void ImuSensor::callback(const sensor_msgs::Imu::ConstPtr &msg) {
 
     geometry_msgs::TransformStamped transform;
     if (!sensor_array_.get_transform(transform, msg->header)) {
+        // If no transform exists we cannot determine e.g. sensor position so we
+        // are forced to discard the measurement
         return;
     }
 
@@ -61,8 +70,10 @@ void ImuSensor::callback(const sensor_msgs::Imu::ConstPtr &msg) {
 
     tf2::Transform T;
     tf2::fromMsg(transform.transform, T);
+    // Remove translation from transform, we only want rotation
     T.setOrigin(tf2::Vector3(0, 0, 0));
 
+    // Rotate measurements to local coordinate system
     tf2::Quaternion orientation =
         T * tf2::Quaternion(msg->orientation.x, msg->orientation.y,
                             msg->orientation.z, msg->orientation.w);
@@ -98,4 +109,5 @@ void ImuSensor::callback(const sensor_msgs::Imu::ConstPtr &msg) {
 
     sensor_array_.process_measurement(measurement_);
 }
+
 } // namespace ackermann_ekf
