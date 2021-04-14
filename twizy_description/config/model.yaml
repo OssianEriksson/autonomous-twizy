@@ -22,9 +22,9 @@ right_piksi_gnss:
 
 left_piksi_imu:
   position:  # In chassis frame: x forward z up, (0, 0, 0) centered on chassis floor 
-    x: 0.0
-    y: 0.0
-    z: 0.7
+    x: -0.843
+    y: -0.05
+    z: 0.95
   rotation:  # Axis angle in chassis frame
     x: 0.01836127
     y: 0.99983031
@@ -36,9 +36,9 @@ left_piksi_imu:
 
 right_piksi_imu:
   position:  # In chassis frame: x forward z up, (0, 0, 0) centered on chassis floor 
-    x: 0.0
-    y: 0.0
-    z: 0.65
+    x: -0.843
+    y: -0.05
+    z: 1.05
   rotation:  # Axis angle in chassis frame
     x: -0.02674506
     y: -0.99953344
