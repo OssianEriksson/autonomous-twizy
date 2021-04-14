@@ -2,7 +2,7 @@
 <package format="2">
   <name>ackermann_teleop</name>
   <version>1.0.0</version>
-  <description>Remote control of ackermann vehicle</description>
+  <description>Remote control of Ackermann vehicle</description>
 
   <!-- One maintainer tag required, multiple allowed, one person per tag -->
   <!-- Example:  -->
