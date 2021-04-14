@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <package format="2">
   <name>ackermann_teleop</name>
-  <version>0.0.0</version>
-  <description>Remote control of vehicle accepting ackermann_msgs/AckermannDriveStamped messages</description>
+  <version>1.0.0</version>
+  <description>Remote control of Ackermann vehicle</description>
 
   <!-- One maintainer tag required, multiple allowed, one person per tag -->
   <!-- Example:  -->
@@ -20,12 +20,16 @@
   <!-- Optional attribute type can be: website, bugtracker, or repository -->
   <!-- Example: -->
   <!-- <url type="website">http://wiki.ros.org/ackermann_teleop</url> -->
+  <url type="website">https://github.com/OssianEriksson/autonomous-twizy/tree/master/ackermann_teleop</url>
+  <url type="bugtracker">https://github.com/OssianEriksson/autonomous-twizy/issues</url>
+  <url type="repository">https://github.com/OssianEriksson/autonomous-twizy.git</url>
 
 
   <!-- Author tags are optional, multiple are allowed, one per tag -->
   <!-- Authors do not have to be maintainers, but could be -->
   <!-- Example: -->
   <!-- <author email="jane.doe@example.com">Jane Doe</author> -->
+  <author email="ossiane@student.chalmers.se">Ossian Eriksson</author>
 
 
   <!-- The *depend tags are used to specify dependencies -->

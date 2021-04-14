@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <package format="2">
-  <name>piksi_multi_rtk</name>
+  <name>twizy_wheel_encoder</name>
   <version>1.0.0</version>
-  <description>Interfacing with the Piksi Multi RTK GNSS module</description>
+  <description>Publishes measurements from Twizy's wheel encoders</description>
 
   <!-- One maintainer tag required, multiple allowed, one person per tag -->
   <!-- Example:  -->
@@ -19,8 +19,8 @@
   <!-- Url tags are optional, but multiple are allowed, one per tag -->
   <!-- Optional attribute type can be: website, bugtracker, or repository -->
   <!-- Example: -->
-  <!-- <url type="website">http://wiki.ros.org/piksi_multi_rtk</url> -->
-  <url type="website">https://github.com/OssianEriksson/autonomous-twizy/tree/master/piksi_multi_rtk</url>
+  <!-- <url type="website">http://wiki.ros.org/twizy_wheel_encoder</url> -->
+  <url type="website">https://github.com/OssianEriksson/autonomous-twizy/tree/master/twizy_wheel_encoder</url>
   <url type="bugtracker">https://github.com/OssianEriksson/autonomous-twizy/issues</url>
   <url type="repository">https://github.com/OssianEriksson/autonomous-twizy.git</url>
 
@@ -41,22 +41,21 @@
   <!--   <build_depend>roscpp</build_depend> -->
   <!--   <exec_depend>roscpp</exec_depend> -->
   <!-- Use build_depend for packages you need at compile time: -->
-  <!--   <build_depend>message_generation</build_depend> -->
+  <build_depend>message_generation</build_depend>
   <!-- Use build_export_depend for packages you need in order to build against this package: -->
   <!--   <build_export_depend>message_generation</build_export_depend> -->
   <!-- Use buildtool_depend for build tool packages: -->
   <!--   <buildtool_depend>catkin</buildtool_depend> -->
   <!-- Use exec_depend for packages you need at runtime: -->
-  <!--   <exec_depend>message_runtime</exec_depend> -->
+  <exec_depend>message_runtime</exec_depend>
   <!-- Use test_depend for packages you need only for testing: -->
   <!--   <test_depend>gtest</test_depend> -->
   <!-- Use doc_depend for packages you need only for building documentation: -->
   <!--   <doc_depend>doxygen</doc_depend> -->
   <buildtool_depend>catkin</buildtool_depend>
   <depend>rospy</depend>
-  <depend>sensor_msgs</depend>
-  <test_depend>rostest</test_depend>
-  <test_depend>roslaunch</test_depend>
+  <depend>rosserial_python</depend>
+  <depend>rosserial_arduino</depend>
 
 
   <!-- The export tag contains other, unspecified, tags -->

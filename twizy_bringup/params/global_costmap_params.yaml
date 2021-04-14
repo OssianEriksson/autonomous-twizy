@@ -1,4 +1,4 @@
-!expand : !include $(rospack find twizy_bringup)/params/include/costmap_common_params.yaml
+<<: !include $(rospack find twizy_bringup)/params/include/costmap_common_params.yaml
 
 inflater_layer:
   inflation_radius: 3.0

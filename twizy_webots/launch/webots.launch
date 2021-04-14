@@ -13,4 +13,5 @@
     <include file="$(find twizy_webots)/launch/include/controller.launch" />
     <include file="$(find twizy_webots)/launch/include/piksi.launch" />
     <include file="$(find twizy_webots)/launch/include/realsense.launch" />
+    <include file="$(find twizy_webots)/launch/include/wheel_encoder.launch" />
 </launch>

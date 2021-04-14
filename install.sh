@@ -29,7 +29,7 @@ if [[ -z "${GITHUB_ACTION}" ]]; then # If running on local computer
 else # If running as Github action
 	sudo apt-get install -y ros-$ROS_DISTRO-ros-base
 fi
-append_to_bashrc "/opt/ros/$ROS_DISTRO/setup.bash"
+append_to_bashrc "source /opt/ros/$ROS_DISTRO/setup.bash"
 source /opt/ros/$ROS_DISTRO/setup.bash
 
 # Install rosdep and ROS packages
@@ -63,6 +63,8 @@ fi
 
 if [[ ! -z "${TWIZY_ONBOARD}" ]]; then # If running on the Twizy's on-board computer
 	append_to_bashrc "export TWIZY_ONBOARD=1"
+else # If not running on the Twizy's on-board computer
+	append_to_bashrc "export TWIZY_ONBOARD=0"
 fi
 
 # Automatically source the workspace's setup.bash in new shells

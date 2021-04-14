@@ -1,0 +1,153 @@
+#VRML_SIM R2021a utf8
+WorldInfo {
+  coordinateSystem "NUE"
+}
+Viewpoint {
+  orientation 0.9568777985345674 -0.25929381415216546 -0.13096410429603259 5.431837900322576
+  position -15.11856215154964 23.230275918560547 32.02624232299286
+}
+Twizy {
+  translation -17.79 1.70277e-06 9.79
+  rotation 1 2.39745e-09 2.39745e-09 -1.5707953071795862
+}
+Floor {
+  size 500 500
+}
+TexturedBackground {
+}
+TexturedBackgroundLight {
+}
+Wall {
+  size 40 2.4 0.2
+}
+Wall {
+  translation 0 0 20
+  name "wall(1)"
+  size 40 2.4 0.2
+}
+Wall {
+  translation -20 0 10
+  name "wall(2)"
+  size 0.2 2.4 20
+}
+Wall {
+  translation -8.52 0 10
+  name "wall(3)"
+  size 1 1 1
+}
+Wall {
+  translation -11.35 0 16.73
+  name "wall(4)"
+  size 1 1 1
+}
+Wall {
+  translation -11.62 0 2.16
+  name "wall(5)"
+  size 1 1 1
+}
+Wall {
+  translation -1.56 0 13.72
+  name "wall(6)"
+  size 1 1 1
+}
+Wall {
+  translation -3.16 0 5.15
+  name "wall(7)"
+  size 1 1 1
+}
+Wall {
+  translation 4.7 0 19.36
+  name "wall(8)"
+  size 1 1 1
+}
+Wall {
+  translation -6.3 0 19.46
+  name "wall(9)"
+  size 1 1 1
+}
+Wall {
+  translation 5.18 0 7.78
+  name "wall(10)"
+  size 2 2.4 5
+}
+Wall {
+  translation 13.2328 0 12.7763
+  rotation 0 1 0 -0.261795307179586
+  name "wall(11)"
+  size 2 2.4 5
+}
+Wall {
+  translation 15.728 0 1.77359
+  rotation 0 1 0 1.8326
+  name "wall(12)"
+  size 2 2.4 5
+}
+Wall {
+  translation 40 0 13
+  name "wall(13)"
+  size 5 2.4 0.2
+}
+Wall {
+  translation 28.2256 0 16.4177
+  rotation 0 1 0 0.35
+  name "wall(15)"
+  size 20 2.4 0.2
+}
+Wall {
+  translation 28.1504 0 3.55485
+  rotation 0 1 0 -0.35
+  name "wall(16)"
+  size 20 2.4 0.2
+}
+Wall {
+  translation 40 0 7
+  name "wall(14)"
+  size 5 2.4 0.2
+}
+Wall {
+  translation 42.5 0 4.5
+  name "wall(17)"
+  size 0.2 2.4 5
+}
+Wall {
+  translation 42.5 0 15.5
+  name "wall(18)"
+  size 0.2 2.4 5
+}
+Wall {
+  translation 67.5 0 2
+  name "wall(20)"
+  size 50 2.4 0.2
+}
+Wall {
+  translation 67.5 0 18
+  name "wall(19)"
+  size 50 2.4 0.2
+}
+Wall {
+  translation 53.41 0 7.14
+  name "wall(21)"
+  size 2 2.4 10
+}
+Wall {
+  translation 61.49 0 12.87
+  name "wall(22)"
+  size 2 2.4 10
+}
+Wall {
+  translation 61.49 0 12.87
+  name "wall(23)"
+  size 2 2.4 10
+}
+Wall {
+  translation 68.417 -0.099749 10
+  rotation 0 0 -1 1.5
+  name "wall(24)"
+  size 0.2 10 16
+}
+Wall {
+  translation 88.3411 -0.115188 10
+  rotation 0 0 1 1.5
+  name "wall(25)"
+  size 0.2 10 16
+}

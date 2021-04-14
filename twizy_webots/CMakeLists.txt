@@ -18,6 +18,8 @@ find_package(catkin REQUIRED COMPONENTS
   std_msgs
   ackermann_msgs
   message_filters
+  nav_msgs
+  twizy_wheel_encoder
 )
 
 ## System dependencies are found with CMake's conventions
@@ -171,6 +173,7 @@ catkin_install_python(PROGRAMS
   nodes/ackermann_controller
   nodes/gnss
   nodes/color_depth_sensor
+  nodes/wheel_encoder
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 

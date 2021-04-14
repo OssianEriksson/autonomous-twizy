@@ -15,13 +15,13 @@
     <node pkg="twizy_control" type="object_avoidance" name="front_object_avoidance" required="true">
         <remap from="/camera/aligned_depth_to_color/image_raw" to="/camera/front/aligned_depth_to_color/image_raw" />
         <remap from="object_detection" to="/object_detection_front" />
-        <remap from="/boxes" to="/front_boxes"/>
+        <remap from="/boxes" to="/front_boxes" />
     </node>
 
     <node pkg="twizy_control" type="object_avoidance" name="rear_object_avoidance" required="true">
         <remap from="/camera/aligned_depth_to_color/image_raw" to="/camera/rear/aligned_depth_to_color/image_raw" />
         <remap from="object_detection" to="/object_detection_rear" />
-        <remap from="/boxes" to="/rear_boxes"/>
+        <remap from="/boxes" to="/rear_boxes" />
     </node>
 
 

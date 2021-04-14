@@ -1,14 +1,18 @@
 #include "ackermann_ekf/navsatfix_sensor.h"
-#include "ackermann_ekf/imu_sensor.h"
-#include "ackermann_ekf/ackermann_ekf.h"
-#include "ackermann_ekf/sensor.h"
-#include "ackermann_ekf/sensor_array.h"
+
+#include <geodesy/utm.h>
+#include <geographic_msgs/GeoPoint.h>
+#include <geometry_msgs/TransformStamped.h>
+#include <string>
 
 namespace ackermann_ekf {
+
 NavSatFixSensor::NavSatFixSensor(SensorArray &sensor_array,
                                  const XmlRpc::XmlRpcValue &params,
                                  ros::NodeHandle &nh)
     : Sensor(sensor_array, params) {
+    // Disallow measurements which cannot be measured by this sensor from beeing
+    // fused
     measurement_.mask[Measurement::dx_dt] = false;
     measurement_.mask[Measurement::dy_dt] = false;
     measurement_.mask[Measurement::dz_dt] = false;
@@ -32,20 +36,23 @@ NavSatFixSensor::NavSatFixSensor(SensorArray &sensor_array,
 void NavSatFixSensor::callback(const sensor_msgs::NavSatFix::ConstPtr &msg) {
     geometry_msgs::TransformStamped transform;
     if (!sensor_array_.get_transform(transform, msg->header)) {
+        // If no transform exists we cannot determine e.g. sensor position so we
+        // are forced to discard the measurement
         return;
     }
 
     this->set_sensor_position(transform);
 
+    // Convert from latitude, longitude to UTM (Cartesian coordinates)
     geographic_msgs::GeoPoint llh;
     llh.latitude = msg->latitude;
     llh.longitude = msg->longitude;
     llh.altitude = msg->altitude;
     geodesy::UTMPoint utm(llh);
 
-    measurement_.z[Measurement::X] = utm.easting;
-    measurement_.z[Measurement::Y] = utm.northing;
-    measurement_.z[Measurement::Z] = utm.altitude;
+    measurement_.z(Measurement::X) = utm.easting;
+    measurement_.z(Measurement::Y) = utm.northing;
+    measurement_.z(Measurement::Z) = utm.altitude;
 
     const int XYZ[3] = {Measurement::X, Measurement::Y, Measurement::Z};
     for (int i = 0; i < 9; i++) {
@@ -56,4 +63,5 @@ void NavSatFixSensor::callback(const sensor_msgs::NavSatFix::ConstPtr &msg) {
 
     sensor_array_.process_measurement(measurement_);
 }
+
 } // namespace ackermann_ekf

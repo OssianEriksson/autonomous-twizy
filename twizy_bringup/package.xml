@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <package format="2">
   <name>twizy_bringup</name>
-  <version>0.0.0</version>
-  <description>Launch files for the twizy</description>
+  <version>1.0.0</version>
+  <description>Launch files for the Twizy</description>
 
   <!-- One maintainer tag required, multiple allowed, one person per tag -->
   <!-- Example:  -->
@@ -20,12 +20,19 @@
   <!-- Optional attribute type can be: website, bugtracker, or repository -->
   <!-- Example: -->
   <!-- <url type="website">http://wiki.ros.org/twizy_bringup</url> -->
+  <url type="website">https://github.com/OssianEriksson/autonomous-twizy/tree/master/twizy_bringup</url>
+  <url type="bugtracker">https://github.com/OssianEriksson/autonomous-twizy/issues</url>
+  <url type="repository">https://github.com/OssianEriksson/autonomous-twizy.git</url>
 
 
   <!-- Author tags are optional, multiple are allowed, one per tag -->
   <!-- Authors do not have to be maintainers, but could be -->
   <!-- Example: -->
   <!-- <author email="jane.doe@example.com">Jane Doe</author> -->
+  <author email="ossiane@student.chalmers.se">Ossian Eriksson</author>
+  <author email="ekalbin@sstudent.chalmers.se">Albin Ekelund Karlsson</author>
+  <author email="enliden96@hotmail.com">Arvid Enliden</author>
+  <author email="holvold@student.chalmers.se">Emil Hölvold</author>
 
 
   <!-- The *depend tags are used to specify dependencies -->
@@ -56,7 +63,6 @@
   <depend>move_base</depend>
   <depend>teb_local_planner</depend>
   <depend>global_planner</depend>
-  <depend>amcl</depend>
   <depend>realsense2_camera</depend>
   <depend>depth_image_proc</depend>
   <depend>robot_state_publisher</depend>
