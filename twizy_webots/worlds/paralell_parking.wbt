@@ -1,0 +1,60 @@
+#VRML_SIM R2021a utf8
+WorldInfo {
+  coordinateSystem "NUE"
+}
+Viewpoint {
+  orientation -0.7662749273063677 0.589724806122551 0.2550438958793973 0.644866262044058
+  position 15.343124286298803 10.028628861127311 40.74237327440707
+}
+TexturedBackground {
+}
+TexturedBackgroundLight {
+}
+Floor {
+  size 100 100
+  appearance Grass {
+  }
+}
+CitroenCZeroSimple {
+  translation -2.53 0.4 -5.71
+  name "vehicle(1)"
+}
+ToyotaPriusSimple {
+  translation -2.57 0.4 0
+}
+StraightRoadSegment {
+  translation 0 0.01 -50
+  length 100
+}
+Twizy {
+  translation 1.21 -6.76013e-15 -14.92
+}
+PicketFence {
+  translation -4.56993 0 27.82
+  rotation 0 1 0 1.5708
+  numberOfSegments 30
+}
+PicketFence {
+  translation 4.55007 0 27.82
+  rotation 0 1 0 1.5708
+  name "picket fence(1)"
+  numberOfSegments 30
+}
+RangeRoverSportSVRSimple {
+  translation -2.38 0.4 11.44
+  name "vehicle(2)"
+}
+BigSassafras {
+  translation -5.48 0 7.12
+  enableBoundingObject FALSE
+}
+BigSassafras {
+  translation -5.48 -0.25 -3.2
+  name "sassafras tree(1)"
+  enableBoundingObject FALSE
+}
+BigSassafras {
+  translation -5.48 -0.75 15.99
+  name "sassafras tree(2)"
+  enableBoundingObject FALSE
+}

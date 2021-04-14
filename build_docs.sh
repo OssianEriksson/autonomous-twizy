@@ -79,7 +79,7 @@ for pkg in ../src/*; do
 
 	<p>
 	<ul>
-	<li><a href='https://github.com/OssianEriksson/autonomous-twizy/tree/master/$name/README.md'>ROS API</a> (view on Github)</li>
+	<li><a href='https://github.com/OssianEriksson/autonomous-twizy/tree/master/$name#readme'>ROS API</a> (view on Github)</li>
 	$code_api
 	$msg_srv_api
 	</ul>
