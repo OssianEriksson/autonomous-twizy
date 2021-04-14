@@ -7,7 +7,7 @@ from std_msgs.msg import String, Bool
 from sensor_msgs.msg import Image
 from cv_bridge import CvBridge, CvBridgeError
 from yolo_detection.msg import BoundingBoxes,BoundingBox
-
+from math import floor, ceil
 
 #Use cv_bridge() to convert the ROS image to OpenCV format
 bridge = CvBridge()
@@ -33,10 +33,16 @@ def main():
             for box in boxes.bounding_boxes:  
                 avreage = 0
                 if box.ymax > -1 : 
-                    for i in range(box.xmin, box.xmax): 
-                        for j in range(box.ymin, box.ymax): 
-                            avreage += cv_image[j][i]
-                    avreage = avreage / ((box.xmax - box.xmin) * (box.ymax - box.ymin))    
+                    quarterY = (box.ymax - box.ymin)/4
+                    quarterX = (box.xmax - box.xmin)/4
+                    
+                    avreage = cv_image[int(floor(box.ymin + quarterY)-1):int (ceil(box.ymax - quarterY))][ int(floor(box.xmin + quarterX) - 1): int (ceil(box.xmax - quarterX))].mean()
+                    
+                    # for i in range(box.xmin, box.xmax): 
+                    #     for j in range(box.ymin, box.ymax): 
+                    #         avreage += cv_image[j][i]
+                    #avreage = avreage / ((box.xmax - box.xmin) * (box.ymax - box.ymin))    
+                    
                 
                     if   ((box.Class == "person" or box.Class == "dog" or 
                             box.Class == "cat" or box.Class == "horse") and avreage <= 3000): 
@@ -59,7 +65,7 @@ def main():
     #   then aligne the messages so you get the rigth boxes to the rigth image.
 
     aligned_camera = message_filters.Subscriber('/camera/aligned_depth_to_color/image_raw', Image, buff_size=10)
-    boundingboxes  = message_filters.Subscriber('/boxes', BoundingBoxes, buff_size=10 )
+    boundingboxes  = message_filters.Subscriber('/boxes', BoundingBoxes, buff_size=10)
     ts = message_filters.TimeSynchronizer([aligned_camera, boundingboxes], 10)
     ts.registerCallback(convert_image)
     try:

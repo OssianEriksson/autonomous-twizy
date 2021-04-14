@@ -68,17 +68,18 @@ def main():
                 ymax = (box[1] + box[3]/2) * height 
                 if ymax >= height : ymax = height - 1 
 
-                #creates an bounding box and adds it to the message. 
-                msg_boxes = BoundingBox( box[5],int (xmin),int (ymin),int (xmax),int (ymax) ,int (box[4]), yolo.config.names[box[4]])
-                msg.bounding_boxes.append(msg_boxes)
-           
-            # add message header from the image and and one from yolo. 
-            msg.image_header = ros_image.header
-            msg.header.stamp = ros_image.header.stamp
-            msg.header.frame_id = 'yolo'
-            
-            #publish messages
-            box_pub.publish(msg) 
+                if(not (ymax <= -1)):
+                    #creates an bounding box and adds it to the message. 
+                    msg_boxes = BoundingBox( box[5],int (xmin),int (ymin),int (xmax),int (ymax) ,int (box[4]), yolo.config.names[box[4]])
+                    msg.bounding_boxes.append(msg_boxes)
+
+            if (len(msg.bounding_boxes) > 0):
+                # add message header from the image and and one from yolo. 
+                msg.image_header = ros_image.header
+                msg.header.stamp = ros_image.header.stamp
+                msg.header.frame_id = 'yolo'
+                #publish messages
+                box_pub.publish(msg) 
             image_pub.publish(ros_image_boxes)
         
         # error handling for CV

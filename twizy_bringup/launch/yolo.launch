@@ -7,7 +7,7 @@
     </node>
 
     <node pkg="yolo_detection" type="bounding_box_calc" name="rear_bounding_box_calc" required="true">
-        <remap from="/camera/color/image_raw" to="/camera/front/color/image_raw" />
+        <remap from="/camera/color/image_raw" to="/camera/rear/color/image_raw" />
         <remap from="/image_with_boxes" to="/rear_image_with_boxes" />
         <remap from="boxes" to="rear_boxes" />
     </node>
