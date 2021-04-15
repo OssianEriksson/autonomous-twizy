@@ -149,7 +149,7 @@ class TestTwizyCanControl(unittest.TestCase):
 
             self.assertEqual(angle_frame.id, 150)
             self.assertTrue(angle_frame.data[1] ==
-                            (0 if a.drive.steering_angle < 0 else 255)
+                            (0 if a.drive.steering_angle > 0 else 255)
                             or angle_frame.data[0] == 0)
             self.assertEqual(angle_frame.dlc, 8)
             self.assertEqual(len(angle_frame.data), 8)
@@ -157,7 +157,7 @@ class TestTwizyCanControl(unittest.TestCase):
 
             self.assertEqual(speed_frame.id, 154)
             self.assertTrue(speed_frame.data[1] ==
-                            (0 if a.drive.speed < 0 else 255)
+                            (0 if a.drive.speed > 0 else 255)
                             or speed_frame.data[0] == 0)
             self.assertEqual(speed_frame.dlc, 8)
             self.assertEqual(len(speed_frame.data), 8)
