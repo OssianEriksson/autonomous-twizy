@@ -200,11 +200,15 @@ def realsense(fr):
                 'rotation': f'{1.0 / sqrt(3)} {-1.0 / sqrt(3)} {-1.0 / sqrt(3)} {2.0 * pi / 3}'
             }, True),
             Node('Solid', {
-                'name': f'"camera/{fr}_link"',
+                'name': f'"camera/{fr}_link_webots"',
 
                 # ROS Image has z forward x right -y up
-                # 'rotation': f'{-1.0 / sqrt(3)} {1.0 / sqrt(3)} {-1.0 / sqrt(3)} {2.0 * pi / 3}'
+                'rotation': f'{-1.0 / sqrt(3)} {1.0 / sqrt(3)} {-1.0 / sqrt(3)} {2.0 * pi / 3}'
             }),
+            Node('Solid', {
+                # Base link for real RealSense camera
+                'name': f'"camera/{fr}_link"'
+            })
         ],
         'translation': vector(model[f'{fr}_realsense']['position']),
         'rotation': rotation(model[f'{fr}_realsense']['rotation'])
