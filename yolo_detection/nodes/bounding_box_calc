@@ -15,10 +15,10 @@ from yolo_detection.msg import BoundingBoxes,BoundingBox
 #############################################################################################
 
 yolo = YOLOv4()
-yolo.config.parse_names("/home/ekalbin/autonomous-twizy/src/yolo_detection/coco.names")
-yolo.config.parse_cfg("/home/ekalbin/autonomous-twizy/src/yolo_detection/config/yolov4-tiny.cfg")
+yolo.config.parse_names("/home/twizy/autonomous-twizy/src/yolo_detection/coco.names")
+yolo.config.parse_cfg("/home/twizy/autonomous-twizy/src/yolo_detection/config/yolov4-tiny.cfg")
 yolo.make_model()
-yolo.load_weights("/home/ekalbin/autonomous-twizy/src/yolo_detection/weights/yolov4-tiny.weights", weights_type="yolo")
+yolo.load_weights("/home/twizy/autonomous-twizy/src/yolo_detection/weights/yolov4-tiny.weights", weights_type="yolo")
 
 bridge = CvBridge()    
 

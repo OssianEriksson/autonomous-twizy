@@ -1,9 +1,10 @@
 <?xml version="1.0"?>
 <launch>
-    <include file="$(find twizy_bringup)/launch/twist_to_ackermann.launch" />
+    
     <include file="$(find twizy_bringup)/launch/transforms.launch" />
     <include file="$(find twizy_bringup)/launch/piksi.launch" />
     <include file="$(find twizy_bringup)/launch/realsense_cameras.launch" />
-    <include file="$(find twizy_bringup)/launch/wheel_encoders.launch" />->
+    <include file="$(find twizy_bringup)/launch/wheel_encoders.launch" />
     <include file="$(find twizy_bringup)/launch/nav_stack.launch" />
+    <include file="$(find twizy_bringup)/launch/can_control.launch" />
 </launch>
