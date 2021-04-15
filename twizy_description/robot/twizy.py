@@ -203,7 +203,7 @@ def realsense(fr):
                 'name': f'"camera/{fr}_link"',
 
                 # ROS Image has z forward x right -y up
-                'rotation': f'{-1.0 / sqrt(3)} {1.0 / sqrt(3)} {-1.0 / sqrt(3)} {2.0 * pi / 3}'
+                # 'rotation': f'{-1.0 / sqrt(3)} {1.0 / sqrt(3)} {-1.0 / sqrt(3)} {2.0 * pi / 3}'
             }),
         ],
         'translation': vector(model[f'{fr}_realsense']['position']),
