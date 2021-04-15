@@ -24,14 +24,16 @@ class Encoder:
             if self.last_msg is not None:
                 enc.header.stamp = msg.header.stamp
 
-                dt = self.last_msg.header.stamp.to_sec() - \
-                    msg.header.stamp.to_sec()
-                enc.speed = abs(wheel_radius * (
-                    msg.data - self.last_msg.data) / dt)
-                enc.covariance = 2 * position_covariance / dt**2
+                dt = msg.header.stamp.to_sec() - \
+                    self.last_msg.header.stamp.to_sec()
 
-                if not isnan(enc.speed):
-                    pub.publish(enc)
+                if dt > 0:
+                    enc.speed = abs(wheel_radius * (
+                        msg.data - self.last_msg.data) / dt)
+                    enc.covariance = 2 * position_covariance / dt**2
+
+                    if not isnan(enc.speed):
+                        pub.publish(enc)
 
             self.last_msg = msg
 
