@@ -3,7 +3,7 @@
     <node pkg="twizy_webots" type="color_depth_sensor" name="front_realsense" required="true" output="screen">
         <param name="color_device" value="front_realsense_color_image_raw" />
         <param name="depth_device" value="front_realsense_aligned_depth_to_color" />
-        <param name="frame_id" value="front_realsense" />
+        <param name="frame_id" value="camera/front_link" />
         <remap from="image_raw" to="/camera/front/color/image_raw" />
         <remap from="camera_info" to="/camera/front/color/camera_info" />
         <remap from="depth/image_raw" to="/camera/front/aligned_depth_to_color/image_raw" />
@@ -12,7 +12,7 @@
     <node pkg="twizy_webots" type="color_depth_sensor" name="rear_realsense" required="true" output="screen">
         <param name="color_device" value="rear_realsense_color_image_raw" />
         <param name="depth_device" value="rear_realsense_aligned_depth_to_color" />
-        <param name="frame_id" value="rear_realsense" />
+        <param name="frame_id" value="camera/rear_link" />
         <remap from="image_raw" to="/camera/rear/color/image_raw" />
         <remap from="camera_info" to="/camera/rear/color/camera_info" />
         <remap from="depth/image_raw" to="/camera/rear/aligned_depth_to_color/image_raw" />
