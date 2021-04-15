@@ -50,7 +50,7 @@ sudo make install
 # Install python packages not indexed by rosdep
 sudo apt-get install -y python3-pip
 # sbp at the time of writing requires a newer version of numpy than provided by rosdep, so override with a manuall install of numpy with pip3
-pip3 install -U canlib sbp==3.4.6 numpy==1.20.2
+pip3 install -U canlib sbp==3.4.6 numpy==1.20.2 yolov4
 
 if [[ -z "${GITHUB_ACTION}" ]] && [[ -z "${TWIZY_ONBOARD}" ]]; then # If running on local computer which is not the Twizy's on-board computer
 	# Install webots according to https://www.cyberbotics.com/doc/guide/installation-procedure#installing-the-debian-package-with-the-advanced-packaging-tool-apt
