@@ -5,6 +5,7 @@
         <arg name="serial_no" value="817412071115" />
         <arg name="align_depth" value="true" />
         <arg name="enable_sync" value="true" />
+        <arg name="enable_pointcloud" value="true" />
     </include>
 
     <!-- <include file="$(find realsense2_camera)/launch/rs_camera.launch" >
@@ -12,5 +13,6 @@
         <arg name="serial_no" value="938422076468" />
         <arg name="align_depth" value="true" />
         <arg name="enable_sync" value="true" />
+        <arg name="enable_pointcloud" value="true" />
     </include> -->
 </launch>
