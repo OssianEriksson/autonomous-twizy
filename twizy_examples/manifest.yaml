@@ -4,8 +4,8 @@ brief: ''
 bugtracker: https://github.com/OssianEriksson/autonomous-twizy/issues
 depends:
 - twizy_bringup
-- catkin
 - twizy_webots
+- catkin
 description: Example launch files for the Twizy
 license: Apache 2.0
 maintainers: Ossian Eriksson <ossiane@student.chalmers.se>
