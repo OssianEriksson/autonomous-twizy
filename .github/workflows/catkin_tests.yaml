@@ -28,6 +28,9 @@ jobs:
 
       # We are not running on the Twizy's on-board computer
       TWIZY_ONBOARD: 0
+
+      ROS_HOSTNAME: localhost
+      ROS_MASTER_URI: http://localhost:11311
       
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:

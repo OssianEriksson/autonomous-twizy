@@ -46,11 +46,11 @@ def main():
         )
 
         # Prepare and write reference steering angle data
-        angle_data = [byte_range(angle_scale), 0 if angle < 0 else 255]
+        angle_data = [byte_range(angle_scale), 0 if angle > 0 else 255]
         channel.writeWait_raw(id_=150, msg=angle_data, dlc=8, timeout=tout)
 
         # Prepare and write reference speed
-        speed_data = [byte_range(speed_scale), 0 if speed < 0 else 255]
+        speed_data = [byte_range(speed_scale), 0 if speed > 0 else 255]
         channel.writeWait_raw(id_=154, msg=speed_data, dlc=8, timeout=tout)
 
     # Subscribe to topic where reference control values will be published
