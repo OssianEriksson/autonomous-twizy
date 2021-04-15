@@ -49,9 +49,11 @@ sudo make install
 
 # Install python packages not indexed by rosdep
 sudo apt-get install -y python3-pip
-# sbp at the time of writing requires a newer version of numpy than provided by rosdep, so override with a manuall install of numpy with pip3
 pip3 install -U canlib
 pip3 install -U opencv-python tensorflow yolov4
+# sbp at the time of writing requires a newer version of numpy than provided by rosdep, so override with a manuall install of numpy with pip3
+# It is also important to install numpy after tensorflow, as tensorflow otherwise installs another version of numpy
+# virtualenv would be great...
 pip3 install -U sbp==3.4.6 numpy==1.20.2
 
 if [[ -z "${GITHUB_ACTION}" ]] && [[ -z "${TWIZY_ONBOARD}" ]]; then # If running on local computer which is not the Twizy's on-board computer
