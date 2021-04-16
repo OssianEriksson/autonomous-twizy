@@ -228,6 +228,27 @@ def twizy():
                     }),
                     *piksi('left'),
                     *piksi('right'),
+                    Node('Transform', {
+                        'children': [
+                            Node('Lidar', {
+                                'name': '"lidar_vlp16_webots"',
+                                'horizontalResolution': model['lidar_vlp16']['horizontal_resolution'],
+                                'fieldOfView': 2*pi,
+                                'verticalFieldOfView':  model['lidar_vlp16']['vertical_fov'],
+                                'numberOfLayers': model['lidar_vlp16']['number_of_layers'],
+                                'maxRange': model['lidar_vlp16']['max_range'],
+                                'type': '"rotating"',
+                                'defaultFrequency': model['lidar_vlp16']['frequency'],
+                                'rotation': f'1.0 0.0 0.0 {pi / 2}',
+                            }),
+                            Node('Solid', {
+                                'name': '"lidar_vlp16"',
+                                'rotation': '0.0 0.0 1.0 4.36'
+                            })
+                        ],
+                        'translation': vector(model['lidar_vlp16']['position']),
+                        'rotation': rotation(model['lidar_vlp16']['rotation']),
+                    }),
                     realsense('front'),
                     realsense('rear'),
                 ],

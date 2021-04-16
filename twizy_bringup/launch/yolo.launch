@@ -23,6 +23,4 @@
         <remap from="object_detection" to="/object_detection_rear" />
         <remap from="/boxes" to="/rear_boxes" />
     </node>
-
-
 </launch>

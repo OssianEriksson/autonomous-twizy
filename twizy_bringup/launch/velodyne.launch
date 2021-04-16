@@ -1,0 +1,7 @@
+<?xml version="1.0"?>
+<launch>
+    <remap from="/velodyne_points" to="/lidar/points" />
+    <include file="$(find velodyne_pointcloud)/launch/VLP16_points.launch">
+        <arg name="frame_id" value="lidar_vlp16" />
+    </include>
+</launch>
