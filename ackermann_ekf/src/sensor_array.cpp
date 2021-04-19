@@ -163,6 +163,9 @@ void SensorArray::periodic_update(const ros::TimerEvent &evt) {
     tf_broadcaster_->sendTransform(transformStamped);
 
     nav_msgs::Odometry odometry;
+    odometry.header.stamp = evt.current_real;
+    odometry.header.frame_id = world_frame_;
+    odometry.child_frame_id = base_link_;
 
     odometry.pose.pose.position.x = filter->x(State::X);
     odometry.pose.pose.position.y = filter->x(State::Y);
