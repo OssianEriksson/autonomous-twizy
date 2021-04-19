@@ -4,9 +4,11 @@ frequency: 24
 base_link: 'base_link'
 
 x_max: [.inf, .inf, .inf, 2.0, 2.0, 0.0, 0.0, .inf, 0.0, 0.0, 2.0]
+# x_max: [.inf, .inf, .inf, 2.0, 2.0, 1.0, 1.0, .inf, 1.0, 1.0, 2.0]
 
 control_topic: /ackermann_cmd
 wheelbase: !eval physical['wheelbase']
+differential_position: True
 
 sensors:
 - topic: /wheel/left/encoder
