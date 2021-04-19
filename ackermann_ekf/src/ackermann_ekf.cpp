@@ -35,17 +35,17 @@ AckermannEkf::AckermannEkf(const Eigen::VectorXd x_min,
     // Set the process noise covariance to a constant matrix
     // \todo Read the process noise covariance matrix from a parameter
     Q.setZero();
-    Q(State::X, State::X) = 1e-4;
-    Q(State::Y, State::Y) = 1e-4;
-    Q(State::Z, State::Z) = 1e-4;
-    Q(State::speed, State::speed) = 1e-2;
-    Q(State::accel, State::accel) = 1e-0;
-    Q(State::Roll, State::Roll) = 1e-3;
-    Q(State::Pitch, State::Pitch) = 1e-3;
-    Q(State::Yaw, State::Yaw) = 1e-2;
-    Q(State::droll_dx, State::droll_dx) = 1e-1;
-    Q(State::dpitch_dx, State::dpitch_dx) = 1e-1;
-    Q(State::dyaw_dx, State::dyaw_dx) = 1e-0;
+    Q(State::X, State::X) = 1e-3;
+    Q(State::Y, State::Y) = 1e-3;
+    Q(State::Z, State::Z) = 1e-3;
+    Q(State::speed, State::speed) = 1e-1;
+    Q(State::accel, State::accel) = 1e+1;
+    Q(State::Roll, State::Roll) = 1e-6;
+    Q(State::Pitch, State::Pitch) = 1e-6;
+    Q(State::Yaw, State::Yaw) = 1e-3;
+    Q(State::droll_dx, State::droll_dx) = 1e-6;
+    Q(State::dpitch_dx, State::dpitch_dx) = 1e-6;
+    Q(State::dyaw_dx, State::dyaw_dx) = 1e+0;
 }
 
 void AckermannEkf::process_measurement(const Measurement &measurement) {
@@ -76,14 +76,10 @@ void AckermannEkf::bring_time_forward_to(double time) {
 void AckermannEkf::predict(double dt) {
     if (control_signal_enabled_) {
         // Accelration is linear gain on velocity error
-        double acceleration = boost::algorithm::clamp(
+        x(State::accel) = boost::algorithm::clamp(
             (control_signal_.u(ControlSignal::speed) - x(State::speed)) *
                 control_acceleration_gain_,
             -max_control_acceleration_, max_control_acceleration_);
-
-        double jerk_dt = acceleration - x(State::accel);
-        x(State::accel) = acceleration;
-        x(State::speed) += jerk_dt * dt / 2;
 
         double steering_angle = atan(wheelbase_ * x(State::dyaw_dx));
         // Add (steering angle speed) * dt to steering angle, where steering

@@ -50,10 +50,15 @@ void WheelencoderSensor::callback(
     // Depending on the sign of forward speed according to filter state, make
     // the measurement reflect that sign since WheelEncoder messages otherwise
     // do not support negative velocities
-    measurement_.z(Measurement::dx_dt) =
-        sensor_array_.filter->x(State::speed) > 0 ? msg->speed : -msg->speed;
-    // This covariance is faked since in reality it also depends on filter state
-    // speed covaraiance (and will in fact not be Gaussian at all...)
+    double speed = sensor_array_.filter->x(State::speed);
+    double dpitch_dx = sensor_array_.filter->x(State::dpitch_dx);
+    double dyaw_dx = sensor_array_.filter->x(State::dyaw_dx);
+    double y = measurement_.sensor_position(1);
+    double z = measurement_.sensor_position(2);
+    double h_speed = speed * (dpitch_dx * z - dyaw_dx * y + 1.0);
+    measurement_.z(Measurement::dx_dt) = h_speed > 0 ? msg->speed : -msg->speed;
+    // This covariance is faked since in reality it also depends e.g. on filter
+    // state speed covaraiance (and will in fact not be Gaussian at all...)
     measurement_.R(Measurement::dx_dt, Measurement::dx_dt) = msg->covariance;
 
     sensor_array_.process_measurement(measurement_);

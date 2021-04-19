@@ -26,6 +26,10 @@ class _Merge:
     def constructor(loader, node):
         return _Merge()
 
+    @staticmethod
+    def representer(dumper, data):
+        return dumper.represent_scalar('!merge', '')
+
 
 class _Variable:
     def __init__(self, name):
@@ -59,18 +63,13 @@ yaml.add_constructor('!eval', _Eval.constructor, yaml.SafeLoader)
 yaml.add_constructor('!include', _Include.constructor, yaml.SafeLoader)
 yaml.add_constructor('!variable', _Variable.constructor, yaml.SafeLoader)
 
+yaml.add_representer(_Merge, _Merge.representer, yaml.SafeDumper)
+
 
 def parse(path):
     text = Path(path).read_text()
-    text = re.sub(r'^( *)<< *: *!include ',
-                  r'\1!merge : !include ', text, flags=re.M)
+    text = re.sub(r'^( *)<< *:', r'\1!merge :', text, flags=re.M)
     parsed = yaml.load(text, yaml.SafeLoader)
-
-    def merge(root, k, v):
-        if isinstance(k, _Merge):
-            del root[k]
-            _merge(v, root)
-    _traverse_dict(parsed, merge)
 
     def extract_variables(root, k, v):
         if isinstance(k, _Variable):
@@ -90,6 +89,10 @@ def parse(path):
         elif isinstance(k, _Variable):
             del root[k]
     _traverse_dict(parsed, eval_expressions)
+
+    text = yaml.safe_dump(parsed)
+    text = re.sub(r'^( *).*?!merge.*?(\n?.*?):', r'\1<<:\2 ', text, flags=re.M)
+    parsed = yaml.safe_load(text)
 
     return parsed
 
