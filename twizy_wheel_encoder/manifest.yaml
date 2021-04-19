@@ -3,12 +3,12 @@ authors: Ossian Eriksson <ossiane@student.chalmers.se>
 brief: ''
 bugtracker: https://github.com/OssianEriksson/autonomous-twizy/issues
 depends:
-- catkin
 - rosserial_arduino
-- rospy
+- message_runtime
+- catkin
 - rosserial_python
 - message_generation
-- message_runtime
+- rospy
 description: Publishes measurements from Twizy's wheel encoders
 license: Apache 2.0
 maintainers: Ossian Eriksson <ossiane@student.chalmers.se>

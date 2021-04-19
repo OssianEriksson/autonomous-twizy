@@ -3,20 +3,20 @@ authors: Ossian Eriksson <ossiane@student.chalmers.se>
 brief: ''
 bugtracker: https://github.com/OssianEriksson/autonomous-twizy/issues
 depends:
-- sensor_msgs
-- catkin
-- geometry_msgs
-- ackermann_msgs
-- webots_ros
+- rospy
 - nav_msgs
+- message_filters
+- twizy_description
+- ackermann_msgs
+- catkin
 - twizy_wheel_encoder
 - std_msgs
+- geometry_msgs
+- webots_ros
 - python-utm-pip
-- twizy_description
-- message_filters
-- rostopic
+- sensor_msgs
 - roslaunch
-- rospy
+- rostopic
 description: Simulation of Twizy in webots
 license: Apache 2.0
 maintainers: Ossian Eriksson <ossiane@student.chalmers.se>
