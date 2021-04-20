@@ -18,6 +18,7 @@ find_package(catkin REQUIRED COMPONENTS
   robot_state_publisher
   joint_state_publisher
   twizy_control
+  velodyne_pointcloud
 )
 
 ## System dependencies are found with CMake's conventions

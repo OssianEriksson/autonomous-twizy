@@ -24,7 +24,7 @@ Panels:
     Experimental: false
     Name: Time
     SyncMode: 0
-    SyncSource: ""
+    SyncSource: LiDAR
 Preferences:
   PromptSaveOnExit: true
 Toolbars:
@@ -55,15 +55,27 @@ Visualization Manager:
           Show Axes: false
           Show Trail: false
           Value: true
+        camera/front_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        camera/front_link_webots:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        camera/rear_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        camera/rear_link_webots:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
         front_left_wheel:
           Alpha: 1
           Show Axes: false
           Show Trail: false
           Value: true
-        front_realsense:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
         front_right_wheel:
           Alpha: 1
           Show Axes: false
@@ -77,15 +89,19 @@ Visualization Manager:
           Alpha: 1
           Show Axes: false
           Show Trail: false
+        lidar_vlp16:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        lidar_vlp16_webots:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
         rear_left_wheel:
           Alpha: 1
           Show Axes: false
           Show Trail: false
           Value: true
-        rear_realsense:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
         rear_right_wheel:
           Alpha: 1
           Show Axes: false
@@ -157,6 +173,34 @@ Visualization Manager:
       Size (m): 0.05000000074505806
       Style: Flat Squares
       Topic: /camera/rear/depth/color/points
+      Unreliable: false
+      Use Fixed Frame: true
+      Use rainbow: true
+      Value: false
+    - Alpha: 1
+      Autocompute Intensity Bounds: true
+      Autocompute Value Bounds:
+        Max Value: 10
+        Min Value: -10
+        Value: true
+      Axis: Z
+      Channel Name: intensity
+      Class: rviz/PointCloud2
+      Color: 255; 255; 255
+      Color Transformer: Intensity
+      Decay Time: 0
+      Enabled: false
+      Invert Rainbow: false
+      Max Color: 255; 255; 255
+      Min Color: 0; 0; 0
+      Name: LiDAR
+      Position Transformer: XYZ
+      Queue Size: 10
+      Selectable: true
+      Size (Pixels): 3
+      Size (m): 0.009999999776482582
+      Style: Flat Squares
+      Topic: /lidar/points
       Unreliable: false
       Use Fixed Frame: true
       Use rainbow: true
@@ -267,7 +311,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 39.632972717285156
+      Distance: 12.54297924041748
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
@@ -283,9 +327,9 @@ Visualization Manager:
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.6564989686012268
+      Pitch: 1.5297963619232178
       Target Frame: <Fixed Frame>
-      Yaw: 2.142744779586792
+      Yaw: 0.4177429974079132
     Saved: ~
 Window Geometry:
   Displays:
@@ -303,5 +347,5 @@ Window Geometry:
   Views:
     collapsed: false
   Width: 970
-  X: 151
-  Y: 27
+  X: 634
+  Y: 176
