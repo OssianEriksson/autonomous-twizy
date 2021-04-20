@@ -8,6 +8,7 @@
     <node pkg="twizy_webots" type="gnss" name="left_piksi_gnss" required="true">
         <rosparam param="covariance" subst_value="true">$(arg gnss_covariance)</rosparam>
         <param name="covariance_type" value="$(arg gnss_covariance_type)" />
+        <param name="ups" value="15" />
         <param name="device" value="left_piksi_gnss" />
         <remap from="fix" to="/piksi/left/gnss/fix" />
     </node>
@@ -15,6 +16,7 @@
     <node pkg="twizy_webots" type="gnss" name="right_piksi_gnss" required="true">
         <rosparam param="covariance" subst_value="true">$(arg gnss_covariance)</rosparam>
         <param name="covariance_type" value="$(arg gnss_covariance_type)" />
+        <param name="ups" value="15" />
         <param name="device" value="right_piksi_gnss" />
         <remap from="fix" to="/piksi/right/gnss/fix" />
     </node>
