@@ -57,7 +57,7 @@ front_realsense:
     x: 0.0
     y: 1.0
     z: 0.0
-    angle: 0.1  # Camera originally looking at x in chassis frame
+    angle: 0.0  # Camera originally looking at x in chassis frame
   color:
     fov: 1.117010721276371  # Horizontal FOV (64°)
     width: 640
