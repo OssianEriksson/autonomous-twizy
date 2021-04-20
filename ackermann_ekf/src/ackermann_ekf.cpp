@@ -35,9 +35,9 @@ AckermannEkf::AckermannEkf(const Eigen::VectorXd x_min,
     // Set the process noise covariance to a constant matrix
     // \todo Read the process noise covariance matrix from a parameter
     Q.setZero();
-    Q(State::X, State::X) = 1e-3;
-    Q(State::Y, State::Y) = 1e-3;
-    Q(State::Z, State::Z) = 1e-3;
+    Q(State::X, State::X) = 1e-4;
+    Q(State::Y, State::Y) = 1e-4;
+    Q(State::Z, State::Z) = 1e-6;
     Q(State::speed, State::speed) = 1e-1;
     Q(State::accel, State::accel) = 1e+1;
     Q(State::Roll, State::Roll) = 1e-6;
