@@ -4,8 +4,8 @@ brief: ''
 bugtracker: https://github.com/OssianEriksson/autonomous-twizy/issues
 depends:
 - catkin
-- rospy
 - ackermann_msgs
+- rospy
 description: Remote control of Ackermann vehicle
 license: Apache 2.0
 maintainers: Ossian Eriksson <ossiane@student.chalmers.se>
