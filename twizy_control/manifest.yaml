@@ -5,11 +5,11 @@ bugtracker: https://github.com/OssianEriksson/autonomous-twizy/issues
 depends:
 - rospy
 - ackermann_msgs
-- rostest
+- roslaunch
 - python3-tk
 - catkin
 - geometry_msgs
-- roslaunch
+- rostest
 description: Nodes for processing control signals
 license: Apache 2.0
 maintainers: Albin Ekelund Karlsson <ekalbin@student.chalmers.se>, Ossian Eriksson
