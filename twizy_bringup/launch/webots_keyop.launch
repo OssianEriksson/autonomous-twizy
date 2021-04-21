@@ -6,5 +6,5 @@
         <arg name="world" value="$(arg world)" />
     </include>
 
-    <include file="$(find twizy_bringup)/launch/keyop.launch" />
+    <include file="$(find twizy_bringup)/launch/include/keyop.launch" />
 </launch>

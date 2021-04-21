@@ -31,10 +31,10 @@ For more detailed information see the [wiki](https://github.com/OssianEriksson/a
    
    Keyboard control demo in webots:
    ```sh
-   roslaunch twizy_examples webots_keyop.launch
+   roslaunch twizy_bringup webots_keyop.launch
    ```
    
-   For more example launch files please see [twizy_examples](twizy_examples).
+   For more example launch files please see [twizy_bringup](twizy_bringup).
 
 # API Documentation
 
@@ -47,7 +47,7 @@ View pre-built code API on [Github pages](https://ossianeriksson.github.io/auton
 
 ## ROS API
 
-See READMEs in root directory of the corresponding ROS package
+See READMEs in root directory of the corresponding ROS package.
 
 # License
 

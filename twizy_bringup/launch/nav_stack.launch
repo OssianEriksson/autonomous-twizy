@@ -1,19 +1,11 @@
 <?xml version="1.0"?>
 <launch>
-	<node pkg="move_base" type="move_base" respawn="false" name="move_base" output="screen">
-		<rosparam ns="global_costmap" subst_value="true">$(eval exec('global load; from twizy_bringup.twizyparam import load') or load(f'{find("twizy_bringup")}/params/global_costmap_params.yaml'))</rosparam>
-		<rosparam ns="local_costmap" subst_value="true">$(eval exec('global load; from twizy_bringup.twizyparam import load') or load(f'{find("twizy_bringup")}/params/local_costmap_params.yaml'))</rosparam>
-		<rosparam ns="GlobalPlanner" subst_value="true">$(eval exec('global load; from twizy_bringup.twizyparam import load') or load(f'{find("twizy_bringup")}/params/global_planner_params.yaml'))</rosparam>
-		<rosparam ns="TebLocalPlannerROS" subst_value="true">$(eval exec('global load; from twizy_bringup.twizyparam import load') or load(f'{find("twizy_bringup")}/params/teb_local_planner_params.yaml'))</rosparam>
-
-		<param name="base_global_planner" value="global_planner/GlobalPlanner" />
-		<param name="planner_frequency" value="1.0" />
-		<param name="planner_patience" value="5.0" />
-
-		<param name="base_local_planner" value="teb_local_planner/TebLocalPlannerROS" />
-		<param name="controller_frequency" value="5.0" />
-		<param name="controller_patience" value="15.0" />
-
-		<param name="clearing_rotation_allowed" value="false" /> <!-- Our carlike robot is not able to rotate in place -->
-	</node>
+    <include file="$(find twizy_bringup)/launch/include/transforms.launch" />
+    <include file="$(find twizy_bringup)/launch/include/piksi.launch" />
+    <include file="$(find twizy_bringup)/launch/include/realsense.launch" />
+    <include file="$(find twizy_bringup)/launch/include/wheel_encoders.launch" />
+    <include file="$(find twizy_bringup)/launch/include/nav_stack.launch" />
+    <include file="$(find twizy_bringup)/launch/include/can_control.launch" />
+    <include file="$(find twizy_bringup)/launch/include/velodyne.launch" />
+    <include file="$(find twizy_bringup)/launch/yolo.launch" />
 </launch>

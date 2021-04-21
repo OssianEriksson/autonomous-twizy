@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<launch>
+    <arg name="world" default="flat.wbt" doc="Path to the world to load" />
+
+    <include file="$(find twizy_webots)/launch/webots.launch">
+        <arg name="world" value="$(arg world)" />
+    </include>
+
+    <include file="$(find twizy_bringup)/launch/include/twist_to_ackermann.launch" />
+    <include file="$(find twizy_bringup)/launch/include/transforms.launch" />
+    <include file="$(find twizy_bringup)/launch/include/rviz.launch" />
+    <include file="$(find twizy_bringup)/launch/include/nav_stack.launch" />
+    <include file="$(find twizy_bringup)/launch/yolo.launch" />
+</launch>
