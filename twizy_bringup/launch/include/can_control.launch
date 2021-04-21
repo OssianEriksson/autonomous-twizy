@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <launch>
-    <include file="$(find twizy_bringup)/launch/twist_to_ackermann.launch" />
+    <include file="$(find twizy_bringup)/launch/include/twist_to_ackermann.launch" />
 
     <node pkg="twizy_control" type="twizy_can_control" name="twizy_can_control" required="true">
         <remap from="~max_forward_speed" to="/physical/max_forward_speed" />
