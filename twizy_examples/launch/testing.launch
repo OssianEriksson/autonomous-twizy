@@ -8,4 +8,5 @@
     <include file="$(find twizy_bringup)/launch/nav_stack.launch" />
     <include file="$(find twizy_bringup)/launch/can_control.launch" />
     <include file="$(find twizy_bringup)/launch/velodyne.launch" />
+    <include file="$(find twizy_bringup)/launch/yolo.launch" />
 </launch>
