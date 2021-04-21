@@ -103,6 +103,10 @@ SensorArray::SensorArray(ros::NodeHandle &nh, ros::NodeHandle &nh_private)
         new AckermannEkf(x_min, x_max, wheelbase, control_acceleration_gain,
                          max_control_acceleration, control_angle_speed_gain,
                          max_control_angle_speed));
+    stable_filter = std::unique_ptr<AckermannEkf>(
+        new AckermannEkf(x_min, x_max, wheelbase, control_acceleration_gain,
+                         max_control_acceleration, control_angle_speed_gain,
+                         max_control_angle_speed));
 
     if (nh_private.hasParam("control_topic")) {
         ROS_INFO("Subscribing to control signals on topic %s",
@@ -128,6 +132,7 @@ void SensorArray::control_callback(
     control_signal.time = msg->header.stamp.toSec();
 
     filter->process_control_signal(control_signal);
+    stable_filter->process_control_signal(control_signal);
 }
 
 void SensorArray::periodic_update(const ros::TimerEvent &evt) {
@@ -228,8 +233,24 @@ void SensorArray::process_measurement(Measurement &measurement) {
         // The initial time of the filter is now, when the filtering has been
         // initialized
         filter->time = measurement.time;
+        stable_filter->time = measurement.time;
     }
 
+    if (filter_initialized_) {
+        // Subtract initial position
+        measurement.z(Measurement::X) -= initial_position_(0);
+        measurement.z(Measurement::Y) -= initial_position_(1);
+        measurement.z(Measurement::Z) -= initial_position_(2);
+    } else {
+        // Wait unitil filter_initialized_ before continuing
+        return;
+    }
+
+    filter->process_measurement(measurement);
+    stable_filter->process_measurement(measurement);
+}
+
+void SensorArray::process_unstable_measurement(Measurement &measurement) {
     if (filter_initialized_) {
         // Subtract initial position
         measurement.z(Measurement::X) -= initial_position_(0);
@@ -248,6 +269,7 @@ bool SensorArray::bring_time_forward_to(double time) {
     // initialized and we have no idea what the state should be
     if (filter_initialized_) {
         filter->bring_time_forward_to(time);
+        stable_filter->bring_time_forward_to(time);
         return true;
     }
     return false;
@@ -267,6 +289,7 @@ bool SensorArray::get_transform(geometry_msgs::TransformStamped &transform,
 
 SensorArray::~SensorArray() {
     filter.reset();
+    stable_filter.reset();
 
     tf_buffer_.reset();
     tf_listener_.reset();

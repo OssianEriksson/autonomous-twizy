@@ -39,7 +39,7 @@ void update_parameters() {
     float wheel_radius;
     get_required_param("~cycles_per_revolution", (int *)&cycles_per_revolution);
     get_required_param("~wheel_radius", (float *)&wheel_radius);
-    params.sensitivity = TWO_PI * wheel_radius / cycles_per_revolution;
+    params.sensitivity = 1000.0 * TWO_PI * wheel_radius / cycles_per_revolution;
 
     char *left_frame_id[1] = {params.left.frame_id},
          *right_frame_id[1] = {params.right.frame_id};

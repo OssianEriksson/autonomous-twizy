@@ -135,9 +135,19 @@ class SensorArray {
     boost::ptr_vector<Sensor> sensor_ptrs;
 
     /**
-     * Instance of Ackermann EKF filter
+     * Main instance of Ackermann EKF filter
      */
     std::unique_ptr<AckermannEkf> filter;
+
+    /**
+     * Ackermann EKF filter which is intended to only fuse data from
+     * differentiable sources. The state of this filter can be used to augment
+     * measurement intended to be fused into the main #filter. #stable_filter is
+     * for example used to determine if WheelOdometry speed originates from
+     * forwards or backwards motion. #stable_filter is used for this instead of
+     * the state directly from #filter for stability reasons.
+     */
+    std::unique_ptr<AckermannEkf> stable_filter;
 
     SensorArray(ros::NodeHandle &nh, ros::NodeHandle &nh_private);
 
@@ -156,6 +166,12 @@ class SensorArray {
      * Process a measurement from a sensor and fuse it into the filter state
      */
     void process_measurement(Measurement &measurement);
+
+    /**
+     * Process a measurement which might lead to instability. This measurement
+     * is not fused into the #stable_filter, only the main #filter.
+     */
+    void process_unstable_measurement(Measurement &measurement);
 
     /**
      * Brings the filter state forward to the provided time using the Kalman
