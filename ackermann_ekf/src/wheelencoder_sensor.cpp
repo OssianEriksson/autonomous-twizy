@@ -50,9 +50,9 @@ void WheelencoderSensor::callback(
     // Depending on the sign of forward speed according to filter state, make
     // the measurement reflect that sign since WheelEncoder messages otherwise
     // do not support negative velocities
-    double speed = sensor_array_.filter->x(State::speed);
-    double dpitch_dx = sensor_array_.filter->x(State::dpitch_dx);
-    double dyaw_dx = sensor_array_.filter->x(State::dyaw_dx);
+    double speed = sensor_array_.stable_filter->x(State::speed);
+    double dpitch_dx = sensor_array_.stable_filter->x(State::dpitch_dx);
+    double dyaw_dx = sensor_array_.stable_filter->x(State::dyaw_dx);
     double y = measurement_.sensor_position(1);
     double z = measurement_.sensor_position(2);
     double h_speed = speed * (dpitch_dx * z - dyaw_dx * y + 1.0);
@@ -61,7 +61,10 @@ void WheelencoderSensor::callback(
     // state speed covaraiance (and will in fact not be Gaussian at all...)
     measurement_.R(Measurement::dx_dt, Measurement::dx_dt) = msg->covariance;
 
-    sensor_array_.process_measurement(measurement_);
+    // Since the measurement has been agumented by filter state from the
+    // stable_filter, fusing this measurement into the stable_filter could lead to
+    // instabilty - instead process as unstable measurement
+    sensor_array_.process_unstable_measurement(measurement_);
 }
 
 } // namespace ackermann_ekf
