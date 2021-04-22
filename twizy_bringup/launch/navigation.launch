@@ -5,7 +5,7 @@
     <include file="$(find twizy_bringup)/launch/include/realsense.launch" />
     <include file="$(find twizy_bringup)/launch/include/wheel_encoders.launch" />
     <include file="$(find twizy_bringup)/launch/include/nav_stack.launch" />
-    <!-- <include file="$(find twizy_bringup)/launch/include/can_control.launch" /> -->
+    <include file="$(find twizy_bringup)/launch/include/can_control.launch" />
     <include file="$(find twizy_bringup)/launch/include/velodyne.launch" />
     <include file="$(find twizy_bringup)/launch/include/yolo.launch" />
 </launch>
