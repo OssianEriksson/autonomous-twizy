@@ -9,7 +9,7 @@ left_piksi_gnss:
     x: 0.058
     y: 0.325
     z: 1.41
-  accuracy: 0.03  # Standard deviation
+  accuracy: 0.01  # Standard deviation
 
 
 right_piksi_gnss:
@@ -17,7 +17,7 @@ right_piksi_gnss:
     x: 0.058
     y: -0.345
     z: 1.41
-  accuracy: 0.03  # Standard deviation
+  accuracy: 0.01  # Standard deviation
 
 
 left_piksi_imu:
@@ -30,7 +30,7 @@ left_piksi_imu:
     y: 0.99953344
     z: -0.01475112
     angle: 3.09830016  # Imu forward originally facing towards x in chassis frame
-  accelerometer_accuracy: 0.2  # Standard deviation (m/s^2)
+  accelerometer_accuracy: 0.05  # Standard deviation (m/s^2)
   gyro_accuracy: 0.05  # Standard deviation (rad/s)
 
 
@@ -44,7 +44,7 @@ right_piksi_imu:
     y: 0.99983031
     z: 0.00149044
     angle: 3.09397341  # Imu forward originally facing towards x in chassis frame
-  accelerometer_accuracy: 0.2  # Standard deviation (m/s^2)
+  accelerometer_accuracy: 0.05  # Standard deviation (m/s^2)
   gyro_accuracy: 0.05  # Standard deviation (rad/s)
 
 
