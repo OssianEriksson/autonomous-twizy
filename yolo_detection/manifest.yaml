@@ -3,16 +3,16 @@ authors: Albin Ekelund Karlsson <ekalbin@student.chalmers.se>
 brief: ''
 bugtracker: https://github.com/OssianEriksson/autonomous-twizy/issues
 depends:
-- message_runtime
 - message_generation
+- message_runtime
 - catkin
 description: Object classification using YOLOv4 CNN
 license: Apache 2.0
 maintainers: Albin Ekelund Karlsson <ekalbin@student.chalmers.se>
 msgs:
 - BoundingBoxes
-- BoundingBox
 - ObjectCount
+- BoundingBox
 package_type: package
 repo_url: https://github.com/OssianEriksson/autonomous-twizy.git
 srvs: []
