@@ -7,9 +7,9 @@
         <param name="tcp_addr" value="192.168.0.222" />
         <param name="gnss_frame" value="left_piksi_gnss" />
         <param name="imu_frame" value="left_piksi_imu" />
-        <param name="imu_acc_sens" value="0.002364351739572385" />
-        <rosparam param="imu_gyro_offset">[-0.00327981, 0.00273438, 0.01203292]</rosparam>
-        <!-- <rosparam param="imu_acc_cov">[2.42063591e-04, 2.01145309e-06, -7.52583104e-06, 2.01145309e-06, 1.75704436e-04, -3.70118752e-07, -7.52583104e-06, -3.70118752e-07, 2.53866894e-04]</rosparam> -->
+        <param name="imu_acc_sens" value="0.002375855971980177" />
+        <rosparam param="imu_gyro_offset">[-0.00907899, -0.01345205, -0.00288244]</rosparam>
+        <!-- <rosparam param="imu_acc_cov">[2.02823708e-04, 3.20264478e-06, -8.21839260e-07, 3.20264478e-06, 1.56037816e-04, -4.79267174e-06, -8.21839260e-07, -4.79267174e-06, 2.45948664e-04]</rosparam> -->
         
         <rosparam param="imu_acc_cov">[10.0, 0.0, 0.0, 0.0, 10.0, 0.0, 0.0, 0.0, 10.0]</rosparam>
         <rosparam param="imu_gyro_cov">[0.01, 0.0, 0.0, 0.0, 0.01, 0.0, 0.0, 0.0, 0.01]</rosparam>
@@ -22,10 +22,10 @@
         <param name="tcp_addr" value="192.168.0.223" />
         <param name="gnss_frame" value="right_piksi_gnss" />
         <param name="imu_frame" value="right_piksi_imu" />
-        <param name="imu_acc_sens" value="0.002375855971980177" />
-        <rosparam param="imu_gyro_offset">[-0.00907899, -0.01345205, -0.00288244]</rosparam>
-        <!-- <rosparam param="imu_acc_cov">[2.02823708e-04, 3.20264478e-06, -8.21839260e-07, 3.20264478e-06, 1.56037816e-04, -4.79267174e-06, -8.21839260e-07, -4.79267174e-06, 2.45948664e-04]</rosparam> -->
-        
+        <param name="imu_acc_sens" value="0.002364351739572385" />
+        <rosparam param="imu_gyro_offset">[-0.00327981, 0.00273438, 0.01203292]</rosparam>
+        <!-- <rosparam param="imu_acc_cov">[2.42063591e-04, 2.01145309e-06, -7.52583104e-06, 2.01145309e-06, 1.75704436e-04, -3.70118752e-07, -7.52583104e-06, -3.70118752e-07, 2.53866894e-04]</rosparam> -->
+
         <rosparam param="imu_acc_cov">[10.0, 0.0, 0.0, 0.0, 10.0, 0.0, 0.0, 0.0, 10.0]</rosparam>
         <rosparam param="imu_gyro_cov">[0.01, 0.0, 0.0, 0.0, 0.01, 0.0, 0.0, 0.0, 0.01]</rosparam>
     </node>
