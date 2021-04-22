@@ -1,9 +1,9 @@
 <?xml version="1.0"?>
 <launch>
-    <arg name="gnss_covariance" default="[0.01, 0.0, 0.0, 0.0, 0.01, 0.0, 0.0, 0.0, 0.01]" />
+    <arg name="gnss_covariance" default="[0.001, 0.0, 0.0, 0.0, 0.001, 0.0, 0.0, 0.0, 0.001]" />
     <arg name="gnss_covariance_type" default="1" />
     <arg name="gyro_covariance" default="[0.01, 0.0, 0.0, 0.0, 0.01, 0.0, 0.0, 0.0, 0.01]" />
-    <arg name="accel_covariance" default="[0.01, 0.0, 0.0, 0.0, 0.01, 0.0, 0.0, 0.0, 0.01]" />
+    <arg name="accel_covariance" default="[10.0, 0.0, 0.0, 0.0, 10.0, 0.0, 0.0, 0.0, 10.0]" />
 
     <node pkg="twizy_webots" type="gnss" name="left_piksi_gnss" required="true">
         <rosparam param="covariance" subst_value="true">$(arg gnss_covariance)</rosparam>
