@@ -60,7 +60,7 @@ costmap_obstacles_behind_robot_dist: 6.0                                  # Spec
 obstacle_poses_affected: 15                                               # Each obstacle position is attached to the closest pose on the trajectory in order to keep a distance. Additional neighbors can be taken into account as well.
 
 dynamic_obstacle_inflation_dist: *inflation_dist  # Same as inflation_dist but for dynamic obstacles
-include_dynamic_obstacles: True                   # Specify if dynamic obstacles should be taken into account. Movement of these is predicted assuming constant velocity
+include_dynamic_obstacles: False                   # Specify if dynamic obstacles should be taken into account. Movement of these is predicted assuming constant velocity
 
 costmap_converter_plugin: ""         # Define plugin name in order to convert costmap cells to points/lines/polygons. Set an empty string to disable the conversion such that all cells are treated as point-obstacles.
 costmap_converter_spin_thread: True  # If set to true, the costmap converter invokes its callback queue in a different thread.
@@ -77,7 +77,7 @@ obstacle_cost_exponent: 4    # Exponent for nonlinear obstacle cost (set to 1 to
 
 weight_max_vel_x: 2                     # Optimization weight for satisfying the maximum allowed translational velocity.
 weight_max_vel_theta: 1                 # Optimization weight for satisfying the maximum allowed angular velocity.
-weight_acc_lim_x: 1                     # Optimization weight for satisfying the maximum allowed translational acceleration 
+weight_acc_lim_x: 0                     # Optimization weight for satisfying the maximum allowed translational acceleration 
 weight_acc_lim_theta: 1                 # Optimization weight for satisfying the maximum allowed angular acceleration
 weight_kinematics_nh: 1000              # Optimization weight for non-holonomic (e.g. cars) kinematics
 weight_kinematics_forward_drive: 10     # Opt. weight for forcing the robot to choose only forward directions. Small weights (e.g. =1) still allows going backwards, 1000 almost prevents all kinds of backwards driving.
