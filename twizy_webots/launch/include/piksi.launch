@@ -8,7 +8,7 @@
     <node pkg="twizy_webots" type="gnss" name="left_piksi_gnss" required="true">
         <rosparam param="covariance" subst_value="true">$(arg gnss_covariance)</rosparam>
         <param name="covariance_type" value="$(arg gnss_covariance_type)" />
-        <param name="ups" value="10" />
+        <param name="ups" value="10.0" />
         <param name="device" value="left_piksi_gnss" />
         <remap from="fix" to="/piksi/left/gnss/fix" />
     </node>
@@ -16,7 +16,7 @@
     <node pkg="twizy_webots" type="gnss" name="right_piksi_gnss" required="true">
         <rosparam param="covariance" subst_value="true">$(arg gnss_covariance)</rosparam>
         <param name="covariance_type" value="$(arg gnss_covariance_type)" />
-        <param name="ups" value="10" />
+        <param name="ups" value="10.0" />
         <param name="device" value="right_piksi_gnss" />
         <remap from="fix" to="/piksi/right/gnss/fix" />
     </node>
@@ -28,6 +28,7 @@
         <param name="gyro_device" value="right_piksi_gyro" />
         <param name="accel_device" value="right_piksi_accelerometer" />
         <remap from="imu" to="/piksi/right/imu/raw" />
+        <param name="imu/ups" value="100.0" />
     </node>
 
     <node pkg="twizy_webots" type="imu" name="piksi_imu_left" required="true">
@@ -37,5 +38,6 @@
         <param name="gyro_device" value="left_piksi_gyro" />
         <param name="accel_device" value="left_piksi_accelerometer" />
         <remap from="imu" to="/piksi/left/imu/raw" />
+        <param name="imu/ups" value="100.0" />
     </node>
 </launch>
