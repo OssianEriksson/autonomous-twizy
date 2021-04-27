@@ -21,6 +21,7 @@ SensorArray::SensorArray(ros::NodeHandle &nh, ros::NodeHandle &nh_private)
     nh_private.getParam("world_frame", world_frame_);
     nh_private.getParam("frequency", frequency_);
     nh_private.getParam("differential_position", differential_position_);
+    nh_private.getParam("zero_z", zero_z_);
 
     // Default value of periodic_filter_time_delay is two update cycles
     periodic_filter_time_delay_ = 2.0 / frequency_;
@@ -159,7 +160,7 @@ void SensorArray::periodic_update(const ros::TimerEvent &evt) {
     transformStamped.child_frame_id = base_link_;
     transformStamped.transform.translation.x = filter->x(State::X);
     transformStamped.transform.translation.y = filter->x(State::Y);
-    transformStamped.transform.translation.z = filter->x(State::Z);
+    transformStamped.transform.translation.z = zero_z_ ? 0.0 : filter->x(State::Z);
     transformStamped.transform.rotation.x = q.x();
     transformStamped.transform.rotation.y = q.y();
     transformStamped.transform.rotation.z = q.z();
@@ -174,7 +175,7 @@ void SensorArray::periodic_update(const ros::TimerEvent &evt) {
 
     odometry.pose.pose.position.x = filter->x(State::X);
     odometry.pose.pose.position.y = filter->x(State::Y);
-    odometry.pose.pose.position.z = filter->x(State::Z);
+    odometry.pose.pose.position.z = zero_z_ ? 0.0 : filter->x(State::Z);
     odometry.pose.pose.orientation.x = q.x();
     odometry.pose.pose.orientation.y = q.y();
     odometry.pose.pose.orientation.z = q.z();
