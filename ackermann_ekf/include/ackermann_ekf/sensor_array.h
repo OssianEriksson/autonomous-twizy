@@ -110,6 +110,11 @@ class SensorArray {
     bool differential_position_ = true;
 
     /**
+     * Wheter to publish transforms/odometry with z position set to zero
+     */
+    bool zero_z_ = false;
+
+    /**
      * If no measurement has been seen for a while the EKF state is forcefully
      * brought forward in time using its predict step. It is then brought
      * forward to the time given by current_time - periodic_filter_time_delay_

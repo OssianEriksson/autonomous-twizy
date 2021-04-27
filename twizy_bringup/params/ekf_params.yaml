@@ -9,6 +9,7 @@ x_max: [.inf, .inf, .inf, 2.0, 2.0, 0.0, 0.0, .inf, 0.0, 0.0, 2.0]
 control_topic: /ackermann_cmd
 wheelbase: !eval physical['wheelbase']
 differential_position: True
+zero_z: True
 
 sensors:
 - topic: /wheel/left/encoder
