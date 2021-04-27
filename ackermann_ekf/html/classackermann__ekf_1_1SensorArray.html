@@ -96,6 +96,8 @@ Private Attributes</h2></td></tr>
 <tr class="separator:a2170a5126cca708a320a4c575ee12546"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a596d51b0e3c9568b1c37f0c50b85852b"><td class="memItemLeft" align="right" valign="top">std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classackermann__ekf_1_1SensorArray.html#a596d51b0e3c9568b1c37f0c50b85852b">world_frame_</a> = &quot;map&quot;</td></tr>
 <tr class="separator:a596d51b0e3c9568b1c37f0c50b85852b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a479de892d7d2ec8d6a2627d8532de1d1"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classackermann__ekf_1_1SensorArray.html#a479de892d7d2ec8d6a2627d8532de1d1">zero_z_</a> = false</td></tr>
+<tr class="separator:a479de892d7d2ec8d6a2627d8532de1d1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Hub of <a class="el" href="classackermann__ekf_1_1Sensor.html" title="Class for a sensor whose value is to be integrated into an instance of AckermannEkf.">Sensor</a> instances, performs sensor fusion. </p>
@@ -148,7 +150,7 @@ Private Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="sensor__array_8cpp_source.html#l00290">290</a> of file <a class="el" href="sensor__array_8cpp_source.html">sensor_array.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="sensor__array_8cpp_source.html#l00291">291</a> of file <a class="el" href="sensor__array_8cpp_source.html">sensor_array.cpp</a>.</p>
 
 </div>
 </div>
@@ -170,7 +172,7 @@ Private Attributes</h2></td></tr>
 </div><div class="memdoc">
 <p>Brings the filter state forward to the provided time using the Kalman predict step </p>
 
-<p class="definition">Definition at line <a class="el" href="sensor__array_8cpp_source.html#l00267">267</a> of file <a class="el" href="sensor__array_8cpp_source.html">sensor_array.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="sensor__array_8cpp_source.html#l00268">268</a> of file <a class="el" href="sensor__array_8cpp_source.html">sensor_array.cpp</a>.</p>
 
 </div>
 </div>
@@ -199,7 +201,7 @@ Private Attributes</h2></td></tr>
 </div><div class="memdoc">
 <p>Callback for <a class="el" href="classackermann__ekf_1_1SensorArray.html#ae24f7202988d128ea1debd55efdec127">control_subscriber_</a> </p>
 
-<p class="definition">Definition at line <a class="el" href="sensor__array_8cpp_source.html#l00126">126</a> of file <a class="el" href="sensor__array_8cpp_source.html">sensor_array.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="sensor__array_8cpp_source.html#l00127">127</a> of file <a class="el" href="sensor__array_8cpp_source.html">sensor_array.cpp</a>.</p>
 
 </div>
 </div>
@@ -237,7 +239,7 @@ Private Attributes</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>true if the operation was performed successfully, false otherwise </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="sensor__array_8cpp_source.html#l00278">278</a> of file <a class="el" href="sensor__array_8cpp_source.html">sensor_array.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="sensor__array_8cpp_source.html#l00279">279</a> of file <a class="el" href="sensor__array_8cpp_source.html">sensor_array.cpp</a>.</p>
 
 </div>
 </div>
@@ -266,7 +268,7 @@ Private Attributes</h2></td></tr>
 </div><div class="memdoc">
 <p>Callback for <a class="el" href="classackermann__ekf_1_1SensorArray.html#a8c4b1c1444e0b7bef2dbefaeb257b294">periodic_update_timer_</a> </p>
 
-<p class="definition">Definition at line <a class="el" href="sensor__array_8cpp_source.html#l00138">138</a> of file <a class="el" href="sensor__array_8cpp_source.html">sensor_array.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="sensor__array_8cpp_source.html#l00139">139</a> of file <a class="el" href="sensor__array_8cpp_source.html">sensor_array.cpp</a>.</p>
 
 </div>
 </div>
@@ -287,7 +289,7 @@ Private Attributes</h2></td></tr>
 </div><div class="memdoc">
 <p>Process a measurement from a sensor and fuse it into the filter state </p>
 
-<p class="definition">Definition at line <a class="el" href="sensor__array_8cpp_source.html#l00215">215</a> of file <a class="el" href="sensor__array_8cpp_source.html">sensor_array.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="sensor__array_8cpp_source.html#l00216">216</a> of file <a class="el" href="sensor__array_8cpp_source.html">sensor_array.cpp</a>.</p>
 
 </div>
 </div>
@@ -308,7 +310,7 @@ Private Attributes</h2></td></tr>
 </div><div class="memdoc">
 <p>Process a measurement which might lead to instability. This measurement is not fused into the <a class="el" href="classackermann__ekf_1_1SensorArray.html#ad5ec85a459310de01590ada832ded38a">stable_filter</a>, only the main <a class="el" href="classackermann__ekf_1_1SensorArray.html#afe6d063f61ab13aab4d50251d021b330">filter</a>. </p>
 
-<p class="definition">Definition at line <a class="el" href="sensor__array_8cpp_source.html#l00253">253</a> of file <a class="el" href="sensor__array_8cpp_source.html">sensor_array.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="sensor__array_8cpp_source.html#l00254">254</a> of file <a class="el" href="sensor__array_8cpp_source.html">sensor_array.cpp</a>.</p>
 
 </div>
 </div>
@@ -401,7 +403,7 @@ Private Attributes</h2></td></tr>
 </div><div class="memdoc">
 <p>Main instance of Ackermann EKF filter </p>
 
-<p class="definition">Definition at line <a class="el" href="sensor__array_8h_source.html#l00140">140</a> of file <a class="el" href="sensor__array_8h_source.html">sensor_array.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="sensor__array_8h_source.html#l00145">145</a> of file <a class="el" href="sensor__array_8h_source.html">sensor_array.h</a>.</p>
 
 </div>
 </div>
@@ -526,7 +528,7 @@ Private Attributes</h2></td></tr>
 </div><div class="memdoc">
 <p>If no measurement has been seen for a while the EKF state is forcefully brought forward in time using its predict step. It is then brought forward to the time given by current_time - periodic_filter_time_delay_ </p>
 
-<p class="definition">Definition at line <a class="el" href="sensor__array_8h_source.html#l00117">117</a> of file <a class="el" href="sensor__array_8h_source.html">sensor_array.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="sensor__array_8h_source.html#l00122">122</a> of file <a class="el" href="sensor__array_8h_source.html">sensor_array.h</a>.</p>
 
 </div>
 </div>
@@ -568,7 +570,7 @@ Private Attributes</h2></td></tr>
 </div><div class="memdoc">
 <p>Holds pointers to all sensors so they will not go out of scope and be deleted </p>
 
-<p class="definition">Definition at line <a class="el" href="sensor__array_8h_source.html#l00135">135</a> of file <a class="el" href="sensor__array_8h_source.html">sensor_array.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="sensor__array_8h_source.html#l00140">140</a> of file <a class="el" href="sensor__array_8h_source.html">sensor_array.h</a>.</p>
 
 </div>
 </div>
@@ -585,7 +587,7 @@ Private Attributes</h2></td></tr>
 </div><div class="memdoc">
 <p>Ackermann EKF filter which is intended to only fuse data from differentiable sources. The state of this filter can be used to augment measurement intended to be fused into the main <a class="el" href="classackermann__ekf_1_1SensorArray.html#afe6d063f61ab13aab4d50251d021b330">filter</a>. <a class="el" href="classackermann__ekf_1_1SensorArray.html#ad5ec85a459310de01590ada832ded38a">stable_filter</a> is for example used to determine if WheelOdometry speed originates from forwards or backwards motion. <a class="el" href="classackermann__ekf_1_1SensorArray.html#ad5ec85a459310de01590ada832ded38a">stable_filter</a> is used for this instead of the state directly from <a class="el" href="classackermann__ekf_1_1SensorArray.html#afe6d063f61ab13aab4d50251d021b330">filter</a> for stability reasons. </p>
 
-<p class="definition">Definition at line <a class="el" href="sensor__array_8h_source.html#l00150">150</a> of file <a class="el" href="sensor__array_8h_source.html">sensor_array.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="sensor__array_8h_source.html#l00155">155</a> of file <a class="el" href="sensor__array_8h_source.html">sensor_array.h</a>.</p>
 
 </div>
 </div>
@@ -689,6 +691,31 @@ Private Attributes</h2></td></tr>
 
 </div>
 </div>
+<a id="a479de892d7d2ec8d6a2627d8532de1d1"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a479de892d7d2ec8d6a2627d8532de1d1">&#9670;&nbsp;</a></span>zero_z_</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool ackermann_ekf::SensorArray::zero_z_ = false</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Wheter to publish transforms/odometry with z position set to zero </p>
+
+<p class="definition">Definition at line <a class="el" href="sensor__array_8h_source.html#l00115">115</a> of file <a class="el" href="sensor__array_8h_source.html">sensor_array.h</a>.</p>
+
+</div>
+</div>
 <hr/>The documentation for this class was generated from the following files:<ul>
 <li><a class="el" href="sensor__array_8h_source.html">sensor_array.h</a></li>
 <li><a class="el" href="sensor__array_8cpp_source.html">sensor_array.cpp</a></li>
@@ -699,7 +726,7 @@ Private Attributes</h2></td></tr>
 <hr size="1"><div style="align: right;">
 <a href="http://wiki.ros.org/ackermann_ekf">ackermann_ekf</a><br />
 Author(s): Ossian Eriksson <ossiane@student.chalmers.se></br />
-<small>autogenerated on Thu Apr 22 2021 19:18:14</small>
+<small>autogenerated on Tue Apr 27 2021 14:27:58</small>
 </div>
 </body>
 </html>
