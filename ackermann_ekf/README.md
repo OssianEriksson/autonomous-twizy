@@ -103,6 +103,9 @@ Sensor fusion using Extended Kalman filter for vehicle localization. Publishes t
 
 * `~x_min` (`list`, default, `-{~x_max}`)  
   Vector of minimum filter state components: The filter state is forcefully element wise lower bounded by this vector. Must have the same length as the filter state vector has dimensions.
+  
+* `~zero_z` (`bool`, default: `false`)
+  Wheter to set the z component of poisiton to zero in published transforms and odometry. The z component of the state vector will remain unaffected.
 
 * `~control_topic` (`string`)  
   If set the node will subscribe to the topic whose name is `~control_topic` for collection on control signals for the vehicle. The control signals are then used in the Kalman prediction step.
