@@ -160,7 +160,7 @@ include_directories(
 ## Mark executable scripts (Python etc.) for installation
 ## in contrast to setup.py, you can choose the destination
 catkin_install_python(PROGRAMS
-  nodes/twizy_can_control
+  nodes/can_control
   nodes/twist_to_ackermann
   nodes/object_avoidance
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
@@ -213,5 +213,5 @@ if(CATKIN_ENABLE_TESTING)
     roslaunch
   )
 
-  add_rostest(tests/test_twizy_can_control.test)
+  add_rostest(tests/test_can_control.test)
 endif()

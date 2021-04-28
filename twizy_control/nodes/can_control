@@ -15,7 +15,7 @@ def byte_range(a):
 
 def main():
     # Initialize ROS node
-    rospy.init_node('twizy_can_control')
+    rospy.init_node('can_control')
 
     # Read parameters from ROS parameter server
     tout = rospy.get_param('~timeout', 150)
