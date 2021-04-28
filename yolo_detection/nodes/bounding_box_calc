@@ -68,7 +68,7 @@ def main():
                 ymax = (box[1] + box[3]/2) * height 
                 if ymax >= height : ymax = height - 1 
 
-                if(not (ymax <= -1)):
+                #if(not (ymax <= -1)):
                     #creates an bounding box and adds it to the message. 
                     msg_boxes = BoundingBox( box[5],int (xmin),int (ymin),int (xmax),int (ymax) ,int (box[4]), yolo.config.names[box[4]])
                     msg.bounding_boxes.append(msg_boxes)
