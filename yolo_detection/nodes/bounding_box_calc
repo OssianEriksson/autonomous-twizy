@@ -70,8 +70,8 @@ def main():
 
                 #if(not (ymax <= -1)):
                     #creates an bounding box and adds it to the message. 
-                    msg_boxes = BoundingBox( box[5],int (xmin),int (ymin),int (xmax),int (ymax) ,int (box[4]), yolo.config.names[box[4]])
-                    msg.bounding_boxes.append(msg_boxes)
+                msg_boxes = BoundingBox( box[5],int (xmin),int (ymin),int (xmax),int (ymax) ,int (box[4]), yolo.config.names[box[4]])
+                msg.bounding_boxes.append(msg_boxes)
 
             if (len(msg.bounding_boxes) > 0):
                 # add message header from the image and and one from yolo. 
