@@ -19,7 +19,7 @@ max_steering_torque: 10000.0            # Max steering motor torque around pivot
 max_steering_velocity: 3.0              # (rad/s)
 max_steering_acceleration: 10.0         # (rad/s²)
 max_drive_torque: 10000.0               # Max drive motor torque
-max_acceleration: 1.5                   # (m/s)
+max_acceleration: 0.5                   # (m/s)
 
 
 front_wheel:
