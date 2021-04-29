@@ -3,6 +3,7 @@
 #include <cmath>
 #include <iostream>
 #include <twizy_wheel_encoder/WheelEncoder.h>
+#include <webots/utils/AnsiCodes.hpp>
 
 namespace twizy_webots {
 
@@ -12,9 +13,14 @@ WheelEncoder::WheelEncoder(webots::Supervisor &supervisor, ros::NodeHandle &nh,
       position_(position) {
 
     double ups;
-    ROS_ASSERT(nh.getParam("/physical/rear_wheel/radius", wheel_radius_) &&
-               nh_private.getParam("wheel_encoder/cov", covariance_) &&
-               nh_private.getParam("wheel_encoder/ups", ups));
+    if (!nh.getParam("/physical/rear_wheel/radius", wheel_radius_) ||
+        !nh_private.getParam("wheel_encoder/cov", covariance_) ||
+        !nh_private.getParam("wheel_encoder/ups", ups)) {
+        std::cout << webots::AnsiCodes::RED_FOREGROUND
+                  << "Required ROS parameters missing"
+                  << webots::AnsiCodes::RESET << std::endl;
+        return;
+    }
 
     std::cout << "Initializing " << position << " wheel encoder\n";
 

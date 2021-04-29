@@ -5,6 +5,7 @@
 #include <limits>
 #include <math.h>
 #include <webots/Motor.hpp>
+#include <webots/utils/AnsiCodes.hpp>
 
 namespace twizy_webots {
 
@@ -14,14 +15,18 @@ Motors::Motors(webots::Supervisor &supervisor, ros::NodeHandle &nh)
       left_drive_motor_(supervisor.getMotor("rear_left_wheel_motor")),
       right_drive_motor_(supervisor.getMotor("rear_right_wheel_motor")) {
 
-    ROS_ASSERT(
-        nh.getParam("physical/rear_wheel/radius", rear_wheel_radius_) &&
-        nh.getParam("physical/max_forward_speed", max_forward_speed_) &&
-        nh.getParam("physical/max_reverse_speed", max_reverse_speed_) &&
-        nh.getParam("physical/max_steering_angle", max_steering_angle_) &&
-        nh.getParam("physical/wheelbase", wheelbase_) &&
-        nh.getParam("physical/front_track", front_track_) &&
-        nh.getParam("physical/rear_track", rear_track_));
+    if (!nh.getParam("physical/rear_wheel/radius", rear_wheel_radius_) ||
+        !nh.getParam("physical/max_forward_speed", max_forward_speed_) ||
+        !nh.getParam("physical/max_reverse_speed", max_reverse_speed_) ||
+        !nh.getParam("physical/max_steering_angle", max_steering_angle_) ||
+        !nh.getParam("physical/wheelbase", wheelbase_) ||
+        !nh.getParam("physical/front_track", front_track_) ||
+        !nh.getParam("physical/rear_track", rear_track_)) {
+        std::cout << webots::AnsiCodes::RED_FOREGROUND
+                  << "Required ROS parameters missing"
+                  << webots::AnsiCodes::RESET << std::endl;
+        return;
+    }
 
     std::cout << "Initializing motors\n";
 

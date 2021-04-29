@@ -5,6 +5,7 @@
 #include <sensor_msgs/Imu.h>
 #include <sensor_msgs/NavSatFix.h>
 #include <sensor_msgs/NavSatStatus.h>
+#include <webots/utils/AnsiCodes.hpp>
 
 namespace twizy_webots {
 
@@ -19,10 +20,14 @@ Piksi::Piksi(webots::Supervisor &supervisor, ros::NodeHandle &nh,
 
     std::cout << "Initializing " << position << " Piksi GNSS and IMU\n";
 
-    ROS_ASSERT(
-        nh_private.getParam("piksi/gyro/cov", gyro_cov_) &&
-        nh_private.getParam("piksi/accelerometer/cov", accelerometer_cov_) &&
-        nh_private.getParam("piksi/gnss/cov", gnss_cov_));
+    if (!nh_private.getParam("piksi/gyro/cov", gyro_cov_) ||
+        !nh_private.getParam("piksi/accelerometer/cov", accelerometer_cov_) ||
+        !nh_private.getParam("piksi/gnss/cov", gnss_cov_)) {
+        std::cout << webots::AnsiCodes::RED_FOREGROUND
+                  << "Required ROS parameters missing"
+                  << webots::AnsiCodes::RESET << std::endl;
+        return;
+    }
 
     double imu_ups = 100.0;
     double gnss_ups = 10.0;
