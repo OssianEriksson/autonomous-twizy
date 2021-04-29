@@ -54,18 +54,15 @@
   <!--   <doc_depend>doxygen</doc_depend> -->
   <buildtool_depend>catkin</buildtool_depend>
   <depend>rospy</depend>
-  <depend>rostopic</depend>
   <depend>roslaunch</depend>
   <depend>twizy_description</depend>
-  <depend>webots_ros</depend>
   <depend>sensor_msgs</depend>
   <depend>geometry_msgs</depend>
-  <depend>std_msgs</depend>
-  <exec_depend>python-utm-pip</exec_depend>
   <depend>ackermann_msgs</depend>
-  <depend>message_filters</depend>
   <depend>nav_msgs</depend>
   <depend>twizy_wheel_encoder</depend>
+  <depend>geodesy</depend>
+  <depend>geographic_msgs</depend>
 
 
   <!-- The export tag contains other, unspecified, tags -->

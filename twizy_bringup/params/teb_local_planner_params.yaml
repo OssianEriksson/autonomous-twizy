@@ -24,7 +24,7 @@ max_vel_x_backwards: !eval physical['max_reverse_speed']  # Maximum velocity in 
 acc_lim_x: !eval physical['max_acceleration']             # Maximum Acceleration in x-direction [m/s²]
 max_vel_y: 0.0                                            # Maximum velocity in y-direction [m/s] (set to 0 for car-like vehicles)
 max_vel_theta: 10.0                                        # the angular velocity is also bounded by min_turning_radius in case of a carlike robot (r = v / omega)
-acc_lim_theta: 10.0                                        # Maximum angular velocity of the whole car in radians/sec
+acc_lim_theta: 0.5                                        # Maximum angular velocity of the whole car in radians/sec
 
 footprint_model:                 # types: "point", "circular", "two_circles", "line", "polygon"
   type: "line"           
@@ -76,9 +76,9 @@ penalty_epsilon: 0.1         # Adds a small safety margin to penatly functions (
 obstacle_cost_exponent: 4    # Exponent for nonlinear obstacle cost (set to 1 to disable nonlinear cost).
 
 weight_max_vel_x: 2                     # Optimization weight for satisfying the maximum allowed translational velocity.
-weight_max_vel_theta: 1                 # Optimization weight for satisfying the maximum allowed angular velocity.
+weight_max_vel_theta: 0                 # Optimization weight for satisfying the maximum allowed angular velocity.
 weight_acc_lim_x: 1                     # Optimization weight for satisfying the maximum allowed translational acceleration 
-weight_acc_lim_theta: 1                 # Optimization weight for satisfying the maximum allowed angular acceleration
+weight_acc_lim_theta: 0.5               # Optimization weight for satisfying the maximum allowed angular acceleration
 weight_kinematics_nh: 1000              # Optimization weight for non-holonomic (e.g. cars) kinematics
 weight_kinematics_forward_drive: 10     # Opt. weight for forcing the robot to choose only forward directions. Small weights (e.g. =1) still allows going backwards, 1000 almost prevents all kinds of backwards driving.
 weight_kinematics_turning_radius: 1     # Opt. weight for forcing a minimum turning radius.
@@ -88,7 +88,7 @@ weight_obstacle: 50                     # Opt. weight for minimum separation fro
 weight_inflation: 0.2                   # Opt. weight for inflation penalty (Should be small according to ros docs for navstack)
 weight_dynamic_obstacle: 10             # Same as weight_obstacle but for dynamic obstacles, not in use yet
 weight_dynamic_obstacle_inflation: 0.2  # Same as for weight_inflation but for dynamic obstacles.
-weight_viapoint: 1                      # Opt. weight for minimizing distance to via-points.
+weight_viapoint: 0                      # Opt. weight for minimizing distance to via-points.
 weight_adapt_factor: 2                  # Some special weights (currently 'weight_obstacle') are repeatedly scaled by this factor in each outer TEB iteration (weight_new = weight_old*factor); Increasing weights iteratively instead of setting a huge value a-priori leads to better numerical conditions of the underlying optimization problem.
 
 # *************************** Homotopy Class Planner **************************

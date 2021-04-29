@@ -3,6 +3,5 @@ yolov4-csp.weights
 yolov4launch
 yolov4-tiny.conv.29
 yolov4-tiny-relu.weights
-yolov4-tiny.weights
 yolov4.weights
 yolov4x-mish.weights
