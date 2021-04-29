@@ -1,0 +1,108 @@
+#VRML_SIM R2021a utf8
+WorldInfo {
+  coordinateSystem "NUE"
+}
+Viewpoint {
+  orientation -0.10714648812965587 0.98027560856035 0.16607035058407268 2.519192239754951
+  position 180.2788098582117 44.25519231556201 -69.0898666298349
+}
+TexturedBackground {
+}
+TexturedBackgroundLight {
+}
+Floor {
+  size 200 200
+  appearance Grass {
+  }
+}
+StraightRoadSegment {
+  translation 28.8 0.02 58.41
+  rotation 0 1 0 -1.5707953071795862
+  name "road(3)"
+  rightBarrier TRUE
+  leftBarrier TRUE
+  length 20
+  locked FALSE
+}
+CrashBarrier {
+  translation 8.84 0.06 62.25
+  rotation 0 1 0 3.14159
+  name "crash barrier(1)"
+}
+CrashBarrier {
+  translation -3.84 0.06 62.25
+  rotation 0 1 0 3.14159
+  name "crash barrier(2)"
+}
+CrashBarrier {
+  translation -8.82 0.06 54.33
+  rotation 0 1 0 -5.307179586466759e-06
+  name "crash barrier(3)"
+}
+CrashBarrier {
+  translation 3.84 0 54.25
+}
+StopSign {
+  translation -3.69 0 54.78
+}
+Road {
+  translation 0 0.04 62.14
+  name "road(1)"
+  rightBarrier TRUE
+  leftBarrier TRUE
+  wayPoints [
+    0 0 10
+    0 0 0
+  ]
+  startLine [
+    ""
+  ]
+  endLine [
+    ""
+  ]
+  locked FALSE
+}
+RoadIntersection {
+  translation -0.0148726 0.02 58.4147
+  rotation 0 1 0 -0.7854053071795866
+  startRoadsLength [
+    6
+  ]
+}
+CitroenCZeroSimple {
+  translation -2.96 0.4 -13.31
+  rotation 0 0 1 4.38702e-06
+  name "vehicle(1)"
+}
+ToyotaPriusSimple {
+  translation 8.23 0.4 56.4
+  rotation 0 1 0 -1.5707953071795862
+}
+StraightRoadSegment {
+  translation 0 0.01 -45.64
+  rightBarrier TRUE
+  leftBarrier TRUE
+  length 100
+}
+Twizy {
+  translation -1.58 -1.9695e-14 -44.75
+}
+RangeRoverSportSVRSimple {
+  translation 1.83 0.4 21.37
+  rotation 0 1 0 3.14159
+  name "vehicle(2)"
+}
+BigSassafras {
+  translation -5.48 0 7.12
+  enableBoundingObject FALSE
+}
+BigSassafras {
+  translation -5.48 -0.25 -3.2
+  name "sassafras tree(1)"
+  enableBoundingObject FALSE
+}
+BigSassafras {
+  translation -5.48 -0.75 15.99
+  name "sassafras tree(2)"
+  enableBoundingObject FALSE
+}
