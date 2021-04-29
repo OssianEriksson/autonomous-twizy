@@ -4,8 +4,8 @@ brief: ''
 bugtracker: https://github.com/OssianEriksson/autonomous-twizy/issues
 depends:
 - message_generation
-- catkin
 - message_runtime
+- catkin
 description: Object classification using YOLOv4 CNN
 license: Apache 2.0
 maintainers: Albin Ekelund Karlsson <ekalbin@student.chalmers.se>
