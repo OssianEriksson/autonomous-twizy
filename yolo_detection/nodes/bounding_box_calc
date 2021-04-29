@@ -6,6 +6,7 @@ from yolov4.tf import YOLOv4
 from sensor_msgs.msg import Image
 from cv_bridge import CvBridge, CvBridgeError
 from yolo_detection.msg import BoundingBoxes,BoundingBox
+import pathlib
 
 #############################################################################################
 #         initialize Yolo and configure its inputs, like weigth, configs and coc.names      #
@@ -14,13 +15,15 @@ from yolo_detection.msg import BoundingBoxes,BoundingBox
 #         Use cv_bridge() to convert the ROS image to OpenCV format                         #
 #############################################################################################
 
+current_dir = pathlib.Path(__file__).parent.parent
 yolo = YOLOv4()
-yolo.config.parse_names("/home/twizy/autonomous-twizy/src/yolo_detection/coco.names")
-yolo.config.parse_cfg("/home/twizy/autonomous-twizy/src/yolo_detection/config/yolov4-tiny.cfg")
+yolo.config.parse_names( current_dir / "coco.names")
+yolo.config.parse_cfg( current_dir / "config/yolov4-tiny.cfg")
 yolo.make_model()
-yolo.load_weights("/home/twizy/autonomous-twizy/src/yolo_detection/weights/yolov4-tiny.weights", weights_type="yolo")
+yolo.load_weights( current_dir / "weights/yolov4-tiny.weights", weights_type="yolo")
 
 bridge = CvBridge()    
+
 
 def main():
     #Initialize ROS node
