@@ -25,7 +25,7 @@ plugins:
 - {name: obstacle_layer, type: "costmap_2d::ObstacleLayer"}
 - {name: inflater_layer, type: "costmap_2d::InflationLayer"}
 
-update_frequency: 1.0
+update_frequency: 2.0
 rolling_window: true
 
 # The width, and height are needed so there aren't complaints when a goal
