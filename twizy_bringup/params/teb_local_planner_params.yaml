@@ -20,7 +20,7 @@ publish_feedback: False                  # Publish planner feedback containing t
 # *********************************** Robot ***********************************
 
 max_vel_x: !eval physical['max_forward_speed']                  # Maximum velocity in positive x-direction [m/s]
-max_vel_x_backwards: 0.6 * !eval physical['max_reverse_speed']  # Maximum velocity in negative x-direction [m/s]
+max_vel_x_backwards: !eval physical['max_reverse_speed']  # Maximum velocity in negative x-direction [m/s]
 acc_lim_x: !eval physical['max_acceleration']                   # Maximum Acceleration in x-direction [m/s²]
 max_vel_y: 0.0                                                  # Maximum velocity in y-direction [m/s] (set to 0 for car-like vehicles)
 max_vel_theta: 1.0                                              # the angular velocity is also bounded by min_turning_radius in case of a carlike robot (r = v / omega)
@@ -40,7 +40,7 @@ footprint_model:                 # types: "point", "circular", "two_circles", "l
 
 # ************************* Carlike robot parameters **************************
 
-min_turning_radius: !eval 1.5 * physical['wheelbase'] / math.tan(physical['max_steering_angle'])  # Min turning radius of the carlike robot (compute value using a model or adjust with rqt_reconfigure manually)
+min_turning_radius: !eval 1.2 * physical['wheelbase'] / math.tan(physical['max_steering_angle'])  # Min turning radius of the carlike robot (compute value using a model or adjust with rqt_reconfigure manually)
 wheelbase: !eval physical['wheelbase']                                                      # Wheelbase of our robot
 cmd_angle_instead_rotvel: True                                                              # stage simulator takes the angle instead of the rotvel as input (twist message), this is needed by the twist_to_ackermann node
 
