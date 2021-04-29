@@ -10,10 +10,10 @@ source /opt/ros/$ROS_DISTRO/setup.bash
 cd ~/autonomous-twizy
 
 # Build all packages in the workspace
-catkin_make
+catkin_make -DCATKIN_BLACKLIST_PACKAGES="twizy_webots"
 source devel/setup.bash
 
 # Run unit and integration tests
-catkin_make run_tests
+catkin_make -DCATKIN_BLACKLIST_PACKAGES="twizy_webots" run_tests
 # Needed for exit code (and debugging)
 catkin_test_results --verbose
