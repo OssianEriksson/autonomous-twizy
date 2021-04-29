@@ -19,12 +19,12 @@ publish_feedback: False                  # Publish planner feedback containing t
 
 # *********************************** Robot ***********************************
 
-max_vel_x: !eval 0.5 * physical['max_forward_speed']              # Maximum velocity in positive x-direction [m/s]
-max_vel_x_backwards: !eval 0.5 * physical['max_reverse_speed']    # Maximum velocity in negative x-direction [m/s]
-acc_lim_x: !eval physical['max_acceleration']               # Maximum Acceleration in x-direction [m/s²]
-max_vel_y: 0.0                                              # Maximum velocity in y-direction [m/s] (set to 0 for car-like vehicles)
-max_vel_theta: 0.2                                          # the angular velocity is also bounded by min_turning_radius in case of a carlike robot (r = v / omega)
-acc_lim_theta: 0.2                                          # Maximum angular velocity of the whole car in radians/sec
+max_vel_x: !eval physical['max_forward_speed']            # Maximum velocity in positive x-direction [m/s]
+max_vel_x_backwards: !eval physical['max_reverse_speed']  # Maximum velocity in negative x-direction [m/s]
+acc_lim_x: !eval physical['max_acceleration']             # Maximum Acceleration in x-direction [m/s²]
+max_vel_y: 0.0                                            # Maximum velocity in y-direction [m/s] (set to 0 for car-like vehicles)
+max_vel_theta: 10.0                                        # the angular velocity is also bounded by min_turning_radius in case of a carlike robot (r = v / omega)
+acc_lim_theta: 10.0                                        # Maximum angular velocity of the whole car in radians/sec
 
 footprint_model:                 # types: "point", "circular", "two_circles", "line", "polygon"
   type: "line"           
@@ -40,14 +40,14 @@ footprint_model:                 # types: "point", "circular", "two_circles", "l
 
 # ************************* Carlike robot parameters **************************
 
-min_turning_radius: !eval physical['wheelbase'] / math.tan(physical['max_steering_angle'])  # Min turning radius of the carlike robot (compute value using a model or adjust with rqt_reconfigure manually)
+min_turning_radius: !eval 1.2 * physical['wheelbase'] / math.tan(physical['max_steering_angle'])  # Min turning radius of the carlike robot (compute value using a model or adjust with rqt_reconfigure manually)
 wheelbase: !eval physical['wheelbase']                                                      # Wheelbase of our robot
 cmd_angle_instead_rotvel: True                                                              # stage simulator takes the angle instead of the rotvel as input (twist message), this is needed by the twist_to_ackermann node
 
 # ****************************** Goal Tolerance *******************************
 
 xy_goal_tolerance: 0.2       # Tolerace for car position compared to end goal in meters
-yaw_goal_tolerance: 0.2      # Tolerance for car rotation compared to angular goal in radians
+yaw_goal_tolerance: 1.0      # Tolerance for car rotation compared to angular goal in radians
 free_goal_vel: False         # False makes the car arrive at goal at no speed, True allows it to arrive at any speed
 complete_global_plan: True
 
@@ -60,7 +60,7 @@ costmap_obstacles_behind_robot_dist: 6.0                                  # Spec
 obstacle_poses_affected: 15                                               # Each obstacle position is attached to the closest pose on the trajectory in order to keep a distance. Additional neighbors can be taken into account as well.
 
 dynamic_obstacle_inflation_dist: *inflation_dist  # Same as inflation_dist but for dynamic obstacles
-include_dynamic_obstacles: False                   # Specify if dynamic obstacles should be taken into account. Movement of these is predicted assuming constant velocity
+include_dynamic_obstacles: False                  # Specify if dynamic obstacles should be taken into account. Movement of these is predicted assuming constant velocity
 
 costmap_converter_plugin: ""         # Define plugin name in order to convert costmap cells to points/lines/polygons. Set an empty string to disable the conversion such that all cells are treated as point-obstacles.
 costmap_converter_spin_thread: True  # If set to true, the costmap converter invokes its callback queue in a different thread.
@@ -77,7 +77,7 @@ obstacle_cost_exponent: 4    # Exponent for nonlinear obstacle cost (set to 1 to
 
 weight_max_vel_x: 2                     # Optimization weight for satisfying the maximum allowed translational velocity.
 weight_max_vel_theta: 1                 # Optimization weight for satisfying the maximum allowed angular velocity.
-weight_acc_lim_x: 0                     # Optimization weight for satisfying the maximum allowed translational acceleration 
+weight_acc_lim_x: 1                     # Optimization weight for satisfying the maximum allowed translational acceleration 
 weight_acc_lim_theta: 1                 # Optimization weight for satisfying the maximum allowed angular acceleration
 weight_kinematics_nh: 1000              # Optimization weight for non-holonomic (e.g. cars) kinematics
 weight_kinematics_forward_drive: 10     # Opt. weight for forcing the robot to choose only forward directions. Small weights (e.g. =1) still allows going backwards, 1000 almost prevents all kinds of backwards driving.
@@ -96,7 +96,7 @@ weight_adapt_factor: 2                  # Some special weights (currently 'weigh
 enable_homotopy_class_planning: True    # Homotopy classes of trajectories, arising due to the presence of obstacles, are defined as sets of trajectories that can be transformed into each other by gradual bending and stretching without colliding with obstacles.
 enable_multithreading: True             # Mult. threading for planning multiple trajectories in parallel.
 max_number_classes: 4                   # Number of alternate homotopy classes allowed.
-selection_cost_hysteresis: 1.0          # Specify value for how much cost a trajectory candidate must have compared to a prev. selected one. (selection if new_cost < old_cost*factor)
+selection_cost_hysteresis: 0.8          # Specify value for how much cost a trajectory candidate must have compared to a prev. selected one. (selection if new_cost < old_cost*factor)
 selection_prefer_initial_plan: 0.95     # Specify a cost reduction in the interval (0,1) for the trajectory in the equivalence class of the initial plan.
 selection_obst_cost_scale: 1.0          # Extra scaling of obstacle cost terms just for selecting the best candidate.
 selection_alternative_time_cost: False  # Replaces time cost with total transition time.
