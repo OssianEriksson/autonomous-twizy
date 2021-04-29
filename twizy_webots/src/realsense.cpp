@@ -18,7 +18,7 @@ Realsense::Realsense(webots::Supervisor &supervisor, ros::NodeHandle &nh,
           position + "_realsense_aligned_depth_to_color")),
       position_(position) {
 
-    std::cout << "Initializing " << position << "RealSense camera" << std::endl;
+    std::cout << "Initializing " << position << " RealSense camera\n";
 
     double ups = 30.0;
 

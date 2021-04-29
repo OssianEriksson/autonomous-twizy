@@ -3,7 +3,7 @@
 #include <ros/ros.h>
 
 int main(int argc, char **argv) {
-    ros::init(argc, argv, "twizy_controller");
+    ros::init(argc, argv, "twizy_webots");
 
     ros::NodeHandle nh;
     ros::NodeHandle nh_private("~");

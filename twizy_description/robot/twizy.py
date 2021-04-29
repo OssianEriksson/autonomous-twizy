@@ -200,13 +200,6 @@ def realsense(fr):
                 'rotation': f'{1.0 / sqrt(3)} {-1.0 / sqrt(3)} {-1.0 / sqrt(3)} {2.0 * pi / 3}'
             }, True),
             Node('Solid', {
-                'name': f'"camera/{fr}_link_webots"',
-
-                # ROS Image has z forward x right -y up
-                'rotation': f'{-1.0 / sqrt(3)} {1.0 / sqrt(3)} {-1.0 / sqrt(3)} {2.0 * pi / 3}'
-            }),
-            Node('Solid', {
-                # Base link for real RealSense camera
                 'name': f'"camera/{fr}_link"'
             })
         ],
@@ -233,13 +226,11 @@ def twizy():
                             Node('Lidar', {
                                 'name': '"lidar_vlp16_webots"',
                                 'horizontalResolution': model['lidar_vlp16']['horizontal_resolution'],
-                                'fieldOfView': 2*pi,
+                                'fieldOfView': 2 * pi,
                                 'verticalFieldOfView':  model['lidar_vlp16']['vertical_fov'],
                                 'numberOfLayers': model['lidar_vlp16']['number_of_layers'],
                                 'maxRange': model['lidar_vlp16']['max_range'],
-                                'type': '"rotating"',
-                                'defaultFrequency': model['lidar_vlp16']['frequency'],
-                                'rotation': f'1.0 0.0 0.0 {pi / 2}',
+                                'rotation': f'1.0 0.0 0.0 {pi / 2}'
                             }),
                             Node('Solid', {
                                 'name': '"lidar_vlp16"',
@@ -300,6 +291,7 @@ def twizy():
         }, True),
 
         'synchronization': 'FALSE',
+        'supervisor': 'TRUE',
         'model': '"Autonomous Twizy"',
         'translation': 'IS translation',
         'rotation': 'IS rotation',

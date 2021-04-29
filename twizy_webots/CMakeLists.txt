@@ -9,17 +9,15 @@ add_compile_options(-std=c++11)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
   rospy
-  rostopic
   roslaunch
   twizy_description
-  webots_ros
   sensor_msgs
   geometry_msgs
-  std_msgs
   ackermann_msgs
-  message_filters
   nav_msgs
   twizy_wheel_encoder
+  geodesy
+  geographic_msgs
 )
 
 ## System dependencies are found with CMake's conventions
@@ -28,7 +26,7 @@ find_package(Boost REQUIRED)
 ## Uncomment this if the package has a setup.py. This macro ensures
 ## modules and global scripts declared therein get installed
 ## See http://ros.org/doc/api/catkin/html/user_guide/setup_dot_py.html
-catkin_python_setup()
+# catkin_python_setup()
 
 ################################################
 ## Declare ROS messages, services and actions ##
@@ -113,7 +111,7 @@ catkin_python_setup()
 catkin_package(
 #  INCLUDE_DIRS include
 #  LIBRARIES twizy_webots
-#  CATKIN_DEPENDS rospy rostopic roslaunch twizy_description webots_ros sensor_msgs geometry_msgs std_msgs ackermann_msgs message_filters
+#  CATKIN_DEPENDS geodesy geographic_msgs
 #  DEPENDS system_lib
 )
 
@@ -135,6 +133,8 @@ add_library(twizy_controller
   src/motors.cpp
   src/realsense.cpp
   src/piksi.cpp
+  src/wheel_encoder.cpp
+  src/velodyne.cpp
 )
 
 ## Add cmake target dependencies of the library
@@ -159,8 +159,10 @@ add_dependencies(twizy_controller_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${cat
 
 ## Specify libraries to link a library or executable target against
 target_link_libraries(twizy_controller_node
-  ${catkin_LIBRARIES}
   twizy_controller
+)
+target_link_libraries(twizy_controller
+  ${catkin_LIBRARIES}
   $ENV{WEBOTS_HOME}/lib/controller/libCppController.so
 )
 
@@ -174,11 +176,7 @@ target_link_libraries(twizy_controller_node
 ## Mark executable scripts (Python etc.) for installation
 ## in contrast to setup.py, you can choose the destination
 catkin_install_python(PROGRAMS
-  nodes/twizy_webots
-  nodes/ackermann_controller
-  nodes/gnss
-  nodes/color_depth_sensor
-  nodes/wheel_encoder
+  scripts/twizy_webots
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 

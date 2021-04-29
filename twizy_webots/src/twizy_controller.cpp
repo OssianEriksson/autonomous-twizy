@@ -2,6 +2,8 @@
 #include "twizy_webots/motors.h"
 #include "twizy_webots/realsense.h"
 #include "twizy_webots/piksi.h"
+#include "twizy_webots/wheel_encoder.h"
+#include "twizy_webots/velodyne.h"
 
 #include <rosgraph_msgs/Clock.h>
 #include <iostream>
@@ -10,7 +12,7 @@ namespace twizy_webots {
 
 TwizyController::TwizyController(ros::NodeHandle &nh,
                                  ros::NodeHandle &nh_private)
-    : nh_(nh), nh_private_(nh) {
+    : nh_(nh), nh_private_(nh_private) {
     std::cout << "Initializing controller\n";
 
     clock_publisher_ = nh.advertise<rosgraph_msgs::Clock>("clock", 1);
@@ -22,7 +24,11 @@ void TwizyController::start() {
     new Motors(*supervisor_, nh_);
     new Realsense(*supervisor_, nh_, "front");
     new Realsense(*supervisor_, nh_, "rear");
-    new Piksi(*supervisor_, nh_, "left");
+    new Piksi(*supervisor_, nh_, nh_private_, "left");
+    new Piksi(*supervisor_, nh_, nh_private_, "right");
+    new WheelEncoder(*supervisor_, nh_, nh_private_, "left");
+    new WheelEncoder(*supervisor_, nh_, nh_private_, "right");
+    new Velodyne(*supervisor_, nh_);
 
     while (supervisor_->step(supervisor_->getBasicTimeStep()) != -1 &&
            ros::ok()) {

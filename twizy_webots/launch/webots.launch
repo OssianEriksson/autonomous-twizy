@@ -3,15 +3,15 @@
     <arg name="world" default="flat.wbt" doc="Path to the world to load" />
     <arg name="mode" default="realtime" doc="Startup mode" />
     <arg name="no_gui" default="false" doc="Start Webots with minimal GUI" />
-    <arg name="use_sim_time" default="true" doc="Synchronize ROS time with simulation" />
+    <arg name="use_sim_time" default="false" doc="Synchronize ROS time with simulation" />
 
-    <param name="/use_sim_time" value="$(arg use_sim_time)" />
     <rosparam command="load" param="physical" file="$(find twizy_description)/config/physical.yaml" />
+    <param name="/use_sim_time" value="$(arg use_sim_time)" />
+    <param name="/twizy_webots/piksi/gyro/cov" value="0.01" />
+    <param name="/twizy_webots/piksi/gnss/cov" value="0.001" />
+    <param name="/twizy_webots/piksi/accelerometer/cov" value="10.0" />
+    <param name="/twizy_webots/wheel_encoder/cov" value="0.01" />
+    <param name="/twizy_webots/wheel_encoder/ups" value="30.0" />
 
     <node pkg="twizy_webots" type="twizy_webots" name="twizy_webots" args="--world '$(find twizy_webots)/worlds/$(arg world)' --mode $(arg mode) --no-gui $(arg no_gui)" required="true" />
-
-    <include file="$(find twizy_webots)/launch/include/controller.launch" />
-    <include file="$(find twizy_webots)/launch/include/piksi.launch" />
-    <include file="$(find twizy_webots)/launch/include/realsense.launch" />
-    <include file="$(find twizy_webots)/launch/include/wheel_encoder.launch" />
 </launch>

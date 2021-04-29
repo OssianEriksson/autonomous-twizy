@@ -1,6 +1,8 @@
 #ifndef TWIZY_WEBOTS_PIKSI
 #define TWIZY_WEBOTS_PIKSI
 
+#include <geodesy/utm.h>
+#include <geographic_msgs/GeoPoint.h>
 #include <ros/ros.h>
 #include <string>
 #include <webots/Accelerometer.hpp>
@@ -22,14 +24,19 @@ class Piksi {
 
     std::string position_;
 
-    float gnss_noise_;
+    float gnss_cov_, gyro_cov_, accelerometer_cov_;
+
+    geodesy::UTMPoint origin_;
 
     void imu_update(const ros::TimerEvent &evt);
     void gnss_update(const ros::TimerEvent &evt);
 
+    static geodesy::UTMPoint llh_to_utm_point(double lat, double lon,
+                                              double altitude);
+
   public:
     Piksi(webots::Supervisor &supervisor, ros::NodeHandle &nh,
-          std::string position);
+          ros::NodeHandle &nh_private, std::string position);
     ~Piksi();
 };
 
