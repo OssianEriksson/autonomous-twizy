@@ -1,5 +1,7 @@
 publish_potential: True
-visualize_potential: True
+
+use_dijkstra: False
+use_grid_path: True
 
 cost_factor: 2.0
 neutral_cost: 50
