@@ -14,7 +14,7 @@ import roslaunch
 import rostest
 
 
-NODE = 'twizy_can_control'
+NODE = 'can_control'
 MAX_STEERING_ANGLE = 1.0
 MAX_FORWARD_SPEED = 2.0
 MAX_REVERSE_SPEED = 1.0
@@ -68,7 +68,7 @@ class TestTwizyCanControl(unittest.TestCase):
         else:
             cls.run_can_tests = _display and tkinter.messagebox.askokcancel(
                 title='Important!',
-                message='The test twizy_control/tests/test_twizy_can_control '
+                message='The test twizy_control/tests/test_can_control '
                         'should not be run on the phyiscal Twizy\'s computer '
                         'as the test includes writing to CAN which might '
                         'cause the real car to move around in an unsafe '

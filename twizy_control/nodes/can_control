@@ -15,7 +15,7 @@ def byte_range(a):
 
 def main():
     # Initialize ROS node
-    rospy.init_node('twizy_can_control')
+    rospy.init_node('can_control')
 
     # Read parameters from ROS parameter server
     tout = rospy.get_param('~timeout', 150)
@@ -34,7 +34,7 @@ def main():
         """
         Publishes control signals to CAN bus
         """
-        angle = msg.drive.steering_angle
+        angle = msg.drive.steering_angle * 1.2
         speed = msg.drive.speed
 
         angle_scale, speed_scale = twizy_control.ackermann.cmd_scale(
