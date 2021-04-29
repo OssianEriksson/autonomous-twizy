@@ -23,8 +23,8 @@ max_vel_x: !eval physical['max_forward_speed']            # Maximum velocity in 
 max_vel_x_backwards: !eval physical['max_reverse_speed']  # Maximum velocity in negative x-direction [m/s]
 acc_lim_x: !eval physical['max_acceleration']             # Maximum Acceleration in x-direction [m/s²]
 max_vel_y: 0.0                                            # Maximum velocity in y-direction [m/s] (set to 0 for car-like vehicles)
-max_vel_theta: 0.1                                        # the angular velocity is also bounded by min_turning_radius in case of a carlike robot (r = v / omega)
-acc_lim_theta: 1.0                                        # Maximum angular velocity of the whole car in radians/sec
+max_vel_theta: 10.0                                        # the angular velocity is also bounded by min_turning_radius in case of a carlike robot (r = v / omega)
+acc_lim_theta: 10.0                                        # Maximum angular velocity of the whole car in radians/sec
 
 footprint_model:                 # types: "point", "circular", "two_circles", "line", "polygon"
   type: "line"           
@@ -47,7 +47,7 @@ cmd_angle_instead_rotvel: True                                                  
 # ****************************** Goal Tolerance *******************************
 
 xy_goal_tolerance: 0.2       # Tolerace for car position compared to end goal in meters
-yaw_goal_tolerance: 0.2      # Tolerance for car rotation compared to angular goal in radians
+yaw_goal_tolerance: 1.0      # Tolerance for car rotation compared to angular goal in radians
 free_goal_vel: False         # False makes the car arrive at goal at no speed, True allows it to arrive at any speed
 complete_global_plan: True
 
