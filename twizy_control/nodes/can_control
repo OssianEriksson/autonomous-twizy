@@ -34,7 +34,7 @@ def main():
         """
         Publishes control signals to CAN bus
         """
-        angle = msg.drive.steering_angle
+        angle = msg.drive.steering_angle * 1.2
         speed = msg.drive.speed
 
         angle_scale, speed_scale = twizy_control.ackermann.cmd_scale(
