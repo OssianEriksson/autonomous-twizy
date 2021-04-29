@@ -230,6 +230,8 @@ def twizy():
                                 'verticalFieldOfView':  model['lidar_vlp16']['vertical_fov'],
                                 'numberOfLayers': model['lidar_vlp16']['number_of_layers'],
                                 'maxRange': model['lidar_vlp16']['max_range'],
+                                'type': '"rotating"',
+                                'defaultFrequency': model['lidar_vlp16']['frequency'],
                                 'rotation': f'1.0 0.0 0.0 {pi / 2}'
                             }),
                             Node('Solid', {

@@ -97,7 +97,8 @@ lidar_vlp16:
   max_range: 100.0
   vertical_fov: 0.523598776   # (30°)
   number_of_layers: 16
-  horizontal_resolution: 180  # 360°/2° = 180
+  frequency: 20               # (Hz)
+  horizontal_resolution: 900  # 360°/0.4° = 900
 
 
 left_wheel_encoder:
