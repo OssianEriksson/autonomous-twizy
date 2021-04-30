@@ -31,8 +31,41 @@ obstacle_layer:
     marking: true
     clearing: true
 
+voxel_layer:
+  obstacle_range: 8.5
+  raytrace_range: 9.0
+  max_obstacle_height: !eval physical['total_height'] + 0.2
+  z_resolution: 0.2
+  z_voxels: 5
+  publish_voxel_map: True
+
+  observation_sources: rear_realsense_points lidar_points
+
+  front_realsense_points:
+    data_type: PointCloud2
+    topic: /camera/front/depth/color/points
+    min_obstacle_height: 0.2
+    marking: true
+    # clearing: true
+  
+  rear_realsense_points:
+    data_type: PointCloud2
+    topic: /camera/rear/depth/color/points
+    min_obstacle_height: 0.2
+    marking: true
+    # clearing: true
+
+  lidar_points: 
+    sensor_frame: lidar_vlp16
+    data_type: PointCloud2
+    topic: /lidar/points
+    min_obstacle_height: 0.2
+    marking: true
+    clearing: true
+
 plugins:
-- {name: obstacle_layer, type: "costmap_2d::ObstacleLayer"}
+# - {name: obstacle_layer, type: "costmap_2d::ObstacleLayer"}
+- {name: voxel_layer, type: "costmap_2d::VoxelLayer"}
 
 update_frequency: 0.5
 rolling_window: true
