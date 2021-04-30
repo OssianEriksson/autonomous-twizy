@@ -32,11 +32,11 @@ obstacle_layer:
     clearing: true
 
 voxel_layer:
-  obstacle_range: 8.5
-  raytrace_range: 9.0
+  obstacle_range: 15.0
+  raytrace_range: 15.0
   max_obstacle_height: !eval physical['total_height'] + 0.2
-  z_resolution: 0.2
-  z_voxels: 10
+  z_resolution: 0.3
+  z_voxels: 8
 
   observation_sources: rear_realsense_points lidar_points
 
@@ -52,7 +52,7 @@ voxel_layer:
     topic: /camera/rear/depth/color/points
     min_obstacle_height: 0.2
     marking: true
-    # clearing: true
+    clearing: true
 
   lidar_points: 
     sensor_frame: lidar_vlp16
