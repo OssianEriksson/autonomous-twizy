@@ -35,8 +35,8 @@ voxel_layer:
   obstacle_range: 15.0
   raytrace_range: 15.0
   max_obstacle_height: !eval physical['total_height'] + 0.2
-  z_resolution: 0.3
-  z_voxels: 8
+  z_resolution: 0.5
+  z_voxels: 4
 
   observation_sources: rear_realsense_points lidar_points
 
