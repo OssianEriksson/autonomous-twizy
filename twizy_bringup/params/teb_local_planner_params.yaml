@@ -24,7 +24,7 @@ max_vel_x_backwards: !eval physical['max_reverse_speed']  # Maximum velocity in 
 acc_lim_x: !eval physical['max_acceleration']             # Maximum Acceleration in x-direction [m/s²]
 max_vel_y: 0.0                                            # Maximum velocity in y-direction [m/s] (set to 0 for car-like vehicles)
 max_vel_theta: 10.0                                        # the angular velocity is also bounded by min_turning_radius in case of a carlike robot (r = v / omega)
-acc_lim_theta: 0.5                                        # Maximum angular velocity of the whole car in radians/sec
+acc_lim_theta: 0.3                                        # Maximum angular velocity of the whole car in radians/sec
 
 footprint_model:                 # types: "point", "circular", "two_circles", "line", "polygon"
   type: "line"           
@@ -78,7 +78,7 @@ obstacle_cost_exponent: 4    # Exponent for nonlinear obstacle cost (set to 1 to
 weight_max_vel_x: 2                     # Optimization weight for satisfying the maximum allowed translational velocity.
 weight_max_vel_theta: 0                 # Optimization weight for satisfying the maximum allowed angular velocity.
 weight_acc_lim_x: 1                     # Optimization weight for satisfying the maximum allowed translational acceleration 
-weight_acc_lim_theta: 0.5               # Optimization weight for satisfying the maximum allowed angular acceleration
+weight_acc_lim_theta: 1                 # Optimization weight for satisfying the maximum allowed angular acceleration
 weight_kinematics_nh: 1000              # Optimization weight for non-holonomic (e.g. cars) kinematics
 weight_kinematics_forward_drive: 10     # Opt. weight for forcing the robot to choose only forward directions. Small weights (e.g. =1) still allows going backwards, 1000 almost prevents all kinds of backwards driving.
 weight_kinematics_turning_radius: 1     # Opt. weight for forcing a minimum turning radius.
