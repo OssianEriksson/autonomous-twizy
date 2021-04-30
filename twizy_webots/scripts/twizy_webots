@@ -20,7 +20,6 @@ def install_executable(src, dst, args=[], name=None):
     if out.suffix.lower() != '.proto':
         out = out.parent / f'{out.name}.proto'
 
-
     out.write_text(content)
 
 
@@ -31,15 +30,10 @@ def install_protos():
     sim_time = rospy.get_param('/use_sim_time', False)
 
     l = 1.0 / sqrt(3)
-    controller_args = ['--name=twizy_webots']
-    if sim_time:
-        controller_args += ['--use-sim-time', '--clock']
-
     install_executable(src / 'twizy.py', dst, [
         'proto',
         f'--rotation={l} {l} {l} {4 * pi / 3}',
-        '--controller=ros',
-        *(f'--controller-args={a}' for a in controller_args)
+        '--controller=twizy_controller'
     ], 'Twizy')
 
 

@@ -1,54 +1,62 @@
 #!/usr/bin/python3
 
+from threading import Lock
 import rospy
 from ackermann_msgs.msg import AckermannDriveStamped
 from geometry_msgs.msg import Twist
 from std_msgs.msg import Bool
 
-object_in_the_way_rear = False
-object_in_the_way_front = False
+
+class TwistToAckermann:
+    def __init__(self):
+        self.lock = Lock()
+
+        self.ack = AckermannDriveStamped()
+        # Read parameters from ROS parameter server
+        self.ack.header.frame_id = rospy.get_param('~frame_id', 'odom')
+        self.max_steering_angle = rospy.get_param('~max_steering_angle')
+
+        cameras = ['front', 'rear']
+        self.object_in_the_way = {c: False for c in cameras}
+
+        self.pub = rospy.Publisher(
+            'ackermann_cmd', AckermannDriveStamped, queue_size=1)
+
+        rospy.Subscriber('cmd_vel', Twist, self.cb_cmd, queue_size=1)
+        for c in cameras:
+            rospy.Subscriber(f'object_detection_{c}', Bool,
+                             self.cb_object_detection, callback_args=c)
+
+    def cb_cmd(self, msg):
+        self.ack.header.stamp = rospy.Time.now()
+
+        # The cmd_angle_instead_rotvel parameter of teb_local_planner modifies
+        # the Twist message on the cmd_vel topic to contain absolute steering
+        # angle in its angular component instead of angular velocity
+        self.ack.drive.steering_angle = min(
+            max(msg.angular.z, -self.max_steering_angle),
+            self.max_steering_angle)
+
+        with self.lock:
+            if (self.object_in_the_way['front'] and msg.linear.x > 0.0
+                    or self.object_in_the_way['rear'] and msg.linear.x < 0.0):
+                self.ack.drive.speed = 0.0
+            else:
+                self.ack.drive.speed = msg.linear.x
+
+        self.pub.publish(self.ack)
+
+    def cb_object_detection(self, msg, camera):
+        with self.lock:
+            self.object_in_the_way[camera] = msg.data
+
+
 def main():
     # Initialize ROS node
     rospy.init_node('twist_to_ackermann')
 
-    # Read parameters from ROS parameter server
-    max_steering_angle = rospy.get_param('~max_steering_angle')
-    frame_id = rospy.get_param('~frame_id', 'odom')
+    TwistToAckermann()
 
-    pub = rospy.Publisher('ackermann_cmd', AckermannDriveStamped, queue_size=1)
-
-    def cmd_callback(data):
-        global object_in_the_way_front
-        global object_in_the_way_rear
-        msg = AckermannDriveStamped()
-        msg.header.stamp = rospy.Time.now()
-        msg.header.frame_id = frame_id
-        # The cmd_angle_instead_rotvel parameter of teb_local_planner modifies
-        # the Twist message on the cmd_vel topic to contain absolute steering
-        # angle in its angular component instead of angular velocity
-        msg.drive.steering_angle = min(
-            max(data.angular.z, -max_steering_angle), max_steering_angle)
-        
-        if object_in_the_way_front and data.linear.x > 0.0 or object_in_the_way_rear and data.linear.x < 0.0:
-            msg.drive.speed = 0.0
-        else :     
-            msg.drive.speed = data.linear.x
-
-        pub.publish(msg)
-
-    def stop_indicator_front(value) :
-        global object_in_the_way_front 
-        object_in_the_way_front = value.data
-    
-    def stop_indicator_rear(value) :
-        global object_in_the_way_rear 
-        object_in_the_way_rear = value.data
-
-
-
-    rospy.Subscriber('cmd_vel', Twist, cmd_callback, queue_size=1)
-    rospy.Subscriber('object_detection_front', Bool, stop_indicator_front)
-    rospy.Subscriber('object_detection_rear', Bool, stop_indicator_rear)
     try:
         rospy.spin()
     except rospy.ROSInterruptException:

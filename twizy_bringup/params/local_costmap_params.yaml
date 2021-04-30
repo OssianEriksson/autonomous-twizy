@@ -7,21 +7,21 @@ obstacle_layer:
   raytrace_range: 9.0
   max_obstacle_height: !eval physical['total_height'] + 0.2
 
-  observation_sources: front_realsense_points rear_realsense_points lidar_points
+  observation_sources: rear_realsense_points lidar_points
 
   front_realsense_points:
     data_type: PointCloud2
     topic: /camera/front/depth/color/points
     min_obstacle_height: 0.2
     marking: true
-    clearing: true
+    # clearing: true
   
   rear_realsense_points:
     data_type: PointCloud2
     topic: /camera/rear/depth/color/points
     min_obstacle_height: 0.2
     marking: true
-    clearing: true
+    # clearing: true
 
   lidar_points: 
     sensor_frame: lidar_vlp16
@@ -34,8 +34,8 @@ obstacle_layer:
 plugins:
 - {name: obstacle_layer, type: "costmap_2d::ObstacleLayer"}
 
-update_frequency: 1.0
+update_frequency: 0.5
 rolling_window: true
 width: 20.0                   # Width of the local costmap
 height: 20.0                  # Height of the local costmap
-resolution: 0.2
+resolution: 0.5
