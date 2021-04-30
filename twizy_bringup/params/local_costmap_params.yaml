@@ -63,8 +63,8 @@ voxel_layer:
     clearing: true
 
 plugins:
-# - {name: obstacle_layer, type: "costmap_2d::ObstacleLayer"}
-- {name: voxel_layer, type: "costmap_2d::VoxelLayer"}
+- {name: obstacle_layer, type: "costmap_2d::ObstacleLayer"}
+# - {name: voxel_layer, type: "costmap_2d::VoxelLayer"}
 
 update_frequency: 0.5
 rolling_window: true
