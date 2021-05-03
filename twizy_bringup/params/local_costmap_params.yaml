@@ -85,8 +85,8 @@ plugins:
 # - {name: obstacle_layer, type: "costmap_2d::ObstacleLayer"}
 - {name: voxel_layer, type: "costmap_2d::VoxelLayer"}
 
-update_frequency: 0.5
+update_frequency: 2.0
 rolling_window: true
-width: 10.0                   # Width of the local costmap
-height: 10.0                  # Height of the local costmap
+width: 20.0                   # Width of the local costmap
+height: 20.0                  # Height of the local costmap
 resolution: 0.3

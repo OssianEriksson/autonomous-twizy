@@ -31,7 +31,7 @@ plugins:
 - {name: inflater_layer, type: "costmap_2d::InflationLayer"}
 
 
-update_frequency: 2.0
+update_frequency: 0.5
 rolling_window: true
 
 # The width, and height are needed so there aren't complaints when a goal
