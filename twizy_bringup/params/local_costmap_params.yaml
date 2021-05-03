@@ -36,7 +36,7 @@ voxel_layer:
   z_voxels: 5
   publish_voxel_map: true
 
-  observation_sources: rear_realsense_marking rear_realsense_clearing lidar_marking lidar_clearing
+  observation_sources: rear_realsense_marking rear_realsense_clearing lidar_marking lidar_clearing front_realsense_marking front_realsense_clearing
 
   rear_realsense_marking: &rear_realsense_marking
     data_type: PointCloud2
@@ -44,14 +44,14 @@ voxel_layer:
     min_obstacle_height: 0.2
     marking: true
     clearing: false
-    obstacle_range: 5.0
+    obstacle_range: 3.5
     max_obstacle_height: !eval physical['total_height'] + 0.2
   
   rear_realsense_clearing: &rear_realsense_clearing
     <<: *rear_realsense_marking
     marking: false
     clearing: true
-    raytrace_range: 6.0
+    raytrace_range: 4.0
     max_obstacle_height: 1000.0
     min_obstacle_height: -1000.0
   
@@ -69,14 +69,14 @@ voxel_layer:
     min_obstacle_height: 0.2
     marking: true
     clearing: false
-    obstacle_range: 20.0
+    obstacle_range: 14.0
     max_obstacle_height: !eval physical['total_height'] + 0.2
 
   lidar_clearing: &lidar_clearing
     <<: *lidar_marking
     marking: false
     clearing: true
-    raytrace_range: 9.0
+    raytrace_range: 15.0
     max_obstacle_height: 1000.0
     min_obstacle_height: -1000.0
 
@@ -89,4 +89,4 @@ update_frequency: 0.5
 rolling_window: true
 width: 20.0                   # Width of the local costmap
 height: 20.0                  # Height of the local costmap
-resolution: 0.2
+resolution: 0.3
