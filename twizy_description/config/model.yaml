@@ -50,14 +50,14 @@ right_piksi_imu:
 
 front_realsense:
   position:  # In chassis frame: x forward z up, (0, 0, 0) centered on chassis floor 
-    x: 0.068
+    x: 0.913
     y: 0.0
-    z: 1.375
+    z: 0.66
   rotation:  # Axis angle in chassis frame
-    x: 0.0
-    y: 1.0
-    z: 0.0
-    angle: 0.0  # Camera originally looking at x in chassis frame
+    x: -0.70575756
+    y: -0.70575756
+    z: 0.06174579
+    angle: -0.02466699798594419  # Camera originally looking at x in chassis frame
   color:
     fov: 1.117010721276371  # Horizontal FOV (64°)
     width: 640
