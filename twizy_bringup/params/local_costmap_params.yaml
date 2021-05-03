@@ -60,7 +60,7 @@ voxel_layer:
     topic: /camera/front/depth/color/points
   
   front_realsense_clearing: &front_realsense_clearing
-    <<: *rear_realsense_marking
+    <<: *rear_realsense_clearing
     topic: /camera/front/depth/color/points
   
   lidar_marking: &lidar_marking
