@@ -31,7 +31,6 @@ plugins:
 - {name: inflater_layer, type: "costmap_2d::InflationLayer"}
 
 
-transform_tolerance: 0.3      #New line to fix missing control loop TEST
 update_frequency: 2.0
 rolling_window: true
 
