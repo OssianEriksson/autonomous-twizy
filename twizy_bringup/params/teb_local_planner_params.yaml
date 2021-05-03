@@ -62,9 +62,13 @@ obstacle_poses_affected: 15                                               # Each
 dynamic_obstacle_inflation_dist: *inflation_dist  # Same as inflation_dist but for dynamic obstacles
 include_dynamic_obstacles: False                  # Specify if dynamic obstacles should be taken into account. Movement of these is predicted assuming constant velocity
 
-costmap_converter_plugin: "costmap_converter::CostmapToLinesDBSRANSAC"  # Define plugin name in order to convert costmap cells to points/lines/polygons. Set an empty string to disable the conversion such that all cells are treated as point-obstacles.
-costmap_converter_spin_thread: True                                     # If set to true, the costmap converter invokes its callback queue in a different thread.
-costmap_converter_rate: 5                                               # Rate that defines how often the costmap_converter plugin processes the current costmap [Hz] (Doesn't matter when using no plugin)
+costmap_converter_plugin: "costmap_converter::CostmapToPolygonsDBSMCCH"  # Define plugin name in order to convert costmap cells to points/lines/polygons. Set an empty string to disable the conversion such that all cells are treated as point-obstacles.
+costmap_converter_spin_thread: True                                      # If set to true, the costmap converter invokes its callback queue in a different thread.
+costmap_converter_rate: 5                                                # Rate that defines how often the costmap_converter plugin processes the current costmap [Hz] (Doesn't matter when using no plugin)
+
+costmap_converter/CostmapToPolygonsDBSMCCH:
+  cluster_max_distance: 1.2
+  convex_hull_min_pt_separation: 0.3
 
 # ******************************* Optimization ********************************
   
