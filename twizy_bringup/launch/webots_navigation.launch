@@ -10,5 +10,5 @@
     <include file="$(find twizy_bringup)/launch/include/transforms.launch" />
     <include file="$(find twizy_bringup)/launch/include/rviz.launch" />
     <include file="$(find twizy_bringup)/launch/include/nav_stack.launch" />
-    <include file="$(find twizy_bringup)/launch/include/yolo.launch" />
+    <!-- <include file="$(find twizy_bringup)/launch/include/yolo.launch" /> -->
 </launch>

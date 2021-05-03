@@ -30,6 +30,7 @@ plugins:
 - {name: obstacle_layer, type: "costmap_2d::ObstacleLayer"}
 - {name: inflater_layer, type: "costmap_2d::InflationLayer"}
 
+
 update_frequency: 2.0
 rolling_window: true
 
