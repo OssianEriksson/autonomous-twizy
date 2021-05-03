@@ -30,7 +30,7 @@ def main():
                 ros_image, desired_encoding="passthrough")
 
             # create an bool  to bee sent if the car identifies an object
-            msg_to_publish = True
+            msg_to_publish = False
 
             # loops over every box and calculate the avreage distance to each object by adding the distance to every pixel
             # when we don't find any object the camera returns ymax as -106 there for we check before going inside the second loop.
