@@ -34,6 +34,6 @@ rolling_window: true
 # (see https://answers.ros.org/question/89946/the-goal-sent-to-the-navfn-
 # planner-is-off-the-global-costmap-how-to-send-a-goal-more-than-10-meters-
 # away-from-the-robot/), but is still a thing in global_planner
-width: 100.0
-height: 100.0
+width: 75.0
+height: 75.0
 resolution: 2.0
