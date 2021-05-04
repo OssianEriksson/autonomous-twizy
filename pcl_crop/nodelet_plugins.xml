@@ -1,0 +1,5 @@
+<library path="lib/libcrop_nodelet">
+    <class name="pcl_crop/PclCropNodelet" type="pcl_crop::PclCropNodelet" base_class_type="nodelet::Nodelet">
+        <description>Cropping of ordered PointCloud2s</description>
+    </class>
+</library>
