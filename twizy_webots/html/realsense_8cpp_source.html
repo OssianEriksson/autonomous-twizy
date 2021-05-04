@@ -118,48 +118,42 @@ $(function() {
 <div class="line"><a name="l00091"></a><span class="lineno">   91</span>&#160;    sensor_msgs::PointCloud2Modifier pcd_modifier(points);</div>
 <div class="line"><a name="l00092"></a><span class="lineno">   92</span>&#160;    pcd_modifier.setPointCloud2FieldsByString(2, <span class="stringliteral">&quot;xyz&quot;</span>, <span class="stringliteral">&quot;rgb&quot;</span>);</div>
 <div class="line"><a name="l00093"></a><span class="lineno">   93</span>&#160; </div>
-<div class="line"><a name="l00094"></a><span class="lineno">   94</span>&#160;    <span class="keywordtype">float</span> max_range = 0.99 * <a class="code" href="classtwizy__webots_1_1Realsense.html#afaa9100e02838ca768985ce43a75d100">range_finder_</a>-&gt;getMaxRange();</div>
-<div class="line"><a name="l00095"></a><span class="lineno">   95</span>&#160;    uint16_t *processed_range_data =</div>
-<div class="line"><a name="l00096"></a><span class="lineno">   96</span>&#160;        (uint16_t *)(<span class="keywordtype">void</span> *)range_image.data.data();</div>
-<div class="line"><a name="l00097"></a><span class="lineno">   97</span>&#160;    sensor_msgs::PointCloud2Iterator&lt;float&gt; iter_x(points, <span class="stringliteral">&quot;x&quot;</span>);</div>
-<div class="line"><a name="l00098"></a><span class="lineno">   98</span>&#160;    sensor_msgs::PointCloud2Iterator&lt;float&gt; iter_y(points, <span class="stringliteral">&quot;y&quot;</span>);</div>
-<div class="line"><a name="l00099"></a><span class="lineno">   99</span>&#160;    sensor_msgs::PointCloud2Iterator&lt;float&gt; iter_z(points, <span class="stringliteral">&quot;z&quot;</span>);</div>
-<div class="line"><a name="l00100"></a><span class="lineno">  100</span>&#160;    sensor_msgs::PointCloud2Iterator&lt;uint8_t&gt; iter_r(points, <span class="stringliteral">&quot;r&quot;</span>);</div>
-<div class="line"><a name="l00101"></a><span class="lineno">  101</span>&#160;    sensor_msgs::PointCloud2Iterator&lt;uint8_t&gt; iter_g(points, <span class="stringliteral">&quot;g&quot;</span>);</div>
-<div class="line"><a name="l00102"></a><span class="lineno">  102</span>&#160;    sensor_msgs::PointCloud2Iterator&lt;uint8_t&gt; iter_b(points, <span class="stringliteral">&quot;b&quot;</span>);</div>
-<div class="line"><a name="l00103"></a><span class="lineno">  103</span>&#160;    <span class="keywordflow">for</span> (<span class="keywordtype">int</span> v = 0; v &lt; <a class="code" href="classtwizy__webots_1_1Realsense.html#a2f361860d9ee54539cb97ce78d6d1e77">camera_</a>-&gt;getHeight(); v++) {</div>
-<div class="line"><a name="l00104"></a><span class="lineno">  104</span>&#160;        <span class="keywordflow">for</span> (<span class="keywordtype">int</span> u = 0; u &lt; <a class="code" href="classtwizy__webots_1_1Realsense.html#a2f361860d9ee54539cb97ce78d6d1e77">camera_</a>-&gt;getWidth(); u++, processed_range_data++,</div>
-<div class="line"><a name="l00105"></a><span class="lineno">  105</span>&#160;                 camera_data += 4, range_data++, ++iter_x, ++iter_y, ++iter_z,</div>
-<div class="line"><a name="l00106"></a><span class="lineno">  106</span>&#160;                 ++iter_r, ++iter_g, ++iter_b) {</div>
-<div class="line"><a name="l00107"></a><span class="lineno">  107</span>&#160;            *processed_range_data = round(*range_data * 1000.0);</div>
-<div class="line"><a name="l00108"></a><span class="lineno">  108</span>&#160; </div>
-<div class="line"><a name="l00109"></a><span class="lineno">  109</span>&#160;            <span class="keywordflow">if</span> (*range_data &lt; max_range) {</div>
-<div class="line"><a name="l00110"></a><span class="lineno">  110</span>&#160;                *iter_x = *range_data;</div>
-<div class="line"><a name="l00111"></a><span class="lineno">  111</span>&#160;                *iter_y = *range_data * (cx - u) / f;</div>
-<div class="line"><a name="l00112"></a><span class="lineno">  112</span>&#160;                *iter_z = *range_data * (cy - v) / f;</div>
-<div class="line"><a name="l00113"></a><span class="lineno">  113</span>&#160;            } <span class="keywordflow">else</span> {</div>
-<div class="line"><a name="l00114"></a><span class="lineno">  114</span>&#160;                *iter_x = *iter_y = *iter_z =</div>
-<div class="line"><a name="l00115"></a><span class="lineno">  115</span>&#160;                    std::numeric_limits&lt;float&gt;::quiet_NaN();</div>
-<div class="line"><a name="l00116"></a><span class="lineno">  116</span>&#160;            }</div>
-<div class="line"><a name="l00117"></a><span class="lineno">  117</span>&#160;            *iter_r = camera_data[2];</div>
-<div class="line"><a name="l00118"></a><span class="lineno">  118</span>&#160;            *iter_g = camera_data[1];</div>
-<div class="line"><a name="l00119"></a><span class="lineno">  119</span>&#160;            *iter_b = camera_data[0];</div>
-<div class="line"><a name="l00120"></a><span class="lineno">  120</span>&#160;        }</div>
-<div class="line"><a name="l00121"></a><span class="lineno">  121</span>&#160;    }</div>
-<div class="line"><a name="l00122"></a><span class="lineno">  122</span>&#160; </div>
-<div class="line"><a name="l00123"></a><span class="lineno">  123</span>&#160;    <a class="code" href="classtwizy__webots_1_1Realsense.html#a70ca2ace21abbfb6fa9125d7bf8681e8">pub_camera_</a>.publish(camera_image);</div>
-<div class="line"><a name="l00124"></a><span class="lineno">  124</span>&#160;    <a class="code" href="classtwizy__webots_1_1Realsense.html#acb59992c7d2c6b8deded14e9f913d861">pub_camera_info_</a>.publish(camera_info);</div>
-<div class="line"><a name="l00125"></a><span class="lineno">  125</span>&#160;    <a class="code" href="classtwizy__webots_1_1Realsense.html#acf5eb3986b33a1a34fe13ce3d1947e29">pub_range_</a>.publish(range_image);</div>
-<div class="line"><a name="l00126"></a><span class="lineno">  126</span>&#160;    <a class="code" href="classtwizy__webots_1_1Realsense.html#a4ffb39a9a5a9025f47276d28451dc962">pub_range_info_</a>.publish(camera_info);</div>
-<div class="line"><a name="l00127"></a><span class="lineno">  127</span>&#160;    <a class="code" href="classtwizy__webots_1_1Realsense.html#a7a518c377c44256c5f5b1f815d77d51c">pub_points_</a>.publish(points);</div>
-<div class="line"><a name="l00128"></a><span class="lineno">  128</span>&#160;}</div>
-<div class="line"><a name="l00129"></a><span class="lineno">  129</span>&#160; </div>
-<div class="line"><a name="l00130"></a><span class="lineno"><a class="line" href="classtwizy__webots_1_1Realsense.html#a69100bcb1d4ec11f562ec183d668212a">  130</a></span>&#160;<a class="code" href="classtwizy__webots_1_1Realsense.html#a69100bcb1d4ec11f562ec183d668212a">Realsense::~Realsense</a>() {</div>
-<div class="line"><a name="l00131"></a><span class="lineno">  131</span>&#160;    <a class="code" href="classtwizy__webots_1_1Realsense.html#a2f361860d9ee54539cb97ce78d6d1e77">camera_</a>.reset();</div>
-<div class="line"><a name="l00132"></a><span class="lineno">  132</span>&#160;    <a class="code" href="classtwizy__webots_1_1Realsense.html#afaa9100e02838ca768985ce43a75d100">range_finder_</a>.reset();</div>
-<div class="line"><a name="l00133"></a><span class="lineno">  133</span>&#160;}</div>
-<div class="line"><a name="l00134"></a><span class="lineno">  134</span>&#160; </div>
-<div class="line"><a name="l00135"></a><span class="lineno">  135</span>&#160;} <span class="comment">// namespace twizy_webots</span></div>
+<div class="line"><a name="l00094"></a><span class="lineno">   94</span>&#160;    uint16_t *processed_range_data =</div>
+<div class="line"><a name="l00095"></a><span class="lineno">   95</span>&#160;        (uint16_t *)(<span class="keywordtype">void</span> *)range_image.data.data();</div>
+<div class="line"><a name="l00096"></a><span class="lineno">   96</span>&#160;    sensor_msgs::PointCloud2Iterator&lt;float&gt; iter_x(points, <span class="stringliteral">&quot;x&quot;</span>);</div>
+<div class="line"><a name="l00097"></a><span class="lineno">   97</span>&#160;    sensor_msgs::PointCloud2Iterator&lt;float&gt; iter_y(points, <span class="stringliteral">&quot;y&quot;</span>);</div>
+<div class="line"><a name="l00098"></a><span class="lineno">   98</span>&#160;    sensor_msgs::PointCloud2Iterator&lt;float&gt; iter_z(points, <span class="stringliteral">&quot;z&quot;</span>);</div>
+<div class="line"><a name="l00099"></a><span class="lineno">   99</span>&#160;    sensor_msgs::PointCloud2Iterator&lt;uint8_t&gt; iter_r(points, <span class="stringliteral">&quot;r&quot;</span>);</div>
+<div class="line"><a name="l00100"></a><span class="lineno">  100</span>&#160;    sensor_msgs::PointCloud2Iterator&lt;uint8_t&gt; iter_g(points, <span class="stringliteral">&quot;g&quot;</span>);</div>
+<div class="line"><a name="l00101"></a><span class="lineno">  101</span>&#160;    sensor_msgs::PointCloud2Iterator&lt;uint8_t&gt; iter_b(points, <span class="stringliteral">&quot;b&quot;</span>);</div>
+<div class="line"><a name="l00102"></a><span class="lineno">  102</span>&#160;    <span class="keywordflow">for</span> (<span class="keywordtype">int</span> v = 0; v &lt; <a class="code" href="classtwizy__webots_1_1Realsense.html#a2f361860d9ee54539cb97ce78d6d1e77">camera_</a>-&gt;getHeight(); v++) {</div>
+<div class="line"><a name="l00103"></a><span class="lineno">  103</span>&#160;        <span class="keywordflow">for</span> (<span class="keywordtype">int</span> u = 0; u &lt; <a class="code" href="classtwizy__webots_1_1Realsense.html#a2f361860d9ee54539cb97ce78d6d1e77">camera_</a>-&gt;getWidth(); u++, processed_range_data++,</div>
+<div class="line"><a name="l00104"></a><span class="lineno">  104</span>&#160;                 camera_data += 4, range_data++, ++iter_x, ++iter_y, ++iter_z,</div>
+<div class="line"><a name="l00105"></a><span class="lineno">  105</span>&#160;                 ++iter_r, ++iter_g, ++iter_b) {</div>
+<div class="line"><a name="l00106"></a><span class="lineno">  106</span>&#160;            *processed_range_data = round(*range_data * 1000.0);</div>
+<div class="line"><a name="l00107"></a><span class="lineno">  107</span>&#160; </div>
+<div class="line"><a name="l00108"></a><span class="lineno">  108</span>&#160;            *iter_x = *range_data;</div>
+<div class="line"><a name="l00109"></a><span class="lineno">  109</span>&#160;            *iter_y = *range_data * (cx - u) / f;</div>
+<div class="line"><a name="l00110"></a><span class="lineno">  110</span>&#160;            *iter_z = *range_data * (cy - v) / f;</div>
+<div class="line"><a name="l00111"></a><span class="lineno">  111</span>&#160;            *iter_r = camera_data[2];</div>
+<div class="line"><a name="l00112"></a><span class="lineno">  112</span>&#160;            *iter_g = camera_data[1];</div>
+<div class="line"><a name="l00113"></a><span class="lineno">  113</span>&#160;            *iter_b = camera_data[0];</div>
+<div class="line"><a name="l00114"></a><span class="lineno">  114</span>&#160;        }</div>
+<div class="line"><a name="l00115"></a><span class="lineno">  115</span>&#160;    }</div>
+<div class="line"><a name="l00116"></a><span class="lineno">  116</span>&#160; </div>
+<div class="line"><a name="l00117"></a><span class="lineno">  117</span>&#160;    <a class="code" href="classtwizy__webots_1_1Realsense.html#a70ca2ace21abbfb6fa9125d7bf8681e8">pub_camera_</a>.publish(camera_image);</div>
+<div class="line"><a name="l00118"></a><span class="lineno">  118</span>&#160;    <a class="code" href="classtwizy__webots_1_1Realsense.html#acb59992c7d2c6b8deded14e9f913d861">pub_camera_info_</a>.publish(camera_info);</div>
+<div class="line"><a name="l00119"></a><span class="lineno">  119</span>&#160;    <a class="code" href="classtwizy__webots_1_1Realsense.html#acf5eb3986b33a1a34fe13ce3d1947e29">pub_range_</a>.publish(range_image);</div>
+<div class="line"><a name="l00120"></a><span class="lineno">  120</span>&#160;    <a class="code" href="classtwizy__webots_1_1Realsense.html#a4ffb39a9a5a9025f47276d28451dc962">pub_range_info_</a>.publish(camera_info);</div>
+<div class="line"><a name="l00121"></a><span class="lineno">  121</span>&#160;    <a class="code" href="classtwizy__webots_1_1Realsense.html#a7a518c377c44256c5f5b1f815d77d51c">pub_points_</a>.publish(points);</div>
+<div class="line"><a name="l00122"></a><span class="lineno">  122</span>&#160;}</div>
+<div class="line"><a name="l00123"></a><span class="lineno">  123</span>&#160; </div>
+<div class="line"><a name="l00124"></a><span class="lineno"><a class="line" href="classtwizy__webots_1_1Realsense.html#a69100bcb1d4ec11f562ec183d668212a">  124</a></span>&#160;<a class="code" href="classtwizy__webots_1_1Realsense.html#a69100bcb1d4ec11f562ec183d668212a">Realsense::~Realsense</a>() {</div>
+<div class="line"><a name="l00125"></a><span class="lineno">  125</span>&#160;    <a class="code" href="classtwizy__webots_1_1Realsense.html#a2f361860d9ee54539cb97ce78d6d1e77">camera_</a>.reset();</div>
+<div class="line"><a name="l00126"></a><span class="lineno">  126</span>&#160;    <a class="code" href="classtwizy__webots_1_1Realsense.html#afaa9100e02838ca768985ce43a75d100">range_finder_</a>.reset();</div>
+<div class="line"><a name="l00127"></a><span class="lineno">  127</span>&#160;}</div>
+<div class="line"><a name="l00128"></a><span class="lineno">  128</span>&#160; </div>
+<div class="line"><a name="l00129"></a><span class="lineno">  129</span>&#160;} <span class="comment">// namespace twizy_webots</span></div>
 </div><!-- fragment --></div><!-- contents -->
 <div class="ttc" id="aclasstwizy__webots_1_1Realsense_html_afaa9100e02838ca768985ce43a75d100"><div class="ttname"><a href="classtwizy__webots_1_1Realsense.html#afaa9100e02838ca768985ce43a75d100">twizy_webots::Realsense::range_finder_</a></div><div class="ttdeci">std::unique_ptr&lt; webots::RangeFinder &gt; range_finder_</div><div class="ttdef"><b>Definition:</b> <a href="realsense_8h_source.html#l00015">realsense.h:15</a></div></div>
 <div class="ttc" id="aclasstwizy__webots_1_1Realsense_html_a70ca2ace21abbfb6fa9125d7bf8681e8"><div class="ttname"><a href="classtwizy__webots_1_1Realsense.html#a70ca2ace21abbfb6fa9125d7bf8681e8">twizy_webots::Realsense::pub_camera_</a></div><div class="ttdeci">ros::Publisher pub_camera_</div><div class="ttdef"><b>Definition:</b> <a href="realsense_8h_source.html#l00017">realsense.h:17</a></div></div>
@@ -172,7 +166,7 @@ $(function() {
 <div class="ttc" id="aclasstwizy__webots_1_1Realsense_html_ad5fd7868d3b62cc24951f430dcac7dff"><div class="ttname"><a href="classtwizy__webots_1_1Realsense.html#ad5fd7868d3b62cc24951f430dcac7dff">twizy_webots::Realsense::position_</a></div><div class="ttdeci">std::string position_</div><div class="ttdef"><b>Definition:</b> <a href="realsense_8h_source.html#l00022">realsense.h:22</a></div></div>
 <div class="ttc" id="aclasstwizy__webots_1_1Realsense_html_a4e3ec0656ce5a082fbd5e94368bce517"><div class="ttname"><a href="classtwizy__webots_1_1Realsense.html#a4e3ec0656ce5a082fbd5e94368bce517">twizy_webots::Realsense::Realsense</a></div><div class="ttdeci">Realsense(webots::Supervisor &amp;supervisor, ros::NodeHandle &amp;nh, std::string position)</div><div class="ttdef"><b>Definition:</b> <a href="realsense_8cpp_source.html#l00014">realsense.cpp:14</a></div></div>
 <div class="ttc" id="aclasstwizy__webots_1_1Realsense_html_aabec4276492db8e11997c1173026b44f"><div class="ttname"><a href="classtwizy__webots_1_1Realsense.html#aabec4276492db8e11997c1173026b44f">twizy_webots::Realsense::update_timer_</a></div><div class="ttdeci">ros::Timer update_timer_</div><div class="ttdef"><b>Definition:</b> <a href="realsense_8h_source.html#l00020">realsense.h:20</a></div></div>
-<div class="ttc" id="aclasstwizy__webots_1_1Realsense_html_a69100bcb1d4ec11f562ec183d668212a"><div class="ttname"><a href="classtwizy__webots_1_1Realsense.html#a69100bcb1d4ec11f562ec183d668212a">twizy_webots::Realsense::~Realsense</a></div><div class="ttdeci">~Realsense()</div><div class="ttdef"><b>Definition:</b> <a href="realsense_8cpp_source.html#l00130">realsense.cpp:130</a></div></div>
+<div class="ttc" id="aclasstwizy__webots_1_1Realsense_html_a69100bcb1d4ec11f562ec183d668212a"><div class="ttname"><a href="classtwizy__webots_1_1Realsense.html#a69100bcb1d4ec11f562ec183d668212a">twizy_webots::Realsense::~Realsense</a></div><div class="ttdeci">~Realsense()</div><div class="ttdef"><b>Definition:</b> <a href="realsense_8cpp_source.html#l00124">realsense.cpp:124</a></div></div>
 <div class="ttc" id="aclasstwizy__webots_1_1Realsense_html_a7a518c377c44256c5f5b1f815d77d51c"><div class="ttname"><a href="classtwizy__webots_1_1Realsense.html#a7a518c377c44256c5f5b1f815d77d51c">twizy_webots::Realsense::pub_points_</a></div><div class="ttdeci">ros::Publisher pub_points_</div><div class="ttdef"><b>Definition:</b> <a href="realsense_8h_source.html#l00019">realsense.h:19</a></div></div>
 <div class="ttc" id="anamespacetwizy__webots_html"><div class="ttname"><a href="namespacetwizy__webots.html">twizy_webots</a></div><div class="ttdef"><b>Definition:</b> <a href="motors_8h_source.html#l00010">motors.h:10</a></div></div>
 
@@ -180,7 +174,7 @@ $(function() {
 <hr size="1"><div style="align: right;">
 <a href="http://wiki.ros.org/twizy_webots">twizy_webots</a><br />
 Author(s): Ossian Eriksson <ossiane@student.chalmers.se></br />
-<small>autogenerated on Mon May 3 2021 10:49:40</small>
+<small>autogenerated on Tue May 4 2021 08:29:24</small>
 </div>
 </body>
 </html>
