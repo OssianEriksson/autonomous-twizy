@@ -3,5 +3,6 @@
     <remap from="/velodyne_points" to="/lidar/points" />
     <include file="$(find velodyne_pointcloud)/launch/VLP16_points.launch">
         <arg name="frame_id" value="lidar_vlp16" />
+        <arg name="max_range" value="10000" />
     </include>
 </launch>

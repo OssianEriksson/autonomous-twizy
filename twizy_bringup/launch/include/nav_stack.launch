@@ -7,7 +7,7 @@
 		<rosparam ns="TebLocalPlannerROS" subst_value="true">$(eval exec('global load; from twizy_bringup.twizyparam import load') or load(f'{find("twizy_bringup")}/params/teb_local_planner_params.yaml'))</rosparam>
 
 		<param name="base_global_planner" value="global_planner/GlobalPlanner" />
-		<param name="planner_frequency" value="1.0" />
+		<param name="planner_frequency" value="0.5" />
 		<param name="planner_patience" value="5.0" />
 
 		<param name="base_local_planner" value="teb_local_planner/TebLocalPlannerROS" />

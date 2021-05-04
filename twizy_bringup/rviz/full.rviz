@@ -24,7 +24,7 @@ Panels:
     Experimental: false
     Name: Time
     SyncMode: 0
-    SyncSource: LiDAR
+    SyncSource: ""
 Preferences:
   PromptSaveOnExit: true
 Toolbars:
@@ -85,7 +85,7 @@ Visualization Manager:
           Alpha: 1
           Show Axes: false
           Show Trail: false
-        lidar_vlp16_device:
+        lidar_vlp16_webots:
           Alpha: 1
           Show Axes: false
           Show Trail: false
@@ -275,6 +275,17 @@ Visualization Manager:
       Unreliable: false
       Use Timestamp: false
       Value: false
+    - Class: rviz/Marker
+      Enabled: true
+      Marker Topic: /move_base/TebLocalPlannerROS/teb_markers
+      Name: Marker
+      Namespaces:
+        LineObstacles: true
+        PolyObstacles: true
+        RobotFootprintModel: true
+        TebContainer: true
+      Queue Size: 100
+      Value: true
   Enabled: true
   Global Options:
     Background Color: 48; 48; 48
@@ -303,7 +314,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 23.53746795654297
+      Distance: 11.857762336730957
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
@@ -319,9 +330,9 @@ Visualization Manager:
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.5147973895072937
+      Pitch: 0.9147971868515015
       Target Frame: <Fixed Frame>
-      Yaw: 1.0045793056488037
+      Yaw: 0.6995760202407837
     Saved: ~
 Window Geometry:
   Displays:

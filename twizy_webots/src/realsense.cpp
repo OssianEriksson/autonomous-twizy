@@ -91,7 +91,6 @@ void Realsense::update(const ros::TimerEvent &evt) {
     sensor_msgs::PointCloud2Modifier pcd_modifier(points);
     pcd_modifier.setPointCloud2FieldsByString(2, "xyz", "rgb");
 
-    float max_range = 0.99 * range_finder_->getMaxRange();
     uint16_t *processed_range_data =
         (uint16_t *)(void *)range_image.data.data();
     sensor_msgs::PointCloud2Iterator<float> iter_x(points, "x");
@@ -106,14 +105,9 @@ void Realsense::update(const ros::TimerEvent &evt) {
                  ++iter_r, ++iter_g, ++iter_b) {
             *processed_range_data = round(*range_data * 1000.0);
 
-            if (*range_data < max_range) {
-                *iter_x = *range_data;
-                *iter_y = *range_data * (cx - u) / f;
-                *iter_z = *range_data * (cy - v) / f;
-            } else {
-                *iter_x = *iter_y = *iter_z =
-                    std::numeric_limits<float>::quiet_NaN();
-            }
+            *iter_x = *range_data;
+            *iter_y = *range_data * (cx - u) / f;
+            *iter_z = *range_data * (cy - v) / f;
             *iter_r = camera_data[2];
             *iter_g = camera_data[1];
             *iter_b = camera_data[0];

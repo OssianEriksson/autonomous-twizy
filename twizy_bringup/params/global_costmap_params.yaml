@@ -3,19 +3,24 @@
 !variable physical : !include $(rospack find twizy_description)/config/physical.yaml
 
 obstacle_layer:
-  obstacle_range: 50.0
-  raytrace_range: 50.0
-  max_obstacle_height: !eval physical['total_height'] + 0.2
+  observation_sources: lidar_marking lidar_clearing
 
-  observation_sources: lidar_points
-
-  lidar_points: 
-    sensor_frame: lidar_vlp16
+  lidar_marking: &lidar_marking
     data_type: PointCloud2
     topic: /lidar/points
-    min_obstacle_height: 0.2
+    min_obstacle_height: 0.3
     marking: true
+    clearing: false
+    obstacle_range: 90.0
+    max_obstacle_height: !eval physical['total_height'] + 0.2
+
+  lidar_clearing: &lidar_clearing
+    <<: *lidar_marking
+    marking: false
     clearing: true
+    raytrace_range: 100.0
+    max_obstacle_height: 1000.0
+    min_obstacle_height: -1000.0
 
 inflater_layer:
   inflation_radius: 3.0
@@ -25,7 +30,8 @@ plugins:
 - {name: obstacle_layer, type: "costmap_2d::ObstacleLayer"}
 - {name: inflater_layer, type: "costmap_2d::InflationLayer"}
 
-update_frequency: 2.0
+
+update_frequency: 0.5
 rolling_window: true
 
 # The width, and height are needed so there aren't complaints when a goal
@@ -34,6 +40,6 @@ rolling_window: true
 # (see https://answers.ros.org/question/89946/the-goal-sent-to-the-navfn-
 # planner-is-off-the-global-costmap-how-to-send-a-goal-more-than-10-meters-
 # away-from-the-robot/), but is still a thing in global_planner
-width: 100.0
-height: 100.0
+width: 75.0
+height: 75.0
 resolution: 2.0

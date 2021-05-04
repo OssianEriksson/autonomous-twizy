@@ -9,7 +9,7 @@ obstacle_layer:
 
   observation_sources: rear_realsense_points lidar_points
 
-  front_realsense_points:
+  front_realsense_points: 
     data_type: PointCloud2
     topic: /camera/front/depth/color/points
     min_obstacle_height: 0.2
@@ -31,11 +31,62 @@ obstacle_layer:
     marking: true
     clearing: true
 
-plugins:
-- {name: obstacle_layer, type: "costmap_2d::ObstacleLayer"}
+voxel_layer:
+  z_resolution: 0.4
+  z_voxels: 5
+  publish_voxel_map: true
 
-update_frequency: 0.5
+  observation_sources: rear_realsense_marking rear_realsense_clearing lidar_marking lidar_clearing front_realsense_marking front_realsense_clearing
+
+  rear_realsense_marking: &rear_realsense_marking
+    data_type: PointCloud2
+    topic: /camera/rear/depth/color/points
+    min_obstacle_height: 0.2
+    marking: true
+    clearing: false
+    obstacle_range: 3.5
+    max_obstacle_height: !eval physical['total_height'] + 0.2
+  
+  rear_realsense_clearing: &rear_realsense_clearing
+    <<: *rear_realsense_marking
+    marking: false
+    clearing: true
+    raytrace_range: 4.0
+    max_obstacle_height: 1000.0
+    min_obstacle_height: -1000.0
+  
+  front_realsense_marking: &front_realsense_marking
+    <<: *rear_realsense_marking
+    topic: /camera/front/depth/color/points
+  
+  front_realsense_clearing: &front_realsense_clearing
+    <<: *rear_realsense_clearing
+    topic: /camera/front/depth/color/points
+  
+  lidar_marking: &lidar_marking
+    data_type: PointCloud2
+    topic: /lidar/points
+    min_obstacle_height: 0.2
+    marking: true
+    clearing: false
+    obstacle_range: 14.0
+    max_obstacle_height: !eval physical['total_height'] + 0.2
+
+  lidar_clearing: &lidar_clearing
+    <<: *lidar_marking
+    marking: false
+    clearing: true
+    raytrace_range: 15.0
+    max_obstacle_height: 1000.0
+    min_obstacle_height: -1000.0
+
+
+plugins:
+# - {name: obstacle_layer, type: "costmap_2d::ObstacleLayer"}
+- {name: voxel_layer, type: "costmap_2d::VoxelLayer"}
+
+update_frequency: 2.0
 rolling_window: true
-width: 20.0                   # Width of the local costmap
-height: 20.0                  # Height of the local costmap
-resolution: 0.5
+width: 15.0                   # Width of the local costmap
+height: 15.0                  # Height of the local costmap
+resolution: 0.3
