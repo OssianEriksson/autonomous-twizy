@@ -71,7 +71,6 @@
   <depend>rqt_reconfigure</depend>
   <depend>velodyne_pointcloud</depend>
   <depend>nodelet</depend>
-  <depend>pcl_ros</depend>
 
 
 

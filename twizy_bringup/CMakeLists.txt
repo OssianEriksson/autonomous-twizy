@@ -20,7 +20,6 @@ find_package(catkin REQUIRED COMPONENTS
   twizy_control
   velodyne_pointcloud
   nodelet
-  pcl_ros
 )
 
 ## System dependencies are found with CMake's conventions

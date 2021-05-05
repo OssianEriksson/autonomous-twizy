@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <launch>
-    <!-- <node pkg="nodelet" type="nodelet" name="realsense_manager" args="manager" ns="/camera/front" output="screen" required="true" /> -->
+    <node pkg="nodelet" type="nodelet" name="realsense_manager" args="manager" ns="/camera/front" required="true" />
 
     <include file="$(find realsense2_camera)/launch/rs_camera.launch">
         <arg name="camera" value="camera/front" />
@@ -9,16 +9,15 @@
         <arg name="enable_sync" value="true" />
         <arg name="enable_pointcloud" value="true" />
         <arg name="ordered_pc" value="true" />
-        <!-- <arg name="external_manager" value="true" />
-        <arg name="manager" value="realsense_manager" /> -->
+        <arg name="external_manager" value="true" />
+        <arg name="manager" value="realsense_manager" />
+        <arg name="output" value="log" />
     </include>
-    <!-- <node pkg="nodelet" type="nodelet" name="pc_outlier_removal" args="load pcl/StatisticalOutlierRemoval realsense_manager" ns="/camera/front">
-        <remap from="~input" to="/camera/front/depth/color/points" />
-        <remap from="~output" to="/camera/front/depth/color/processed/points" />
-        <param name="~stddev" value="1.0" />
-        <param name="~negative" value="True" />
-    </node> -->
-
+    <node pkg="nodelet" type="nodelet" name="pcl_crop" args="load pcl_crop/PclCropNodelet realsense_manager" ns="/camera/front">
+        <rosparam param="crops">[{xmin: 0.1, ymin: 0.1, xmax: 0.9, ymax: 0.9, interior: False}]</rosparam>
+        <remap from="image" to="/camera/front/depth/color/points" />
+        <remap from="cropped" to="/camera/front/depth/color/cropped/points" />
+    </node>
 
     <include file="$(find realsense2_camera)/launch/rs_camera.launch">
         <arg name="camera" value="camera/rear" />
@@ -27,5 +26,6 @@
         <arg name="enable_sync" value="true" />
         <arg name="enable_pointcloud" value="true" />
         <arg name="ordered_pc" value="true" />
+        <arg name="output" value="log" />
     </include>
 </launch>
