@@ -3,11 +3,11 @@ authors: Ossian Eriksson <ossiane@student.chalmers.se>
 brief: ''
 bugtracker: https://github.com/OssianEriksson/autonomous-twizy/issues
 depends:
-- python3-numpy
-- python-transforms3d-pip
-- catkin
-- python3-collada-pip
 - python3-catkin-pkg
+- python3-collada-pip
+- python3-numpy
+- catkin
+- python-transforms3d-pip
 - urdf
 description: Physical descrition of Twizy and configs
 license: Apache 2.0
