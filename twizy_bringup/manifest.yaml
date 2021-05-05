@@ -4,21 +4,22 @@ authors: "Ossian Eriksson <ossiane@student.chalmers.se>, Albin Ekelund Karlsson 
 brief: ''
 bugtracker: https://github.com/OssianEriksson/autonomous-twizy/issues
 depends:
+- rviz
+- twizy_description
+- global_planner
+- depth_image_proc
 - teb_local_planner
+- joint_state_publisher
 - twizy_control
+- velodyne_pointcloud
+- nodelet
+- ackermann_teleop
+- ackermann_ekf
 - robot_state_publisher
+- rqt_reconfigure
 - catkin
 - move_base
-- ackermann_teleop
-- global_planner
-- ackermann_ekf
-- joint_state_publisher
-- rviz
-- velodyne_pointcloud
-- depth_image_proc
 - realsense2_camera
-- rqt_reconfigure
-- twizy_description
 description: Launch files for the Twizy
 license: Apache 2.0
 maintainers: Ossian Eriksson <ossiane@student.chalmers.se>
