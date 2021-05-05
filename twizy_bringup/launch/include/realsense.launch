@@ -1,18 +1,31 @@
 <?xml version="1.0"?>
-<launch>   
-    <include file="$(find realsense2_camera)/launch/rs_camera.launch" >
-        <arg name="camera" value="camera/front"/>
+<launch>
+    <node pkg="nodelet" type="nodelet" name="$(arg manager)" args="realsense_manager" output="screen" required="true" />
+
+    <include file="$(find realsense2_camera)/launch/rs_camera.launch">
+        <arg name="camera" value="camera/front" />
         <arg name="serial_no" value="817412071115" />
         <arg name="align_depth" value="true" />
         <arg name="enable_sync" value="true" />
         <arg name="enable_pointcloud" value="true" />
+        <arg name="ordered_pc" value="true" />
+        <arg name="external_manager" value="true" />
+        <arg name="manager" value="realsense_manager" />
     </include>
+    <node pkg="nodelet" type="nodelet" name="front_pc_outlier_removal" args="load pcl/StatisticalOutlierRemoval realsense_manager">
+        <remap from="~input" to="/camera/front/depth/color/points" />
+        <remap from="~output" to="/camera/front/depth/color/processed/points" />
+        <param name="~stddev" value="1.0" />
+        <param name="~negative" value="True" />
+    </node>
 
-    <include file="$(find realsense2_camera)/launch/rs_camera.launch" >
+
+    <include file="$(find realsense2_camera)/launch/rs_camera.launch">
         <arg name="camera" value="camera/rear" />
         <arg name="serial_no" value="938422076468" />
         <arg name="align_depth" value="true" />
         <arg name="enable_sync" value="true" />
         <arg name="enable_pointcloud" value="true" />
+        <arg name="ordered_pc" value="true" />
     </include>
 </launch>
