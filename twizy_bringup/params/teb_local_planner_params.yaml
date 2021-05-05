@@ -1,6 +1,7 @@
 !variable physical: !include $(rospack find twizy_description)/config/physical.yaml
 
 odom_topic: /ekf/global/odom  # Subscribes local_planner to ros odometry topic
+map_frame: map                # Global planning is performed in map frame
 
 # ******************************** Trajectory *********************************
 
@@ -64,7 +65,7 @@ include_dynamic_obstacles: False                  # Specify if dynamic obstacles
 
 costmap_converter_plugin: "costmap_converter::CostmapToPolygonsDBSMCCH"  # Define plugin name in order to convert costmap cells to points/lines/polygons. Set an empty string to disable the conversion such that all cells are treated as point-obstacles.
 costmap_converter_spin_thread: True                                      # If set to true, the costmap converter invokes its callback queue in a different thread.
-costmap_converter_rate: 5                                                # Rate that defines how often the costmap_converter plugin processes the current costmap [Hz] (Doesn't matter when using no plugin)
+costmap_converter_rate: 3.0                                              # Rate that defines how often the costmap_converter plugin processes the current costmap [Hz] (Doesn't matter when using no plugin)
 
 costmap_converter/CostmapToPolygonsDBSMCCH:
   cluster_max_distance: 1.2
