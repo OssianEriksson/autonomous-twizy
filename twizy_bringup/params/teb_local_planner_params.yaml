@@ -1,6 +1,7 @@
 !variable physical: !include $(rospack find twizy_description)/config/physical.yaml
 
 odom_topic: /ekf/global/odom  # Subscribes local_planner to ros odometry topic
+map_frame: map                # Global planning is performed in map frame
 
 # ******************************** Trajectory *********************************
 
