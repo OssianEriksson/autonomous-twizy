@@ -24,6 +24,8 @@ class PclCrop {
 
     std::vector<Crop> crops_;
 
+    double zmin_ = 0.0, zmax_ = 10000.0;
+
     void callback(const sensor_msgs::PointCloud2::ConstPtr &msg);
 
   public:

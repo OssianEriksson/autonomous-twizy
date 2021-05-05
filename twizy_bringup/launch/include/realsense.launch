@@ -1,18 +1,32 @@
 <?xml version="1.0"?>
-<launch>   
-    <include file="$(find realsense2_camera)/launch/rs_camera.launch" >
-        <arg name="camera" value="camera/front"/>
+<launch>
+    <node pkg="nodelet" type="nodelet" name="realsense_manager" args="manager" ns="/camera/front" required="true" />
+
+    <include file="$(find realsense2_camera)/launch/rs_camera.launch">
+        <arg name="camera" value="camera/front" />
         <arg name="serial_no" value="817412071115" />
         <arg name="align_depth" value="true" />
         <arg name="enable_sync" value="true" />
         <arg name="enable_pointcloud" value="true" />
+        <arg name="ordered_pc" value="true" />
+        <arg name="external_manager" value="true" />
+        <arg name="manager" value="realsense_manager" />
+        <arg name="output" value="log" />
     </include>
+    <node pkg="nodelet" type="nodelet" name="pcl_crop" args="load pcl_crop/PclCropNodelet realsense_manager" ns="/camera/front">
+        <rosparam param="crops">[{xmin: 0.2, ymin: 0.5, xmax: 0.8, ymax: 0.8, interior: False}]</rosparam>
+        <param name="zmin" value="0.05" />
+        <remap from="image" to="/camera/front/depth/color/points" />
+        <remap from="cropped" to="/camera/front/depth/color/cropped/points" />
+    </node>
 
-    <include file="$(find realsense2_camera)/launch/rs_camera.launch" >
+    <include file="$(find realsense2_camera)/launch/rs_camera.launch">
         <arg name="camera" value="camera/rear" />
         <arg name="serial_no" value="938422076468" />
         <arg name="align_depth" value="true" />
         <arg name="enable_sync" value="true" />
         <arg name="enable_pointcloud" value="true" />
+        <arg name="ordered_pc" value="true" />
+        <arg name="output" value="log" />
     </include>
 </launch>

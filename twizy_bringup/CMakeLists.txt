@@ -19,6 +19,7 @@ find_package(catkin REQUIRED COMPONENTS
   joint_state_publisher
   twizy_control
   velodyne_pointcloud
+  nodelet
 )
 
 ## System dependencies are found with CMake's conventions
