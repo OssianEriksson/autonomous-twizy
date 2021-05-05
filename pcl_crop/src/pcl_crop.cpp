@@ -49,6 +49,10 @@ void PclCrop::callback(const sensor_msgs::PointCloud2::ConstPtr &msg) {
     int valid_points = 0;
     for (sensor_msgs::PointCloud2ConstIterator<float> it(*msg, "x");
          it != it.end(); ++it, ++i) {
+	if (it[2] < 0.05) {
+		continue;
+	}
+
         double x = (i % msg->width + 0.5) / msg->width;
         double y = (i / msg->width + 0.5) / msg->height;
         for (auto const &crop : crops_) {
