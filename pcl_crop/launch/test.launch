@@ -1,9 +1,0 @@
-<launch>
-    <node pkg="nodelet" type="nodelet" name="standalone_nodelet" args="manager" output="screen" />
-
-    <node pkg="nodelet" type="nodelet" name="pcl_crop" args="load pcl_crop/PclCropNodelet standalone_nodelet" output="screen">
-        <rosparam param="crops">[{xmin: 0.1, ymin: 0.1, xmax: 0.9, ymax: 0.9, interior: true}]</rosparam>
-        <remap from="image" to="/camera/front/depth/color/points" />
-        <remap from="cropped" to="/camera/front/depth/color/cropped/points" />
-    </node>
-</launch>

@@ -28,6 +28,9 @@ PclCrop::PclCrop(ros::NodeHandle &nh, ros::NodeHandle &nh_private) {
         crops_.push_back(c);
     }
 
+    nh_private.getParam("zmin", zmin_);
+    nh_private.getParam("zmax", zmax_);
+
     publisher_ = nh.advertise<sensor_msgs::PointCloud2>("cropped", 1);
     subscriber_ = nh.subscribe("image", 1, &PclCrop::callback, this);
 }
@@ -49,9 +52,9 @@ void PclCrop::callback(const sensor_msgs::PointCloud2::ConstPtr &msg) {
     int valid_points = 0;
     for (sensor_msgs::PointCloud2ConstIterator<float> it(*msg, "x");
          it != it.end(); ++it, ++i) {
-	if (it[2] < 0.05) {
-		continue;
-	}
+        if (it[2] > zmax_ || it[2] < zmin_) {
+            continue;
+        }
 
         double x = (i % msg->width + 0.5) / msg->width;
         double y = (i / msg->width + 0.5) / msg->height;
@@ -71,7 +74,7 @@ void PclCrop::callback(const sensor_msgs::PointCloud2::ConstPtr &msg) {
 
         valid_points++;
 
-        skip_point:;
+    skip_point:;
     }
 
     points.height = 1;

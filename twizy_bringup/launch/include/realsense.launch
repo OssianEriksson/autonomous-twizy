@@ -15,6 +15,7 @@
     </include>
     <node pkg="nodelet" type="nodelet" name="pcl_crop" args="load pcl_crop/PclCropNodelet realsense_manager" ns="/camera/front">
         <rosparam param="crops">[{xmin: 0.2, ymin: 0.5, xmax: 0.8, ymax: 0.8, interior: False}]</rosparam>
+        <param name="zmin" value="0.05" />
         <remap from="image" to="/camera/front/depth/color/points" />
         <remap from="cropped" to="/camera/front/depth/color/cropped/points" />
     </node>
