@@ -12,12 +12,12 @@
         <arg name="external_manager" value="true" />
         <arg name="manager" value="realsense_manager" />
     </include>
-    <node pkg="nodelet" type="nodelet" name="pc_outlier_removal" args="load pcl/StatisticalOutlierRemoval realsense_manager" ns="/camera/front">
+    <!-- <node pkg="nodelet" type="nodelet" name="pc_outlier_removal" args="load pcl/StatisticalOutlierRemoval realsense_manager" ns="/camera/front">
         <remap from="~input" to="/camera/front/depth/color/points" />
         <remap from="~output" to="/camera/front/depth/color/processed/points" />
         <param name="~stddev" value="1.0" />
         <param name="~negative" value="True" />
-    </node>
+    </node> -->
 
 
     <!-- <include file="$(find realsense2_camera)/launch/rs_camera.launch">
