@@ -27,70 +27,89 @@ $(function() {
 <div class="contents">
 <a href="velodyne_8cpp.html">Go to the documentation of this file.</a><div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno">    1</span>&#160;<span class="preprocessor">#include &quot;<a class="code" href="velodyne_8h.html">twizy_webots/velodyne.h</a>&quot;</span></div>
 <div class="line"><a name="l00002"></a><span class="lineno">    2</span>&#160; </div>
-<div class="line"><a name="l00003"></a><span class="lineno">    3</span>&#160;<span class="preprocessor">#include &lt;iostream&gt;</span></div>
-<div class="line"><a name="l00004"></a><span class="lineno">    4</span>&#160;<span class="preprocessor">#include &lt;sensor_msgs/PointCloud2.h&gt;</span></div>
-<div class="line"><a name="l00005"></a><span class="lineno">    5</span>&#160;<span class="preprocessor">#include &lt;sensor_msgs/point_cloud2_iterator.h&gt;</span></div>
-<div class="line"><a name="l00006"></a><span class="lineno">    6</span>&#160; </div>
-<div class="line"><a name="l00007"></a><span class="lineno">    7</span>&#160;<span class="keyword">namespace </span><a class="code" href="namespacetwizy__webots.html">twizy_webots</a> {</div>
-<div class="line"><a name="l00008"></a><span class="lineno">    8</span>&#160; </div>
-<div class="line"><a name="l00009"></a><span class="lineno"><a class="line" href="classtwizy__webots_1_1Velodyne.html#ab7cc567555a62c94146f0a1782826c6b">    9</a></span>&#160;<a class="code" href="classtwizy__webots_1_1Velodyne.html#ab7cc567555a62c94146f0a1782826c6b">Velodyne::Velodyne</a>(webots::Supervisor &amp;supervisor, ros::NodeHandle &amp;nh)</div>
-<div class="line"><a name="l00010"></a><span class="lineno">   10</span>&#160;    : lidar_(supervisor.getLidar(<span class="stringliteral">&quot;lidar_vlp16_webots&quot;</span>)) {</div>
-<div class="line"><a name="l00011"></a><span class="lineno">   11</span>&#160; </div>
-<div class="line"><a name="l00012"></a><span class="lineno">   12</span>&#160;    std::cout &lt;&lt; <span class="stringliteral">&quot;Initializing Velodyne VLP16 LiDAR\n&quot;</span>;</div>
-<div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160; </div>
-<div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160;    <span class="keywordtype">double</span> ups = 20.0;</div>
-<div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160; </div>
-<div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160;    <a class="code" href="classtwizy__webots_1_1Velodyne.html#a08691b688725b3a6d440a4af89589c37">lidar_</a>-&gt;enable(round(1000.0 / ups));</div>
-<div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;    <a class="code" href="classtwizy__webots_1_1Velodyne.html#a08691b688725b3a6d440a4af89589c37">lidar_</a>-&gt;enablePointCloud();</div>
-<div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160; </div>
-<div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;    <a class="code" href="classtwizy__webots_1_1Velodyne.html#ab40f5288d9fde64054b340cb417d2259">publisher_</a> = nh.advertise&lt;sensor_msgs::PointCloud2&gt;(<span class="stringliteral">&quot;/lidar/points&quot;</span>, 1);</div>
-<div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160; </div>
-<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;    <a class="code" href="classtwizy__webots_1_1Velodyne.html#a3765f94f2e1dd1a4cf96fd60b09b7d9c">update_timer_</a> =</div>
-<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;        nh.createTimer(ros::Duration(1.0 / ups), &amp;<a class="code" href="classtwizy__webots_1_1Velodyne.html#a5895f5515e45538677188f81c0e258a4">Velodyne::update</a>, <span class="keyword">this</span>);</div>
-<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;}</div>
-<div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160; </div>
-<div class="line"><a name="l00025"></a><span class="lineno"><a class="line" href="classtwizy__webots_1_1Velodyne.html#a5895f5515e45538677188f81c0e258a4">   25</a></span>&#160;<span class="keywordtype">void</span> <a class="code" href="classtwizy__webots_1_1Velodyne.html#a5895f5515e45538677188f81c0e258a4">Velodyne::update</a>(<span class="keyword">const</span> ros::TimerEvent &amp;evt) {</div>
-<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;    <span class="keyword">const</span> WbLidarPoint *pc = <a class="code" href="classtwizy__webots_1_1Velodyne.html#a08691b688725b3a6d440a4af89589c37">lidar_</a>-&gt;getPointCloud();</div>
-<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;    sensor_msgs::PointCloud2 points;</div>
-<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;    points.header.stamp = ros::Time::now();</div>
-<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;    points.header.frame_id = <span class="stringliteral">&quot;lidar_vlp16_webots&quot;</span>;</div>
-<div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;    points.height = 1;</div>
-<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;    points.width = <a class="code" href="classtwizy__webots_1_1Velodyne.html#a08691b688725b3a6d440a4af89589c37">lidar_</a>-&gt;getNumberOfPoints();</div>
-<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;    points.is_dense = <span class="keyword">false</span>;</div>
-<div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;    points.is_bigendian = <span class="keyword">false</span>;</div>
-<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;    sensor_msgs::PointCloud2Modifier pcd_modifier(points);</div>
-<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;    pcd_modifier.setPointCloud2FieldsByString(1, <span class="stringliteral">&quot;xyz&quot;</span>);</div>
-<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160; </div>
-<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;    sensor_msgs::PointCloud2Iterator&lt;float&gt; iter_x(points, <span class="stringliteral">&quot;x&quot;</span>);</div>
-<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;    sensor_msgs::PointCloud2Iterator&lt;float&gt; iter_y(points, <span class="stringliteral">&quot;y&quot;</span>);</div>
-<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;    sensor_msgs::PointCloud2Iterator&lt;float&gt; iter_z(points, <span class="stringliteral">&quot;z&quot;</span>);</div>
-<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;    <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i &lt; points.width; i++, ++iter_x, ++iter_y, ++iter_z) {</div>
-<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;        *iter_x = pc[i].x;</div>
-<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;        *iter_y = pc[i].y;</div>
-<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;        *iter_z = pc[i].z;</div>
-<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;    }</div>
-<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160; </div>
-<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;    <a class="code" href="classtwizy__webots_1_1Velodyne.html#ab40f5288d9fde64054b340cb417d2259">publisher_</a>.publish(points);</div>
-<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;}</div>
-<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160; </div>
-<div class="line"><a name="l00049"></a><span class="lineno"><a class="line" href="classtwizy__webots_1_1Velodyne.html#a73fdccc5cee4f6f15debe399a6444f97">   49</a></span>&#160;<a class="code" href="classtwizy__webots_1_1Velodyne.html#a73fdccc5cee4f6f15debe399a6444f97">Velodyne::~Velodyne</a>() { <a class="code" href="classtwizy__webots_1_1Velodyne.html#a08691b688725b3a6d440a4af89589c37">lidar_</a>.reset(); }</div>
-<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160; </div>
-<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;} <span class="comment">// namespace twizy_webots</span></div>
+<div class="line"><a name="l00003"></a><span class="lineno">    3</span>&#160;<span class="preprocessor">#include &lt;cmath&gt;</span></div>
+<div class="line"><a name="l00004"></a><span class="lineno">    4</span>&#160;<span class="preprocessor">#include &lt;iostream&gt;</span></div>
+<div class="line"><a name="l00005"></a><span class="lineno">    5</span>&#160;<span class="preprocessor">#include &lt;sensor_msgs/PointCloud2.h&gt;</span></div>
+<div class="line"><a name="l00006"></a><span class="lineno">    6</span>&#160;<span class="preprocessor">#include &lt;sensor_msgs/point_cloud2_iterator.h&gt;</span></div>
+<div class="line"><a name="l00007"></a><span class="lineno">    7</span>&#160; </div>
+<div class="line"><a name="l00008"></a><span class="lineno">    8</span>&#160;<span class="keyword">namespace </span><a class="code" href="namespacetwizy__webots.html">twizy_webots</a> {</div>
+<div class="line"><a name="l00009"></a><span class="lineno">    9</span>&#160; </div>
+<div class="line"><a name="l00010"></a><span class="lineno"><a class="line" href="classtwizy__webots_1_1Velodyne.html#ab7cc567555a62c94146f0a1782826c6b">   10</a></span>&#160;<a class="code" href="classtwizy__webots_1_1Velodyne.html#ab7cc567555a62c94146f0a1782826c6b">Velodyne::Velodyne</a>(webots::Supervisor &amp;supervisor, ros::NodeHandle &amp;nh)</div>
+<div class="line"><a name="l00011"></a><span class="lineno">   11</span>&#160;    : lidar_(supervisor.getLidar(<span class="stringliteral">&quot;lidar_vlp16_webots&quot;</span>)) {</div>
+<div class="line"><a name="l00012"></a><span class="lineno">   12</span>&#160; </div>
+<div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160;    std::cout &lt;&lt; <span class="stringliteral">&quot;Initializing Velodyne VLP16 LiDAR\n&quot;</span>;</div>
+<div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160; </div>
+<div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160;    <span class="keywordtype">double</span> ups = 20.0;</div>
+<div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160; </div>
+<div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;    <a class="code" href="classtwizy__webots_1_1Velodyne.html#a08691b688725b3a6d440a4af89589c37">lidar_</a>-&gt;enable(round(1000.0 / ups));</div>
+<div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;    <a class="code" href="classtwizy__webots_1_1Velodyne.html#a08691b688725b3a6d440a4af89589c37">lidar_</a>-&gt;enablePointCloud();</div>
+<div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160; </div>
+<div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;    <a class="code" href="classtwizy__webots_1_1Velodyne.html#ab40f5288d9fde64054b340cb417d2259">publisher_</a> = nh.advertise&lt;sensor_msgs::PointCloud2&gt;(<span class="stringliteral">&quot;/lidar/points&quot;</span>, 1);</div>
+<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160; </div>
+<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;    <a class="code" href="classtwizy__webots_1_1Velodyne.html#a3765f94f2e1dd1a4cf96fd60b09b7d9c">update_timer_</a> =</div>
+<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;        nh.createTimer(ros::Duration(1.0 / ups), &amp;<a class="code" href="classtwizy__webots_1_1Velodyne.html#a5895f5515e45538677188f81c0e258a4">Velodyne::update</a>, <span class="keyword">this</span>);</div>
+<div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;}</div>
+<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160; </div>
+<div class="line"><a name="l00026"></a><span class="lineno"><a class="line" href="classtwizy__webots_1_1Velodyne.html#a5895f5515e45538677188f81c0e258a4">   26</a></span>&#160;<span class="keywordtype">void</span> <a class="code" href="classtwizy__webots_1_1Velodyne.html#a5895f5515e45538677188f81c0e258a4">Velodyne::update</a>(<span class="keyword">const</span> ros::TimerEvent &amp;evt) {</div>
+<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;    <span class="keyword">const</span> WbLidarPoint *pc = <a class="code" href="classtwizy__webots_1_1Velodyne.html#a08691b688725b3a6d440a4af89589c37">lidar_</a>-&gt;getPointCloud();</div>
+<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;    sensor_msgs::PointCloud2 points;</div>
+<div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;    points.header.stamp = ros::Time::now();</div>
+<div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;    points.header.frame_id = <span class="stringliteral">&quot;lidar_vlp16_webots&quot;</span>;</div>
+<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;    points.height = 1;</div>
+<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;    points.width = <a class="code" href="classtwizy__webots_1_1Velodyne.html#a08691b688725b3a6d440a4af89589c37">lidar_</a>-&gt;getNumberOfPoints();</div>
+<div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;    points.is_dense = <span class="keyword">false</span>;</div>
+<div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;    points.is_bigendian = <span class="keyword">false</span>;</div>
+<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;    sensor_msgs::PointCloud2Modifier pcd_modifier(points);</div>
+<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;    pcd_modifier.setPointCloud2FieldsByString(1, <span class="stringliteral">&quot;xyz&quot;</span>);</div>
+<div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160; </div>
+<div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;    sensor_msgs::PointCloud2Iterator&lt;float&gt; iter_x(points, <span class="stringliteral">&quot;x&quot;</span>);</div>
+<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;    sensor_msgs::PointCloud2Iterator&lt;float&gt; iter_y(points, <span class="stringliteral">&quot;y&quot;</span>);</div>
+<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;    sensor_msgs::PointCloud2Iterator&lt;float&gt; iter_z(points, <span class="stringliteral">&quot;z&quot;</span>);</div>
+<div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;    <span class="keywordtype">double</span> last_distance = 1.0;</div>
+<div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;    <span class="keywordtype">int</span> valid_points = 0;</div>
+<div class="line"><a name="l00043"></a><span class="lineno">   43</span>&#160;    <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i &lt; points.width; i++) {</div>
+<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;        <span class="keywordflow">if</span> (std::isfinite(pc[i].x)) {</div>
+<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160;            <span class="keywordtype">double</span> distance = abs(pc[i].x) + abs(pc[i].y) + abs(pc[i].z);</div>
+<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;            <span class="keywordtype">double</span> ratio = distance / last_distance;</div>
+<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;            <span class="keywordflow">if</span> (ratio &gt; 0.99 &amp;&amp; ratio &lt; 1.01) {</div>
+<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;                *iter_x = pc[i].x;</div>
+<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;                *iter_y = pc[i].y;</div>
+<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160;                *iter_z = pc[i].z;</div>
+<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160; </div>
+<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160;                ++iter_x;</div>
+<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;                ++iter_y;</div>
+<div class="line"><a name="l00054"></a><span class="lineno">   54</span>&#160;                ++iter_z;</div>
+<div class="line"><a name="l00055"></a><span class="lineno">   55</span>&#160; </div>
+<div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;                valid_points++;</div>
+<div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;            }</div>
+<div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;            last_distance = distance + 1e-3;</div>
+<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;        }</div>
+<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;    }</div>
+<div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160; </div>
+<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;    points.width = valid_points;</div>
+<div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;    pcd_modifier.resize(valid_points);</div>
+<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160; </div>
+<div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;    <a class="code" href="classtwizy__webots_1_1Velodyne.html#ab40f5288d9fde64054b340cb417d2259">publisher_</a>.publish(points);</div>
+<div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;}</div>
+<div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160; </div>
+<div class="line"><a name="l00068"></a><span class="lineno"><a class="line" href="classtwizy__webots_1_1Velodyne.html#a73fdccc5cee4f6f15debe399a6444f97">   68</a></span>&#160;<a class="code" href="classtwizy__webots_1_1Velodyne.html#a73fdccc5cee4f6f15debe399a6444f97">Velodyne::~Velodyne</a>() { <a class="code" href="classtwizy__webots_1_1Velodyne.html#a08691b688725b3a6d440a4af89589c37">lidar_</a>.reset(); }</div>
+<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160; </div>
+<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;} <span class="comment">// namespace twizy_webots</span></div>
 </div><!-- fragment --></div><!-- contents -->
 <div class="ttc" id="avelodyne_8h_html"><div class="ttname"><a href="velodyne_8h.html">velodyne.h</a></div></div>
 <div class="ttc" id="aclasstwizy__webots_1_1Velodyne_html_a3765f94f2e1dd1a4cf96fd60b09b7d9c"><div class="ttname"><a href="classtwizy__webots_1_1Velodyne.html#a3765f94f2e1dd1a4cf96fd60b09b7d9c">twizy_webots::Velodyne::update_timer_</a></div><div class="ttdeci">ros::Timer update_timer_</div><div class="ttdef"><b>Definition:</b> <a href="velodyne_8h_source.html#l00016">velodyne.h:16</a></div></div>
 <div class="ttc" id="aclasstwizy__webots_1_1Velodyne_html_a08691b688725b3a6d440a4af89589c37"><div class="ttname"><a href="classtwizy__webots_1_1Velodyne.html#a08691b688725b3a6d440a4af89589c37">twizy_webots::Velodyne::lidar_</a></div><div class="ttdeci">std::unique_ptr&lt; webots::Lidar &gt; lidar_</div><div class="ttdef"><b>Definition:</b> <a href="velodyne_8h_source.html#l00013">velodyne.h:13</a></div></div>
-<div class="ttc" id="aclasstwizy__webots_1_1Velodyne_html_a5895f5515e45538677188f81c0e258a4"><div class="ttname"><a href="classtwizy__webots_1_1Velodyne.html#a5895f5515e45538677188f81c0e258a4">twizy_webots::Velodyne::update</a></div><div class="ttdeci">void update(const ros::TimerEvent &amp;evt)</div><div class="ttdef"><b>Definition:</b> <a href="velodyne_8cpp_source.html#l00025">velodyne.cpp:25</a></div></div>
+<div class="ttc" id="aclasstwizy__webots_1_1Velodyne_html_a5895f5515e45538677188f81c0e258a4"><div class="ttname"><a href="classtwizy__webots_1_1Velodyne.html#a5895f5515e45538677188f81c0e258a4">twizy_webots::Velodyne::update</a></div><div class="ttdeci">void update(const ros::TimerEvent &amp;evt)</div><div class="ttdef"><b>Definition:</b> <a href="velodyne_8cpp_source.html#l00026">velodyne.cpp:26</a></div></div>
 <div class="ttc" id="aclasstwizy__webots_1_1Velodyne_html_ab40f5288d9fde64054b340cb417d2259"><div class="ttname"><a href="classtwizy__webots_1_1Velodyne.html#ab40f5288d9fde64054b340cb417d2259">twizy_webots::Velodyne::publisher_</a></div><div class="ttdeci">ros::Publisher publisher_</div><div class="ttdef"><b>Definition:</b> <a href="velodyne_8h_source.html#l00015">velodyne.h:15</a></div></div>
-<div class="ttc" id="aclasstwizy__webots_1_1Velodyne_html_ab7cc567555a62c94146f0a1782826c6b"><div class="ttname"><a href="classtwizy__webots_1_1Velodyne.html#ab7cc567555a62c94146f0a1782826c6b">twizy_webots::Velodyne::Velodyne</a></div><div class="ttdeci">Velodyne(webots::Supervisor &amp;supervisor, ros::NodeHandle &amp;nh)</div><div class="ttdef"><b>Definition:</b> <a href="velodyne_8cpp_source.html#l00009">velodyne.cpp:9</a></div></div>
+<div class="ttc" id="aclasstwizy__webots_1_1Velodyne_html_ab7cc567555a62c94146f0a1782826c6b"><div class="ttname"><a href="classtwizy__webots_1_1Velodyne.html#ab7cc567555a62c94146f0a1782826c6b">twizy_webots::Velodyne::Velodyne</a></div><div class="ttdeci">Velodyne(webots::Supervisor &amp;supervisor, ros::NodeHandle &amp;nh)</div><div class="ttdef"><b>Definition:</b> <a href="velodyne_8cpp_source.html#l00010">velodyne.cpp:10</a></div></div>
 <div class="ttc" id="anamespacetwizy__webots_html"><div class="ttname"><a href="namespacetwizy__webots.html">twizy_webots</a></div><div class="ttdef"><b>Definition:</b> <a href="motors_8h_source.html#l00010">motors.h:10</a></div></div>
-<div class="ttc" id="aclasstwizy__webots_1_1Velodyne_html_a73fdccc5cee4f6f15debe399a6444f97"><div class="ttname"><a href="classtwizy__webots_1_1Velodyne.html#a73fdccc5cee4f6f15debe399a6444f97">twizy_webots::Velodyne::~Velodyne</a></div><div class="ttdeci">~Velodyne()</div><div class="ttdef"><b>Definition:</b> <a href="velodyne_8cpp_source.html#l00049">velodyne.cpp:49</a></div></div>
+<div class="ttc" id="aclasstwizy__webots_1_1Velodyne_html_a73fdccc5cee4f6f15debe399a6444f97"><div class="ttname"><a href="classtwizy__webots_1_1Velodyne.html#a73fdccc5cee4f6f15debe399a6444f97">twizy_webots::Velodyne::~Velodyne</a></div><div class="ttdeci">~Velodyne()</div><div class="ttdef"><b>Definition:</b> <a href="velodyne_8cpp_source.html#l00068">velodyne.cpp:68</a></div></div>
 
 <br clear="all" />
 <hr size="1"><div style="align: right;">
 <a href="http://wiki.ros.org/twizy_webots">twizy_webots</a><br />
 Author(s): Ossian Eriksson <ossiane@student.chalmers.se></br />
-<small>autogenerated on Wed May 5 2021 15:30:47</small>
+<small>autogenerated on Thu May 6 2021 11:20:23</small>
 </div>
 </body>
 </html>
