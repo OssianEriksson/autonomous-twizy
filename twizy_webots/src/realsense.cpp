@@ -35,6 +35,8 @@ Realsense::Realsense(webots::Supervisor &supervisor, ros::NodeHandle &nh,
         "/camera/" + position + "/aligned_depth_to_color/camera_info", 1);
     pub_points_ = nh.advertise<sensor_msgs::PointCloud2>(
         "/camera/" + position + "/depth/color/points", 1);
+    pub_cropped_points_ = nh.advertise<sensor_msgs::PointCloud2>(
+        "/camera/" + position + "/depth/color/cropped/points", 1);
 
     update_timer_ =
         nh.createTimer(ros::Duration(1.0 / ups), &Realsense::update, this);
@@ -119,6 +121,7 @@ void Realsense::update(const ros::TimerEvent &evt) {
     pub_range_.publish(range_image);
     pub_range_info_.publish(camera_info);
     pub_points_.publish(points);
+    pub_cropped_points_.publish(points);
 }
 
 Realsense::~Realsense() {

@@ -16,7 +16,7 @@ class Realsense {
 
     ros::Publisher pub_camera_, pub_camera_info_;
     ros::Publisher pub_range_, pub_range_info_;
-    ros::Publisher pub_points_;
+    ros::Publisher pub_points_, pub_cropped_points_;
     ros::Timer update_timer_;
 
     std::string position_;

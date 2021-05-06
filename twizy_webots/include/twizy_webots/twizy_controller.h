@@ -12,6 +12,7 @@ class TwizyController {
     bool use_sim_time_ = false;
 
     ros::Publisher clock_publisher_;
+    ros::Publisher position_publisher_;
     ros::NodeHandle &nh_, &nh_private_;
 
     std::unique_ptr<webots::Supervisor> supervisor_;
