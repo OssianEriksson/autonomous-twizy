@@ -1,5 +1,6 @@
 #include "twizy_webots/velodyne.h"
 
+#include <cmath>
 #include <iostream>
 #include <sensor_msgs/PointCloud2.h>
 #include <sensor_msgs/point_cloud2_iterator.h>
@@ -37,11 +38,29 @@ void Velodyne::update(const ros::TimerEvent &evt) {
     sensor_msgs::PointCloud2Iterator<float> iter_x(points, "x");
     sensor_msgs::PointCloud2Iterator<float> iter_y(points, "y");
     sensor_msgs::PointCloud2Iterator<float> iter_z(points, "z");
-    for (int i = 0; i < points.width; i++, ++iter_x, ++iter_y, ++iter_z) {
-        *iter_x = pc[i].x;
-        *iter_y = pc[i].y;
-        *iter_z = pc[i].z;
+    double last_distance = 1.0;
+    int valid_points = 0;
+    for (int i = 0; i < points.width; i++) {
+        if (std::isfinite(pc[i].x)) {
+            double distance = abs(pc[i].x) + abs(pc[i].y) + abs(pc[i].z);
+            double ratio = distance / last_distance;
+            if (ratio > 0.99 && ratio < 1.01) {
+                *iter_x = pc[i].x;
+                *iter_y = pc[i].y;
+                *iter_z = pc[i].z;
+
+                ++iter_x;
+                ++iter_y;
+                ++iter_z;
+
+                valid_points++;
+            }
+            last_distance = distance + 1e-3;
+        }
     }
+
+    points.width = valid_points;
+    pcd_modifier.resize(valid_points);
 
     publisher_.publish(points);
 }

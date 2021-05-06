@@ -56,7 +56,7 @@ F = simplify(jacobian(f, state));
 
 h = simplify([XYZ + M*sensor_xyz;
               speed_vec + cross(omega, sensor_xyz);
-              accel_vec + 2*cross(omega, speed_vec) + cross(domega_dt, sensor_xyz) + cross(omega, cross(omega, sensor_xyz)) - M'*g_vec;
+              accel_vec + cross(omega, speed_vec) + cross(domega_dt, sensor_xyz) + cross(omega, cross(omega, sensor_xyz)) - M'*g_vec;
               Roll;
               Pitch;
               Yaw;
