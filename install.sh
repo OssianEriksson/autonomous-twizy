@@ -82,6 +82,8 @@ if [[ ! -z "${install_cuda}" ]]; then
 	###############################################################################
 	# This next bit is taken from https://gist.github.com/Laurence-Cullen/1156168009b320cd391767ca9bf1ce9c
 	# Add NVIDIA package repositories
+	cd /tmp
+	
 	wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/cuda-ubuntu2004.pin
 	sudo mv cuda-ubuntu2004.pin /etc/apt/preferences.d/cuda-repository-pin-600
 	sudo apt-key adv --fetch-keys https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/7fa2af80.pub
