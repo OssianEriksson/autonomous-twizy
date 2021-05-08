@@ -100,10 +100,10 @@ if [[ ! -z "${install_cuda}" ]]; then
 	# Reboot. Check that GPUs are visible using the command: nvidia-smi
 
 	wget https://developer.download.nvidia.com/compute/machine-learning/repos/ubuntu1804/x86_64/libnvinfer7_7.1.3-1+cuda11.0_amd64.deb
-	sudo apt-get install -y --allow-downgrades ./libnvinfer7_7.1.3-1+cuda11.0_amd64.deb
+	sudo apt-get install -y ./libnvinfer7_7.1.3-1+cuda11.0_amd64.deb
 	sudo apt-get update
 
-	sudo apt-get install -y --no-install-recommends cuda-11-0 libcudnn8=8.0.5.39-1+cuda11.0 libcudnn8-dev=8.0.5.39-1+cuda11.0
+	sudo apt-get install -y --allow-downgrades --no-install-recommends cuda-11-0 libcudnn8=8.0.5.39-1+cuda11.0 libcudnn8-dev=8.0.5.39-1+cuda11.0
 fi
 
 if [[ ! -z "${TWIZY_ONBOARD}" ]]; then # If running on the Twizy's on-board computer
