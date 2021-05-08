@@ -14,6 +14,18 @@ function append_to_bashrc {
 # Default value for ROS_DISTRO is noetic
 ROS_DISTRO=${ROS_DISTRO:-noetic}
 
+if [[ -z "${GITHUB_ACTION}" ]] && [[ -z "${TWIZY_ONBOARD}" ]]; then # If running on local computer which is not the Twizy's on-board computer
+	echo "Would you like to run tensorflow using Nvidia CUDA? This is highly recommended if you have a Nvidia GPU. Answering yes will install some extra dependencies and requires a restart after completed installation."
+	select result in yes no; do
+		case $result in
+			yes) install_cuda=1; break;;
+			no) install_cuda=0; break;;
+		esac
+	done
+else # If running as Github action
+	install_cuda=1
+fi
+
 if [[ ! -z "${GITHUB_ACTION}" ]]; then # If running as Github action
 	# Create symlinks to clone location
 	mkdir -p ~
@@ -45,6 +57,7 @@ wget --content-disposition "https://www.kvaser.com/downloads-kvaser/?utm_source=
 tar xvzf linuxcan.tar.gz
 cd linuxcan
 make
+sudo make uninstall
 sudo make install
 
 # Install python packages not indexed by rosdep
@@ -65,6 +78,34 @@ if [[ -z "${GITHUB_ACTION}" ]] && [[ -z "${TWIZY_ONBOARD}" ]]; then # If running
 	append_to_bashrc "export WEBOTS_HOME=/usr/local/webots"
 fi
 
+if [[ ! -z "${install_cuda}" ]]; then
+	cd /tmp
+	
+	# This next bit is taken from https://gist.github.com/Laurence-Cullen/1156168009b320cd391767ca9bf1ce9c
+	
+	# Add NVIDIA package repositories
+	wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/cuda-ubuntu2004.pin
+	sudo mv cuda-ubuntu2004.pin /etc/apt/preferences.d/cuda-repository-pin-600
+	sudo apt-key adv --fetch-keys https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/7fa2af80.pub
+	sudo add-apt-repository "deb https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/ /"
+	sudo apt-get update
+
+	wget http://developer.download.nvidia.com/compute/machine-learning/repos/ubuntu2004/x86_64/nvidia-machine-learning-repo-ubuntu2004_1.0.0-1_amd64.deb
+
+	sudo apt-get install -y ./nvidia-machine-learning-repo-ubuntu2004_1.0.0-1_amd64.deb
+	sudo apt-get update
+
+	# Install NVIDIA driver
+	sudo apt-get install -y --no-install-recommends nvidia-driver-450
+	# Reboot. Check that GPUs are visible using the command: nvidia-smi
+
+	wget https://developer.download.nvidia.com/compute/machine-learning/repos/ubuntu1804/x86_64/libnvinfer7_7.1.3-1+cuda11.0_amd64.deb
+	sudo apt-get install -y ./libnvinfer7_7.1.3-1+cuda11.0_amd64.deb
+	sudo apt-get update
+
+	sudo apt-get install -y --allow-downgrades --no-install-recommends cuda-11-0 libcudnn8=8.0.5.39-1+cuda11.0 libcudnn8-dev=8.0.5.39-1+cuda11.0
+fi
+
 if [[ ! -z "${TWIZY_ONBOARD}" ]]; then # If running on the Twizy's on-board computer
 	append_to_bashrc "export TWIZY_ONBOARD=1"
 else # If not running on the Twizy's on-board computer
@@ -77,6 +118,13 @@ append_to_bashrc "[ -f ~/autonomous-twizy/devel/setup.bash ] && source ~/autonom
 if [[ -z "${GITHUB_ACTION}" ]]; then # If running on a local computer
 	echo -e "\n\nInstallation completed!"
 	echo -e "\nThe repository has been cloned to ~/autonomous-twizy/src, and the catkin workspace is located at ~/autonomous-twizy."
-	echo -e "\nFinally, please run"
-	echo -e "\n    source ~/.bashrc\n"
+	if [[ ! -z "${install_cuda}" ]]; then
+		echo -e "\nPLEASE REBOOT YOUR COMPUTER NOW FOR NVIDIA CUDA DRIVERS TO KICK IN!"
+		echo -e "After rebooting, optionally run"
+		echo -e "\n    nvidia-smi\n"
+		echo -e "to check that GPUs are visible to the driver\n"
+	else
+		echo -e "\nFinally, please run"
+		echo -e "\n    source ~/.bashrc\n"
+	fi
 fi
