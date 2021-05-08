@@ -57,6 +57,7 @@ wget --content-disposition "https://www.kvaser.com/downloads-kvaser/?utm_source=
 tar xvzf linuxcan.tar.gz
 cd linuxcan
 make
+sudo make uninstall
 sudo make install
 
 # Install python packages not indexed by rosdep
