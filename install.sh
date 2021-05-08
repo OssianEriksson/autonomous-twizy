@@ -83,7 +83,7 @@ if [[ ! -z "${install_cuda}" ]]; then
 	# This next bit is taken from https://gist.github.com/Laurence-Cullen/1156168009b320cd391767ca9bf1ce9c
 	# Add NVIDIA package repositories
 	cd /tmp
-	
+
 	wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/cuda-ubuntu2004.pin
 	sudo mv cuda-ubuntu2004.pin /etc/apt/preferences.d/cuda-repository-pin-600
 	sudo apt-key adv --fetch-keys https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/7fa2af80.pub
@@ -120,7 +120,10 @@ if [[ -z "${GITHUB_ACTION}" ]]; then # If running on a local computer
 	echo -e "\n\nInstallation completed!"
 	echo -e "\nThe repository has been cloned to ~/autonomous-twizy/src, and the catkin workspace is located at ~/autonomous-twizy."
 	if [[ ! -z "${install_cuda}" ]]; then
-		echo -e "\nPLEASE REBOOT YOUR COMPUTER NOW FOR NVIDIA CUDA DRIVERS TO KICK IN!\n"
+		echo -e "\nPLEASE REBOOT YOUR COMPUTER NOW FOR NVIDIA CUDA DRIVERS TO KICK IN!"
+		echo -e "After rebooting, optionally run"
+		echo -e "\n    nvidia-smi\n"
+		echo -e "to check that GPUs are visible to the driver\n"
 	else
 		echo -e "\nFinally, please run"
 		echo -e "\n    source ~/.bashrc\n"
