@@ -65,6 +65,9 @@ def main():
 
             msg = BoundingBoxes()
             for box in boxes:
+                if box[5] < prob_threshold:
+                    continue
+
                 # Because boxes is given in percent values we have to conevert
                 # to pixels instead. We also make sure that the pixels are
                 # inside the image
