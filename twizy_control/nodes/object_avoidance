@@ -28,6 +28,10 @@ def main():
         Callback function
         """
 
+        print('Callback called')
+
+        print(boxes.bounding_boxes)
+
         global stopsign_count
         global stopsign_dist
         try:
