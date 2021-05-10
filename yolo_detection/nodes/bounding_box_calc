@@ -68,18 +68,10 @@ def main():
                 # Because boxes is given in percent values we have to conevert
                 # to pixels instead. We also make sure that the pixels are
                 # inside the image
-                xmin = (box[0] - box[2]/2) * width
-                if xmin <= 0:
-                    xmin = 1
-                ymin = (box[1] - box[3]/2) * height
-                if ymin <= 0:
-                    ymin = 1
-                xmax = (box[0] + box[2]/2) * width
-                if xmax >= width:
-                    xmax = width - 1
-                ymax = (box[1] + box[3]/2) * height
-                if ymax >= height:
-                    ymax = height - 1
+                xmin = max((box[0] - box[2]/2) * width, 1)
+                ymin = max((box[1] - box[3]/2) * height, 1)
+                xmax = min((box[0] + box[2]/2) * width, width - 1)
+                ymax = min((box[1] + box[3]/2) * height, height - 1)
 
                 # Creates an bounding box and adds it to the message
                 msg_boxes = BoundingBox(
