@@ -43,36 +43,36 @@ def main():
             # any object the camera returns ymax as -106 there for we check
             # before going inside the second loop.
             for box in boxes.bounding_boxes:
-                if box.ymax > -1:
-                    quarterY = (box.ymax - box.ymin)/4
-                    quarterX = (box.xmax - box.xmin)/4
-                    xmin = int(floor(box.xmin + quarterX)-1)
-                    xmax = int(ceil(box.xmax - quarterX))
-                    ymin = int(floor(box.ymin + quarterY)-1)
-                    ymax = int(ceil(box.ymax - quarterY))
+                quarterY = (box.ymax - box.ymin)/4
+                quarterX = (box.xmax - box.xmin)/4
+                xmin = int(floor(box.xmin + quarterX)-1)
+                xmax = int(ceil(box.xmax - quarterX))
+                ymin = int(floor(box.ymin + quarterY)-1)
+                ymax = int(ceil(box.ymax - quarterY))
 
-                    average = cv_image[ymin:ymax, xmin:xmax].mean()
-                    # for i in range(xmin, xmax):
-                    #     for j in range(ymin, ymax):
-                    #         average += cv_image[j][i]
-                    average = int(average / ((xmax - xmin) * (ymax - ymin)))
-                    # print(average,ymin,ymax,xmin,xmax)
+                average = cv_image[ymin:ymax, xmin:xmax].mean()
+                print(average)
+                # for i in range(xmin, xmax):
+                #     for j in range(ymin, ymax):
+                #         average += cv_image[j][i]
+                average = int(average / ((xmax - xmin) * (ymax - ymin)))
+                # print(average,ymin,ymax,xmin,xmax)
 
-                    if (box.Class in ['person', 'dog', 'cat', 'horse'] and
-                            average <= 4200):
+                if (box.Class in ['person', 'dog', 'cat', 'horse'] and
+                        average <= 4200):
+                    msg_to_publish = True
+                    pub.publish(msg_to_publish)
+                    rospy.sleep(5)
+                elif box.Class == 'stop sign' and average <= 5000:
+                    if(average > stopsign_dist):
+                        stopsign_dist = average
+                    if (stopsign_count < 2 or stopsign_dist < average):
+                        stopsign_count += 1
                         msg_to_publish = True
                         pub.publish(msg_to_publish)
                         rospy.sleep(5)
-                    elif box.Class == 'stop sign' and average <= 5000:
-                        if(average > stopsign_dist):
-                            stopsign_dist = average
-                        if (stopsign_count < 2 or stopsign_dist < average):
-                            stopsign_count += 1
-                            msg_to_publish = True
-                            pub.publish(msg_to_publish)
-                            rospy.sleep(5)
-                        else:
-                            stopsign_dist = 0
+                    else:
+                        stopsign_dist = 0
 
             # if average > 0 :
             #     test.publish(average)
