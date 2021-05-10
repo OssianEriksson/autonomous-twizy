@@ -14,29 +14,35 @@ bridge = CvBridge()
 times = 0
 stopsign_count = 0
 stopsign_dist = 0
+
+
 def main():
     # Initialize ROS node
-    rospy.init_node('listener', anonymous=True)
+    rospy.init_node('object_avoidance', anonymous=True)
 
-    msg = rospy.Publisher('object_detection', Bool, queue_size=1)
+    pub = rospy.Publisher('object_detection', Bool, queue_size=1)
     # test = rospy.Publisher('avrage_dist', Int16, queue_size=1)
-    # callback function
 
     def convert_image(ros_image, boxes):
+        """
+        Callback function
+        """
+
         global stopsign_count
         global stopsign_dist
         try:
             # Convert the image using the default passthrough encoding
             cv_image = bridge.imgmsg_to_cv2(
-                ros_image, desired_encoding="passthrough")
+                ros_image, desired_encoding='passthrough')
 
-            # create an bool  to bee sent if the car identifies an object
+            # Create an bool to be sent if the car identifies an object
             msg_to_publish = False
-            avreage = 0
-            # loops over every box and calculate the avreage distance to each object by adding the distance to every pixel
-            # when we don't find any object the camera returns ymax as -106 there for we check before going inside the second loop.
+            average = 0
+            # Loops over every box and calculates the average distance to each
+            # object by adding the distance to every pixel. When we don't find
+            # any object the camera returns ymax as -106 there for we check
+            # before going inside the second loop.
             for box in boxes.bounding_boxes:
-                avreage = 0
                 if box.ymax > -1:
                     quarterY = (box.ymax - box.ymin)/4
                     quarterX = (box.xmax - box.xmin)/4
@@ -45,49 +51,46 @@ def main():
                     ymin = int(floor(box.ymin + quarterY)-1)
                     ymax = int(ceil(box.ymax - quarterY))
 
-                    #avreage = cv_image[ymin:ymax][xmin:xmax].mean()
-                    for i in range(xmin, xmax):
-                        for j in range(ymin, ymax):
-                            avreage += cv_image[j][i]
-                    avreage = int (avreage / ((xmax - xmin) * (ymax - ymin)))
-                    # print(avreage,ymin,ymax,xmin,xmax)
+                    average = cv_image[ymin:ymax, xmin:xmax].mean()
+                    # for i in range(xmin, xmax):
+                    #     for j in range(ymin, ymax):
+                    #         average += cv_image[j][i]
+                    average = int(average / ((xmax - xmin) * (ymax - ymin)))
+                    # print(average,ymin,ymax,xmin,xmax)
 
-                    if ((box.Class == "person" or box.Class == "dog" or
-                            box.Class == "cat" or box.Class == "horse") and avreage <= 4200):
+                    if (box.Class in ['person', 'dog', 'cat', 'horse'] and
+                            average <= 4200):
                         msg_to_publish = True
-                        msg.publish(msg_to_publish)
-                        rospy.sleep(5.)
-
-                    elif (box.Class == "stop sign" and avreage <= 5000):
-                        if(avreage > stopsign_dist): 
-                            stopsign_dist = avreage
-                        if (stopsign_count < 2 or stopsign_dist < avreage):
+                        pub.publish(msg_to_publish)
+                        rospy.sleep(5)
+                    elif box.Class == 'stop sign' and average <= 5000:
+                        if(average > stopsign_dist):
+                            stopsign_dist = average
+                        if (stopsign_count < 2 or stopsign_dist < average):
                             stopsign_count += 1
                             msg_to_publish = True
-                            msg.publish(msg_to_publish)
-                            rospy.sleep(5.)
-                        else: 
+                            pub.publish(msg_to_publish)
+                            rospy.sleep(5)
+                        else:
                             stopsign_dist = 0
 
+            # if average > 0 :
+            #     test.publish(average)
+            pub.publish(msg_to_publish)
 
-            # if avreage > 0 :  
-            #     test.publish(avreage)
-            msg.publish(msg_to_publish)
-
-        except CvBridgeError as e:  # error handling for CV
+        except CvBridgeError as e:  # Error handling for CV
             print(e)
 
-    # subscribe to the image given from the realsense camera and the boundingboxes given from yolo
-    # then aligne the messages so you get the rigth boxes to the rigth image.
-
+    # Subscribe to the image given from the realsense camera and the bounding
+    # boxes given from YOLO. Then aligne the messages so you get the right
+    # boxes to the right image.
     aligned_camera = message_filters.Subscriber(
         '/camera/aligned_depth_to_color/image_raw', Image, buff_size=10)
     boundingboxes = message_filters.Subscriber(
-        '/boxes', BoundingBoxes, buff_size=10)
+        'boxes', BoundingBoxes, buff_size=10)
     ts = message_filters.TimeSynchronizer([aligned_camera, boundingboxes], 10)
     ts.registerCallback(convert_image)
-    
-    
+
     try:
         rospy.spin()
     except rospy.ROSInternalException:
