@@ -24,7 +24,7 @@ class TwistToAckermann:
 
         rospy.Subscriber('cmd_vel', Twist, self.cb_cmd, queue_size=1)
         for c in cameras:
-            rospy.Subscriber(f'object_detection_{c}', Bool,
+            rospy.Subscriber(f'/vision/{c}/object_detection', Bool,
                              self.cb_object_detection, callback_args=c)
 
     def cb_cmd(self, msg):

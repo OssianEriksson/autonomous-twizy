@@ -1,104 +1,120 @@
 #!/usr/bin/env python3
 
+"""
+Initialize YOLO and configure its inputs, like weights, configs and coco.names
+coco.names is a list of object names
+Uses cv_bridge() to convert the ROS image to OpenCV format
+"""
+
 import rospy
 import cv2 as cv
 from yolov4.tf import YOLOv4
 from sensor_msgs.msg import Image
 from cv_bridge import CvBridge, CvBridgeError
-from yolo_detection.msg import BoundingBoxes,BoundingBox
+from yolo_detection.msg import BoundingBoxes, BoundingBox
 import pathlib
-
-#############################################################################################
-#         initialize Yolo and configure its inputs, like weigth, configs and coc.names      #
-#         Remember to change weight source both for .cfg , .weights and coco.names          #
-#         coco.names list of object names                                                   #
-#         Use cv_bridge() to convert the ROS image to OpenCV format                         #
-#############################################################################################
 
 current_dir = pathlib.Path(__file__).parent.parent
 yolo = YOLOv4()
-yolo.config.parse_names( current_dir / "coco.names")
-yolo.config.parse_cfg( current_dir / "config/yolov4-tiny.cfg")
+yolo.config.parse_names(current_dir / "coco.names")
+yolo.config.parse_cfg(current_dir / "config/yolov4-tiny.cfg")
 yolo.make_model()
-yolo.load_weights( current_dir / "weights/yolov4-tiny.weights", weights_type="yolo")
-
-bridge = CvBridge()    
+yolo.load_weights(current_dir / "weights/yolov4-tiny.weights",
+                  weights_type="yolo")
 
 
 def main():
-    #Initialize ROS node
-    rospy.init_node('listener', anonymous=True)
-    
-    #assign the publishers to publish the specific data type
-    image_pub = rospy.Publisher('image_with_boxes', Image, queue_size=1)
-    box_pub = rospy.Publisher('boxes', BoundingBoxes , queue_size=1)
+    # Initialize ROS node
+    rospy.init_node('bounding_box_calc', anonymous=True)
 
-    # threshold value
-    prob_threshold = 0.6
+    # Assign the publishers to publish the specific data type
+    image_pub = rospy.Publisher('image_with_boxes', Image, queue_size=1)
+    box_pub = rospy.Publisher('boxes', BoundingBoxes, queue_size=1)
+
+    # Threshold value
+    prob_threshold = rospy.get_param('~prob_threshold', 0.6)
+
+    bridge = CvBridge()
 
     def convert_image(ros_image):
         try:
-            #Convert the image using the bgr8 encoding which allos us to see the right color image
+            # Convert the image using the bgr8 encoding which allos us to see
+            # the right color image
             cv_image = bridge.imgmsg_to_cv2(ros_image, desired_encoding="bgr8")
 
+            # Using YOLO to predict the bounding boxes
+            boxes = yolo.predict(cv_image, prob_threshold)
 
+            # Publish images with draw out boxes for visualization purposes
+            # only if some other node is subscribing to the messages 
+            if image_pub.get_num_connections() > 0:
+                image_with_boxes = yolo.draw_bboxes(cv_image, boxes)
+                ros_image_boxes = bridge.cv2_to_imgmsg(
+                    image_with_boxes, encoding="passthrough")
+                image_pub.publish(ros_image_boxes)
 
-            # Because the msg is a "selfmade msg" of a "selfmade msg" we have to create a new instans of the msg.  
-            msg = BoundingBoxes()
+            # Used to vizuallise the image without rviz (ploting it with openCV
+            # instead):
+            #
+            # cv.imshow('image', image_with_boxes)
+            # cv.waitKey(1)
 
-            #Using yolo to predict the bounding boxes which we then draw on image to be able to vizuallising in in rviz 
-            Boxes = yolo.predict(cv_image,prob_threshold) 
-            image_with_boxes = yolo.draw_bboxes(cv_image, Boxes)
-            ros_image_boxes = bridge.cv2_to_imgmsg(image_with_boxes, encoding="passthrough")
-
-            # used to vizuallise the image without rviz (ploting it with openCV instead)
-            #cv.imshow('image',image_with_boxes)
-            #cv.waitKey(1) 
-
-            #grabbing the images width and heigth
+            # Grabbing the images' width and heigth
             height = ros_image.height
             width = ros_image.width
 
-            #Because Boxes is given in procentuall values we have to calculate the pixels instead
-            # we also make sure that the pixels are inside the image
-            for box in Boxes:
+            msg = BoundingBoxes()
+            for box in boxes:
+                # Because boxes is given in percent values we have to conevert
+                # to pixels instead. We also make sure that the pixels are
+                # inside the image
                 xmin = (box[0] - box[2]/2) * width
-                if xmin <= 0 : xmin = 1 
-                ymin = (box[1] - box[3]/2) * height 
-                if ymin <= 0 : ymin = 1 
-                xmax = (box[0] + box[2]/2) * width 
-                if xmax >= width : xmax = width - 1 
-                ymax = (box[1] + box[3]/2) * height 
-                if ymax >= height : ymax = height - 1 
+                if xmin <= 0:
+                    xmin = 1
+                ymin = (box[1] - box[3]/2) * height
+                if ymin <= 0:
+                    ymin = 1
+                xmax = (box[0] + box[2]/2) * width
+                if xmax >= width:
+                    xmax = width - 1
+                ymax = (box[1] + box[3]/2) * height
+                if ymax >= height:
+                    ymax = height - 1
 
-                #if(not (ymax <= -1)):
-                    #creates an bounding box and adds it to the message. 
-                msg_boxes = BoundingBox( box[5],int (xmin),int (ymin),int (xmax),int (ymax) ,int (box[4]), yolo.config.names[box[4]])
+                # Creates an bounding box and adds it to the message
+                msg_boxes = BoundingBox(
+                    box[5],
+                    int(xmin),
+                    int(ymin),
+                    int(xmax),
+                    int(ymax),
+                    int(box[4]),
+                    yolo.config.names[box[4]]
+                )
                 msg.bounding_boxes.append(msg_boxes)
 
-            if (len(msg.bounding_boxes) > 0):
-                # add message header from the image and and one from yolo. 
+            if len(msg.bounding_boxes) > 0:
+                # Add message header from the image and and one from YOLO
                 msg.image_header = ros_image.header
                 msg.header.stamp = ros_image.header.stamp
                 msg.header.frame_id = 'yolo'
-                #publish messages
-                box_pub.publish(msg) 
-            image_pub.publish(ros_image_boxes)
-        
-        # error handling for CV
+
+                # publish messages
+                box_pub.publish(msg)
+
+        # Error handling for CV
         except CvBridgeError as e:
             print(e)
 
-    # subscribe to the image given from the realsense camera 
-    rospy.Subscriber('/camera/color/image_raw', Image, convert_image, queue_size=1)
-    
-    try:
-        rospy.spin() 
+    # Subscribe to the image given from the realsense camera
+    rospy.Subscriber('/camera/color/image_raw', Image,
+                     convert_image, queue_size=1)
 
+    try:
+        rospy.spin()
     except rospy.ROSInternalException:
         pass
 
 
 if __name__ == '__main__':
     main()
-    

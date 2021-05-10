@@ -2,25 +2,25 @@
 <launch>
     <node pkg="yolo_detection" type="bounding_box_calc" name="front_bounding_box_calc" required="true">
         <remap from="/camera/color/image_raw" to="/camera/front/color/image_raw" />
-        <remap from="/image_with_boxes" to="/front_image_with_boxes" />
+        <remap from="/image_with_boxes" to="/vision/front/image_with_boxes" />
         <remap from="boxes" to="front_boxes" />
     </node>
 
     <node pkg="yolo_detection" type="bounding_box_calc" name="rear_bounding_box_calc" required="true">
         <remap from="/camera/color/image_raw" to="/camera/rear/color/image_raw" />
-        <remap from="/image_with_boxes" to="/rear_image_with_boxes" />
+        <remap from="/image_with_boxes" to="/vision/rear/image_with_boxes" />
         <remap from="boxes" to="rear_boxes" />
     </node>
 
     <node pkg="twizy_control" type="object_avoidance" name="front_object_avoidance" required="true">
         <remap from="/camera/aligned_depth_to_color/image_raw" to="/camera/front/aligned_depth_to_color/image_raw" />
-        <remap from="object_detection" to="/object_detection_front" />
+        <remap from="object_detection" to="/vision/front/object_detection" />
         <remap from="/boxes" to="/front_boxes" />
     </node>
 
     <node pkg="twizy_control" type="object_avoidance" name="rear_object_avoidance" required="true">
         <remap from="/camera/aligned_depth_to_color/image_raw" to="/camera/rear/aligned_depth_to_color/image_raw" />
-        <remap from="object_detection" to="/object_detection_rear" />
+        <remap from="object_detection" to="/vision/rear/object_detection" />
         <remap from="/boxes" to="/rear_boxes" />
     </node>
 </launch>
