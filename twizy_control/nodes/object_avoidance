@@ -90,9 +90,9 @@ def main():
     # then aligne the messages so you get the rigth boxes to the rigth image.
 
     aligned_camera = message_filters.Subscriber(
-        '/camera/aligned_depth_to_color/image_raw', Image, buff_size=10)
+        '/camera/aligned_depth_to_color/image_raw', Image, buff_size=2**24)
     boundingboxes = message_filters.Subscriber(
-        '/boxes', BoundingBoxes, buff_size=10)
+        '/boxes', BoundingBoxes)
     ts = message_filters.TimeSynchronizer([aligned_camera, boundingboxes], 10)
     ts.registerCallback(convert_image)
     

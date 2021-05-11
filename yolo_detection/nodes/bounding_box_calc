@@ -91,10 +91,10 @@ def main():
     box_pub_2 = rospy.Publisher('boxes_2', BoundingBoxes , queue_size=1)
 
     # subscribe to the image given from the first realsense camera 
-    rospy.Subscriber('/camera/color/image_raw_1', Image, convert_image,callback_args=(image_pub_1,box_pub_1) ,queue_size=1)
+    rospy.Subscriber('/camera/color/image_raw_1', Image, convert_image,callback_args=(image_pub_1,box_pub_1) ,queue_size=1, buff_size=2**24)
     
     # subscribe to the image given from the second realsense camera 
-    rospy.Subscriber('/camera/color/image_raw_2', Image, convert_image,callback_args=(image_pub_2,box_pub_2) ,queue_size=1)
+    rospy.Subscriber('/camera/color/image_raw_2', Image, convert_image,callback_args=(image_pub_2,box_pub_2) ,queue_size=1, buff_size=2**24)
     
     try:
         rospy.spin() 
