@@ -24,7 +24,8 @@ yolo.make_model()
 yolo.load_weights( current_dir / "weights/yolov4-tiny.weights", weights_type="yolo")
 
 bridge = CvBridge()    
-
+# threshold value
+prob_threshold = 0.6
 
 #  arg[0] is the ROS publisher for the image
 #  arg[1] is the ROS publisher for the bounding boxes
@@ -38,7 +39,7 @@ def convert_image(ros_image, args):
         msg = BoundingBoxes()
 
         #Using yolo to predict the bounding boxes which we then draw on image to be able to vizuallising in in rviz 
-        Boxes = yolo.predict(cv_image,args[2]) 
+        Boxes = yolo.predict(cv_image,prob_threshold) 
         image_with_boxes = yolo.draw_bboxes(cv_image, Boxes)
         ros_image_boxes = bridge.cv2_to_imgmsg(image_with_boxes, encoding="passthrough")
 
@@ -89,14 +90,12 @@ def main():
     image_pub_2 = rospy.Publisher('image_with_boxes_2', Image, queue_size=1)
     box_pub_2 = rospy.Publisher('boxes_2', BoundingBoxes , queue_size=1)
 
-    # threshold value
-    prob_threshold = 0.6
-
     # subscribe to the image given from the first realsense camera 
-    rospy.Subscriber('/camera/color/image_raw_1', Image, convert_image,callback_args=(image_pub_1,box_pub_1,prob_threshold) ,queue_size=1)
+    rospy.Subscriber('/camera/color/image_raw_1', Image, convert_image,callback_args=(image_pub_1,box_pub_1) ,queue_size=1)
     
     # subscribe to the image given from the second realsense camera 
-    rospy.Subscriber('/camera/color/image_raw_2', Image, convert_image,callback_args=(image_pub_2,box_pub_2,prob_threshold) ,queue_size=1)
+    rospy.Subscriber('/camera/color/image_raw_2', Image, convert_image,callback_args=(image_pub_2,box_pub_2) ,queue_size=1)
+    
     try:
         rospy.spin() 
 
