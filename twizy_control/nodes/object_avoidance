@@ -11,18 +11,21 @@ from math import floor, ceil
 
 # Use cv_bridge() to convert the ROS image to OpenCV format
 bridge = CvBridge()
-times = 0
-stopsign_count = 0
-stopsign_dist = 0
+# Variables to count if you have stopped for stoppsigns or not
+stopsign_count = 0 #used if you stopped at a sign
+stopsign_dist = 0  # variable used if you already stopped at a sign to make sure its the same
 def main():
     # Initialize ROS node
     rospy.init_node('listener', anonymous=True)
 
+
+    #assign the publishers to publish the specific data type
     msg = rospy.Publisher('object_detection', Bool, queue_size=1)
     # test = rospy.Publisher('avrage_dist', Int16, queue_size=1)
-    # callback function
 
+    # callback function
     def convert_image(ros_image, boxes):
+        #loading the global variables
         global stopsign_count
         global stopsign_dist
         try:
@@ -32,12 +35,14 @@ def main():
 
             # create an bool  to bee sent if the car identifies an object
             msg_to_publish = False
-            avreage = 0
             # loops over every box and calculate the avreage distance to each object by adding the distance to every pixel
             # when we don't find any object the camera returns ymax as -106 there for we check before going inside the second loop.
             for box in boxes.bounding_boxes:
+                #initialize / reset the distance variable
                 avreage = 0
-                if box.ymax > -1:
+
+                #calculations of the distance to object (using the middle of the box ) 
+                if box.ymax > -1:  
                     quarterY = (box.ymax - box.ymin)/4
                     quarterX = (box.xmax - box.xmin)/4
                     xmin = int(floor(box.xmin + quarterX)-1)
@@ -46,18 +51,23 @@ def main():
                     ymax = int(ceil(box.ymax - quarterY))
 
                     #avreage = cv_image[ymin:ymax][xmin:xmax].mean()
+                    
+                    # calculating the avrage distance 
                     for i in range(xmin, xmax):
                         for j in range(ymin, ymax):
                             avreage += cv_image[j][i]
                     avreage = int (avreage / ((xmax - xmin) * (ymax - ymin)))
                     # print(avreage,ymin,ymax,xmin,xmax)
 
+                    # checks if the object is "dynamic" and if in a 4meter interval sends a signal to the car controler
                     if ((box.Class == "person" or box.Class == "dog" or
                             box.Class == "cat" or box.Class == "horse") and avreage <= 4200):
                         msg_to_publish = True
                         msg.publish(msg_to_publish)
                         rospy.sleep(5.)
 
+                    #checks if the object is a stopsign and stops infront of the sign (might be some problem when we replaced
+                    # the front camera)
                     elif (box.Class == "stop sign" and avreage <= 5000):
                         if(avreage > stopsign_dist): 
                             stopsign_dist = avreage
@@ -70,8 +80,7 @@ def main():
                             stopsign_dist = 0
 
 
-            # if avreage > 0 :  
-            #     test.publish(avreage)
+            # pulishes the distance 
             msg.publish(msg_to_publish)
 
         except CvBridgeError as e:  # error handling for CV
