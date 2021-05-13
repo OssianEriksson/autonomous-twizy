@@ -13,9 +13,10 @@ import rospy
 bridge = CvBridge()
 # Variables to count if you have stopped for stoppsigns or not
 
-stopsign_count = 0 #used if you stopped at a sign
+stopsign_time = rospy.Time(0).to_sec() #used if you stopped at a sign
 stopsign_dist = 0  # variable used if you already stopped at a sign to make sure its the same
 last_call_time = rospy.Time(0).to_sec()
+stopsign_count = 0
 def main():
     # Initialize ROS node
     rospy.init_node('listener', anonymous=True)
@@ -26,9 +27,10 @@ def main():
     # callback function
     def convert_image(ros_image, boxes):
         #loading the global variables
-        global stopsign_count
+        global stopsign_time
         global stopsign_dist
         global last_call_time
+        global stopsign_count
         
         # wait duration after finding an object
         wait_duration = 2 
@@ -67,7 +69,7 @@ def main():
 
                         # checks if the object is "dynamic" and if in a 4meter interval sends a signal to the car controler
                         if ((box.Class == "person" or box.Class == "dog" or
-                                box.Class == "cat" or box.Class == "horse") and avreage <= 4200):
+                                box.Class == "cat" or box.Class == "horse") and avreage <= 3200):
                             msg_to_publish = True
                             msg.publish(msg_to_publish)
                             last_call_time = rospy.get_time()
@@ -75,16 +77,17 @@ def main():
                         #checks if the object is a stopsign and stops infront of the sign (might be some problem when we replaced
                         # the front camera)
                         elif (box.Class == "stop sign" and avreage <= 5000):
-                            if(avreage > stopsign_dist): 
-                                stopsign_dist = avreage
-                            if (stopsign_count < 2 or stopsign_dist < avreage):
-                                stopsign_count += 1
-                                msg_to_publish = True
-                                msg.publish(msg_to_publish)
-                                last_call_time = rospy.get_time()
-                            else: 
-                                stopsign_dist = 0
-
+                            if(rospy.get_time() - stopsign_time >= 3):
+                                if(avreage > stopsign_dist): 
+                                    stopsign_dist = avreage
+                                if (stopsign_count < 2  or stopsign_dist < avreage):
+                                    stopsign_count += 1
+                                    msg_to_publish = True
+                                    msg.publish(msg_to_publish)
+                                    last_call_time = rospy.get_time()
+                                else: 
+                                    stopsign_count = 0
+                                    stopsign_time = rospy.get_time()
 
                 # pulishes the distance 
                 msg.publish(msg_to_publish)
