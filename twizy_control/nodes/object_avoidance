@@ -1,98 +1,107 @@
 #!/usr/bin/env python3
 
-import rospy
-import cv2 as cv
-import message_filters
+from yolo_detection.msg import BoundingBoxes, BoundingBox
+from cv_bridge import CvBridge, CvBridgeError
 from std_msgs.msg import String, Bool, Int16
 from sensor_msgs.msg import Image
-from cv_bridge import CvBridge, CvBridgeError
-from yolo_detection.msg import BoundingBoxes, BoundingBox
 from math import floor, ceil
+import message_filters
+import cv2 as cv
+import rospy
 
 # Use cv_bridge() to convert the ROS image to OpenCV format
 bridge = CvBridge()
 # Variables to count if you have stopped for stoppsigns or not
-stopsign_count = 0 #used if you stopped at a sign
+
+stopsign_time = rospy.Time(0).to_sec() #used if you stopped at a sign
 stopsign_dist = 0  # variable used if you already stopped at a sign to make sure its the same
+last_call_time = rospy.Time(0).to_sec()
+stopsign_count = 0
 def main():
     # Initialize ROS node
     rospy.init_node('listener', anonymous=True)
-
-
     #assign the publishers to publish the specific data type
     msg = rospy.Publisher('object_detection', Bool, queue_size=1)
     # test = rospy.Publisher('avrage_dist', Int16, queue_size=1)
-
+    
     # callback function
     def convert_image(ros_image, boxes):
         #loading the global variables
-        global stopsign_count
+        global stopsign_time
         global stopsign_dist
-        try:
-            # Convert the image using the default passthrough encoding
-            cv_image = bridge.imgmsg_to_cv2(
-                ros_image, desired_encoding="passthrough")
+        global last_call_time
+        global stopsign_count
+        
+        # wait duration after finding an object
+        wait_duration = 2 
+        # if you found an object earlier compare the current time with the time we found the object 
+        if(last_call_time + wait_duration <= rospy.get_time()):
+            try:
+                # Convert the image using the default passthrough encoding
+                cv_image = bridge.imgmsg_to_cv2(
+                    ros_image, desired_encoding="passthrough")
 
-            # create an bool  to bee sent if the car identifies an object
-            msg_to_publish = False
-            # loops over every box and calculate the avreage distance to each object by adding the distance to every pixel
-            # when we don't find any object the camera returns ymax as -106 there for we check before going inside the second loop.
-            for box in boxes.bounding_boxes:
-                #initialize / reset the distance variable
-                avreage = 0
+                # create an bool  to be sent if the car identifies an object
+                msg_to_publish = False
+                # loops over every box and calculate the avreage distance to each object by adding the distance to every pixel
+                # when we don't find any object the camera returns ymax as -106 there for we check before going inside the second loop.
+                for box in boxes.bounding_boxes:
+                    #initialize / reset the distance variable
+                    avreage = 0
 
-                #calculations of the distance to object (using the middle of the box ) 
-                if box.ymax > -1:  
-                    quarterY = (box.ymax - box.ymin)/4
-                    quarterX = (box.xmax - box.xmin)/4
-                    xmin = int(floor(box.xmin + quarterX)-1)
-                    xmax = int(ceil(box.xmax - quarterX))
-                    ymin = int(floor(box.ymin + quarterY)-1)
-                    ymax = int(ceil(box.ymax - quarterY))
+                    #calculations of the distance to object (using the middle of the box ) 
+                    if box.ymax > -1:  
+                        quarterY = (box.ymax - box.ymin)/4
+                        quarterX = (box.xmax - box.xmin)/4
+                        xmin = int(floor(box.xmin + quarterX)-1)
+                        xmax = int(ceil(box.xmax - quarterX))
+                        ymin = int(floor(box.ymin + quarterY)-1)
+                        ymax = int(ceil(box.ymax - quarterY))
 
-                    #avreage = cv_image[ymin:ymax][xmin:xmax].mean()
-                    
-                    # calculating the avrage distance 
-                    for i in range(xmin, xmax):
-                        for j in range(ymin, ymax):
-                            avreage += cv_image[j][i]
-                    avreage = int (avreage / ((xmax - xmin) * (ymax - ymin)))
-                    # print(avreage,ymin,ymax,xmin,xmax)
+                        #avreage = cv_image[ymin:ymax][xmin:xmax].mean()
+                        
+                        # calculating the avrage distance 
+                        for i in range(xmin, xmax):
+                            for j in range(ymin, ymax):
+                                avreage += cv_image[j][i]
+                        avreage = int (avreage / ((xmax - xmin) * (ymax - ymin)))
+                        # print(avreage,ymin,ymax,xmin,xmax)
 
-                    # checks if the object is "dynamic" and if in a 4meter interval sends a signal to the car controler
-                    if ((box.Class == "person" or box.Class == "dog" or
-                            box.Class == "cat" or box.Class == "horse") and avreage <= 4200):
-                        msg_to_publish = True
-                        msg.publish(msg_to_publish)
-                        rospy.sleep(5.)
-
-                    #checks if the object is a stopsign and stops infront of the sign (might be some problem when we replaced
-                    # the front camera)
-                    elif (box.Class == "stop sign" and avreage <= 5000):
-                        if(avreage > stopsign_dist): 
-                            stopsign_dist = avreage
-                        if (stopsign_count < 2 or stopsign_dist < avreage):
-                            stopsign_count += 1
+                        # checks if the object is "dynamic" and if in a 4meter interval sends a signal to the car controler
+                        if ((box.Class == "person" or box.Class == "dog" or
+                                box.Class == "cat" or box.Class == "horse") and avreage <= 3200):
                             msg_to_publish = True
                             msg.publish(msg_to_publish)
-                            rospy.sleep(5.)
-                        else: 
-                            stopsign_dist = 0
+                            last_call_time = rospy.get_time()
 
+                        #checks if the object is a stopsign and stops infront of the sign (might be some problem when we replaced
+                        # the front camera)
+                        elif (box.Class == "stop sign" and avreage <= 5000):
+                            if(rospy.get_time() - stopsign_time >= 3):
+                                if(avreage > stopsign_dist): 
+                                    stopsign_dist = avreage
+                                if (stopsign_count < 2  or stopsign_dist < avreage):
+                                    stopsign_count += 1
+                                    msg_to_publish = True
+                                    msg.publish(msg_to_publish)
+                                    last_call_time = rospy.get_time()
+                                else: 
+                                    stopsign_count = 0
+                                    stopsign_time = rospy.get_time()
 
-            # pulishes the distance 
-            msg.publish(msg_to_publish)
+                # pulishes the distance 
+                msg.publish(msg_to_publish)
 
-        except CvBridgeError as e:  # error handling for CV
-            print(e)
+            except CvBridgeError as e:  # error handling for CV
+                print(e)
 
     # subscribe to the image given from the realsense camera and the boundingboxes given from yolo
     # then aligne the messages so you get the rigth boxes to the rigth image.
 
     aligned_camera = message_filters.Subscriber(
-        '/camera/aligned_depth_to_color/image_raw', Image, buff_size=10)
+        '/camera/aligned_depth_to_color/image_raw', Image, buff_size=2**24)
     boundingboxes = message_filters.Subscriber(
-        '/boxes', BoundingBoxes, buff_size=10)
+        '/boxes', BoundingBoxes)
     ts = message_filters.TimeSynchronizer([aligned_camera, boundingboxes], 10)
     ts.registerCallback(convert_image)
     
