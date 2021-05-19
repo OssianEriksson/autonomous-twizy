@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 
-
 """ROS-node encapsulating the YOLOv4 object detection algorithm
 
 YOLO is initialized from a weights file in the weights folder and a cfg file
@@ -10,7 +9,6 @@ messages to numpy arrays.
 """
 
 import rospy
-import cv2 as cv
 from yolov4.tf import YOLOv4
 from sensor_msgs.msg import Image
 from cv_bridge import CvBridge, CvBridgeError
@@ -42,7 +40,7 @@ def main():
 
     bridge = CvBridge()
 
-    def convert_image(ros_image, index):
+    def publish_bounding_boxes(ros_image, index):
         """Callback publishing YOLO-inferred bounding boxes from color images
 
         :param ros_image: ROS Image message containing a color image
@@ -54,65 +52,66 @@ def main():
             # Convert the image to the bgr8 encoding which is the encoding
             # expected by yolov4
             cv_image = bridge.imgmsg_to_cv2(ros_image, desired_encoding='bgr8')
-
-            # Create instance of BoundingBoxes message to be published
-            msg = BoundingBoxes()
-
-            # Use yolo to predict bounding boxes
-            Boxes = yolo.predict(cv_image, prob_threshold)
-
-            # Draw the bounding boxes onto the original image and publish
-            # the result for visualization purposes only if there are nodes
-            # subscribing on the other end
-            if pub_boxes[index].get_num_connections() > 0:
-                image_with_boxes = yolo.draw_bboxes(cv_image, Boxes)
-                ros_image_boxes = bridge.cv2_to_imgmsg(
-                    image_with_boxes, encoding='passthrough')
-                pub_boxes[index].publish(ros_image_boxes)
-
-            # Grab the image's width and heigth
-            height = ros_image.height
-            width = ros_image.width
-
-            for box in Boxes:
-                # Discard invalid bounding boxes
-                if box[5] < prob_threshold or box[1] < 0:
-                    continue
-
-                # Box coordinates are given in percent of the image size. The
-                # provided box position referes to the center of the box. We
-                # must also clap the calculated corners of the bounding box to
-                # lie inside the image.
-                xmin = max(0, int(round((box[0] - box[2] / 2) * width)))
-                ymin = max(0, int(round((box[1] - box[3] / 2) * height)))
-                xmax = min(width - 1,
-                           int(round((box[0] + box[2] / 2) * width)))
-                ymax = min(height - 1,
-                           int(round((box[1] + box[3] / 2) * height)))
-
-                # Fill out a bounding box message and add it to the list of
-                # boundinx boxes to be published
-                msg_boxes = BoundingBox(box[5], xmin, ymin, xmax, ymax,
-                                        int(box[4]), yolo.config.names[box[4]])
-                msg.bounding_boxes.append(msg_boxes)
-
-            if len(msg.bounding_boxes) > 0:
-                msg.header.stamp = ros_image.header.stamp
-                # Add message header from the image and and one from yolo
-                msg.image_header = ros_image.header
-                msg.header.frame_id = 'yolo'
-
-                # Publish boundinx boxes
-                pub_images[index].publish(msg)
         except CvBridgeError as e:  # Error handling for CV
             rospy.logerr(e)
 
+        # Create instance of BoundingBoxes message to be published
+        msg = BoundingBoxes()
+
+        # Use yolo to predict bounding boxes
+        Boxes = yolo.predict(cv_image, prob_threshold)
+
+        # Draw the bounding boxes onto the original image and publish the
+        # result for visualization purposes only if there are nodes subscribing
+        # on the other end
+        if pub_boxes[index].get_num_connections() > 0:
+            image_with_boxes = yolo.draw_bboxes(cv_image, Boxes)
+            ros_image_boxes = bridge.cv2_to_imgmsg(
+                image_with_boxes, encoding='passthrough')
+            pub_boxes[index].publish(ros_image_boxes)
+
+        # Grab the image's width and heigth
+        height = ros_image.height
+        width = ros_image.width
+
+        for box in Boxes:
+            # Discard invalid bounding boxes
+            if box[5] < prob_threshold or box[1] < 0:
+                continue
+
+            # Box coordinates are given in percent of the image size. The
+            # provided box position referes to the center of the box. We must
+            # also clap the calculated corners of the bounding box to lie
+            # inside the image.
+            xmin = max(0, int(round((box[0] - box[2] / 2) * width)))
+            ymin = max(0, int(round((box[1] - box[3] / 2) * height)))
+            xmax = min(width, int(round((box[0] + box[2] / 2) * width)))
+            ymax = min(height, int(round((box[1] + box[3] / 2) * height)))
+
+            # Fill out a bounding box message and add it to the list of
+            # bounding boxes to be published
+            msg_boxes = BoundingBox(box[5], xmin, ymin, xmax, ymax,
+                                    int(box[4]), yolo.config.names[box[4]])
+            msg.bounding_boxes.append(msg_boxes)
+
+        if len(msg.bounding_boxes) > 0:
+            msg.header.stamp = ros_image.header.stamp
+            # Add message header from the image and and one from yolo
+            msg.image_header = ros_image.header
+            msg.header.frame_id = 'yolo'
+
+            # Publish boundinx boxes
+            pub_images[index].publish(msg)
+
     for i in range(1, num_image_sources + 1):
+        # Initialize publishers
         pub_images.append(rospy.Publisher(
             f'image_with_boxes{i}', Image, queue_size=1))
         pub_boxes.append(rospy.Publisher(
             'boxes{i}', BoundingBoxes, queue_size=1))
-        rospy.Subscriber(f'image{i}', Image, convert_image,
+        
+        # Initialize subscriber
+        rospy.Subscriber(f'image{i}', Image, publish_bounding_boxes,
                          callback_args=i - 1, queue_size=1, buff_size=2**24)
 
     # Wait for shutdown
