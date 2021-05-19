@@ -4,8 +4,8 @@ brief: ''
 bugtracker: https://github.com/OssianEriksson/autonomous-twizy/issues
 depends:
 - catkin
-- sensor_msgs
 - roslaunch
+- sensor_msgs
 - rostest
 - rospy
 description: Interfacing with the Piksi Multi RTK GNSS module
