@@ -1,115 +1,167 @@
 #!/usr/bin/env python3
 
-from yolo_detection.msg import BoundingBoxes, BoundingBox
+from yolo_detection.msg import BoundingBoxes
 from cv_bridge import CvBridge, CvBridgeError
-from std_msgs.msg import String, Bool, Int16
+from std_msgs.msg import Bool
 from sensor_msgs.msg import Image
 from math import floor, ceil
 import message_filters
-import cv2 as cv
 import rospy
 
-# Use cv_bridge() to convert the ROS image to OpenCV format
-bridge = CvBridge()
-# Variables to count if you have stopped for stoppsigns or not
 
-stopsign_time = rospy.Time(0).to_sec() #used if you stopped at a sign
-stopsign_dist = 0  # variable used if you already stopped at a sign to make sure its the same
-last_call_time = rospy.Time(0).to_sec()
-stopsign_count = 0
+class StopSignChecker:
+    def __init__(self, stop_time=2, max_sign_distance=5, images_for_clear=10):
+        """A check that stops the car a certain time for stop signs
+
+        Makes the car stop on the first image containing a sign, wait a set
+        amount of time and then continue driving. The car will then not stop
+        again before all stop signs have gone out of sigt for at leas a set
+        amount of images after which the system resets - on seeing a new stop
+        sign this check will make the car stop again.
+
+        :param stop_time: Duration to remain stopped for after the first
+            spotting of a stop sign (seconds)
+        :type stop_time: float
+        :param max_sign_distance: Signs outside this distance are discarded
+            (meters)
+        :type max_sign_distance: float
+        :param images_for_clear: Once this many images without stop signs have
+            been seen in a row the coast is marked clear making way for a new
+            observation of a stop sign which would make the car stop again
+        :type images_for_clear: int
+        """
+
+        self.stop_time = rospy.Duration(stop_time)
+        self.max_sign_distance = max_sign_distance
+        self.images_for_clear = images_for_clear
+        self.sign_first_spotted_time = rospy.Time(0)
+        self.images_with_signs = 0
+
+    def new_image(self, time):
+        self.images_with_signs = max(self.images_with_signs - 1, 0)
+
+    def process_object(self, distance, obj_class, time):
+        if obj_class == 'stop sign' and distance > self.max_sign_distance:
+            if self.images_with_signs == 0:
+                self.sign_first_spotted_time = time
+            self.images_with_signs = min(self.images_with_signs + 1,
+                                         self.images_for_clear)
+
+    def should_stop(self, time):
+        return time <= self.sign_first_spotted_time + self.stop_time
+
+
+class FullStopChecker:
+    def __init__(self, classes, remain_stopped_time=2, max_obj_distance=3.2):
+        """A check that completely stops the car for certain objects
+        
+        :param classes: List of classes to stop for
+        :type classes: list
+        :param remain_stopped_time: Duration of time to remain stopped for
+            after all objects have gone out of range (seconds)
+        :type remain_stopped_time: float
+        :param max_obj_distance: Objects outside this distance are discarded
+            (meters)
+        :type max_obj_distance: float
+        """
+
+        self.classes = classes
+        self.remain_stopped_time = rospy.Duration(remain_stopped_time)
+        self.max_obj_distance = max_obj_distance
+        self.obj_last_spotted_time = rospy.Time(0)
+
+    def new_image(self, time):
+        pass
+
+    def process_object(self, distance, obj_class, time):
+        if distance <= self.max_obj_distance and obj_class in self.classes:
+            self.obj_last_spotted_time = time
+
+    def should_stop(self, time):
+        return time <= self.obj_last_spotted_time + self.remain_stopped_time
+
+
 def main():
     # Initialize ROS node
-    rospy.init_node('listener', anonymous=True)
-    #assign the publishers to publish the specific data type
-    msg = rospy.Publisher('object_detection', Bool, queue_size=1)
-    # test = rospy.Publisher('avrage_dist', Int16, queue_size=1)
-    
-    # callback function
-    def convert_image(ros_image, boxes):
-        #loading the global variables
-        global stopsign_time
-        global stopsign_dist
-        global last_call_time
-        global stopsign_count
+    rospy.init_node('object_avoidance', anonymous=True)
+
+    # Create publisher for when there is an object in front of the camera
+    pub = rospy.Publisher('object_in_front', Bool, queue_size=1)
+
+    # CvBridge is used to convert the ROS image to numpy arrays
+    bridge = CvBridge()
+
+    # List of different checks to perform
+    checks = [FullStopChecker(['person', 'dog', 'cat', 'horse']),
+              StopSignChecker()]
+
+    def should_stop(time=None):
+        """Whether the checks are telling the car to stop
         
-        # wait duration after finding an object
-        wait_duration = 2 
-        # if you found an object earlier compare the current time with the time we found the object 
-        if(last_call_time + wait_duration <= rospy.get_time()):
-            try:
-                # Convert the image using the default passthrough encoding
-                cv_image = bridge.imgmsg_to_cv2(
-                    ros_image, desired_encoding="passthrough")
+        :param time: ROS Time to perform the check at or None to check for the
+            current time
+        """
 
-                # create an bool  to be sent if the car identifies an object
-                msg_to_publish = False
-                # loops over every box and calculate the avreage distance to each object by adding the distance to every pixel
-                # when we don't find any object the camera returns ymax as -106 there for we check before going inside the second loop.
-                for box in boxes.bounding_boxes:
-                    #initialize / reset the distance variable
-                    avreage = 0
+        time = rospy.Time.now() if time is None else time
+        for check in checks:
+            if check.should_stop(time):
+                return True
+        return False
 
-                    #calculations of the distance to object (using the middle of the box ) 
-                    if box.ymax > -1:  
-                        quarterY = (box.ymax - box.ymin)/4
-                        quarterX = (box.xmax - box.xmin)/4
-                        xmin = int(floor(box.xmin + quarterX)-1)
-                        xmax = int(ceil(box.xmax - quarterX))
-                        ymin = int(floor(box.ymin + quarterY)-1)
-                        ymax = int(ceil(box.ymax - quarterY))
+    def process_image(img, boxes):
+        time = rospy.Time.now()
 
-                        #avreage = cv_image[ymin:ymax][xmin:xmax].mean()
-                        
-                        # calculating the avrage distance 
-                        for i in range(xmin, xmax):
-                            for j in range(ymin, ymax):
-                                avreage += cv_image[j][i]
-                        avreage = int (avreage / ((xmax - xmin) * (ymax - ymin)))
-                        # print(avreage,ymin,ymax,xmin,xmax)
+        try:
+            # Convert from ROS Image message to numpy array
+            cv_image = bridge.imgmsg_to_cv2(img, desired_encoding='16UC1')
+        except CvBridgeError as e:
+            rospy.logwarn(e)
+            return
 
-                        # checks if the object is "dynamic" and if in a 4meter interval sends a signal to the car controler
-                        if ((box.Class == "person" or box.Class == "dog" or
-                                box.Class == "cat" or box.Class == "horse") and avreage <= 3200):
-                            msg_to_publish = True
-                            msg.publish(msg_to_publish)
-                            last_call_time = rospy.get_time()
+        # Signal to all checks that a new camera image has arrived
+        for check in checks:
+            check.new_image(time)
 
-                        #checks if the object is a stopsign and stops infront of the sign (might be some problem when we replaced
-                        # the front camera)
-                        elif (box.Class == "stop sign" and avreage <= 5000):
-                            if(rospy.get_time() - stopsign_time >= 3):
-                                if(avreage > stopsign_dist): 
-                                    stopsign_dist = avreage
-                                if (stopsign_count < 2  or stopsign_dist < avreage):
-                                    stopsign_count += 1
-                                    msg_to_publish = True
-                                    msg.publish(msg_to_publish)
-                                    last_call_time = rospy.get_time()
-                                else: 
-                                    stopsign_count = 0
-                                    stopsign_time = rospy.get_time()
+        for box in boxes.bounding_boxes:
+            # Crop the bounding boxes a little further to increase distance
+            # measurement accuracy
+            xmargin = int((box.xmax - box.xmin) * 0.25)
+            ymargin = int((box.ymax - box.ymin) * 0.25)
+            xmin = box.xmin + xmargin
+            xmax = box.xmax - xmargin
+            ymin = box.ymin + ymargin
+            ymax = box.ymax - ymargin
 
-                # pulishes the distance 
-                msg.publish(msg_to_publish)
+            # We can only calculate a distance to an object if it takes up
+            # space in the depth image
+            if xmin == xmax or ymin == ymax:
+                continue
 
-            except CvBridgeError as e:  # error handling for CV
-                print(e)
+            # Convert from millimeters to meters
+            distance = cv_image[ymin:ymax, xmin:xmax].mean() / 1000.0
 
-    # subscribe to the image given from the realsense camera and the boundingboxes given from yolo
-    # then aligne the messages so you get the rigth boxes to the rigth image.
+            # Perform per-bonding-box logic for every type of check
+            for check in checks:
+                check.process_object(distance, box.Class, time)
 
-    aligned_camera = message_filters.Subscriber(
-        '/camera/aligned_depth_to_color/image_raw', Image, buff_size=2**24)
-    boundingboxes = message_filters.Subscriber(
-        '/boxes', BoundingBoxes)
-    ts = message_filters.TimeSynchronizer([aligned_camera, boundingboxes], 10)
-    ts.registerCallback(convert_image)
-    
-    
-    try:
-        rospy.spin()
-    except rospy.ROSInternalException:
-        pass
+        # Publish potential stop signal immediately to avoid delay
+        pub.publish(should_stop(time))
+
+    # Subscribe to the image given by the realsense camera and the bounding
+    # boxes provided by YOLO then align the messages by their timestamps
+    image_sub = message_filters.Subscriber('image', Image, buff_size=2**24)
+    boxes_sub = message_filters.Subscriber('boxes', BoundingBoxes)
+    ts = message_filters.TimeSynchronizer([image_sub, boxes_sub], 10)
+    ts.registerCallback(process_image)
+
+    rate = rospy.Rate(1)
+    while not rospy.is_shutdown():
+        # Publish stop (or go) signal periodically to the system does not
+        # freeze when we stop recieving frames from YOLO (when the camera image
+        # does not contain any objects recognized by YOLO)
+        pub.publish(should_stop())
+
+        rate.sleep()
 
 
 if __name__ == '__main__':
