@@ -120,10 +120,10 @@ Sensor fusion using Extended Kalman filter for vehicle localization. Publishes t
   If `~control_topic` is set, in predicting steering angle velocity from control steering angle, this is the maximum allowed steering angle velocity: Velocities above (or below the negated value) will be clamped to this value.
 
 * `~sensors` (`list`)  
-  List of sensors to fuse, see below for specification of list element parameters
+  List of sensors to fuse, see below for specification of list element parameters.
 
   - `~sensors[i]/topic` (`string`, required)  
-    Name of a topic where measurement messages will be published
+    Name of a topic where measurement messages will be published.
 
   - `~sensors[i]/type` (`string`, required)  
     Message type of messages published on `~sensors[i]/topic`. Must be one of
