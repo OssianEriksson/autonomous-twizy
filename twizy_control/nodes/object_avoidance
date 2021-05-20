@@ -10,7 +10,7 @@ import rospy
 
 
 class StopSignChecker:
-    def __init__(self, stop_time=2, max_sign_distance=5, images_for_clear=10):
+    def __init__(self, stop_time=10, max_sign_distance=5, images_for_clear=10):
         """A check that stops the car a certain time for stop signs
 
         Makes the car stop on the first image containing a sign, wait a set
@@ -54,7 +54,7 @@ class StopSignChecker:
 class FullStopChecker:
     def __init__(self, classes, remain_stopped_time=2, max_obj_distance=3.2):
         """A check that completely stops the car for certain objects
-        
+
         :param classes: List of classes to stop for
         :type classes: list
         :param remain_stopped_time: Duration of time to remain stopped for
@@ -97,7 +97,7 @@ def main():
 
     def should_stop(time=None):
         """Whether the checks are telling the car to stop
-        
+
         :param time: ROS Time to perform the check at or None to check for the
             current time
         """

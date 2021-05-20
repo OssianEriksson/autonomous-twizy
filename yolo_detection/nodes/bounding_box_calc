@@ -68,7 +68,7 @@ def main():
             image_with_boxes = yolo.draw_bboxes(cv_image, Boxes)
             ros_image_boxes = bridge.cv2_to_imgmsg(
                 image_with_boxes, encoding='passthrough')
-            pub_boxes[index].publish(ros_image_boxes)
+            pub_images[index].publish(ros_image_boxes)
 
         # Grab the image's width and heigth
         height = ros_image.height
@@ -101,15 +101,15 @@ def main():
             msg.header.frame_id = 'yolo'
 
             # Publish boundinx boxes
-            pub_images[index].publish(msg)
+            pub_boxes[index].publish(msg)
 
     for i in range(1, num_image_sources + 1):
         # Initialize publishers
         pub_images.append(rospy.Publisher(
             f'image_with_boxes{i}', Image, queue_size=1))
         pub_boxes.append(rospy.Publisher(
-            'boxes{i}', BoundingBoxes, queue_size=1))
-        
+            f'boxes{i}', BoundingBoxes, queue_size=1))
+
         # Initialize subscriber
         rospy.Subscriber(f'image{i}', Image, publish_bounding_boxes,
                          callback_args=i - 1, queue_size=1, buff_size=2**24)

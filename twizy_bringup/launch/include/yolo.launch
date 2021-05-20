@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <launch>
     <node pkg="yolo_detection" type="bounding_box_calc" name="bounding_box_calc" required="true">
-        <paramn name="num_image_sources" value="2" />
+        <param name="num_image_sources" value="2" />
 
         <remap from="image1" to="/camera/front/color/image_raw" />
         <remap from="image_with_boxes1" to="/vision/front/image_with_boxes" />
