@@ -1,5 +1,6 @@
 <?xml version="1.0"?>
 <launch>
+    <!-- Start the node encapsulating YOLO -->
     <node pkg="yolo_detection" type="bounding_box_calc" name="bounding_box_calc" required="true">
         <param name="num_image_sources" value="2" />
 
@@ -12,12 +13,16 @@
         <remap from="boxes2" to="/vision/rear/boxes" />
     </node>
 
+    <!-- Process data inferred by YOLO to conclude if driving forward is
+         allowed of if the car should stop -->
     <node pkg="twizy_control" type="object_avoidance" name="front_object_avoidance" required="true">
         <remap from="image" to="/camera/front/aligned_depth_to_color/image_raw" />
         <remap from="object_in_front" to="/vision/front/object_in_front" />
         <remap from="boxes" to="/vision/front/boxes" />
     </node>
 
+    <!-- Process data inferred by YOLO to conclude if driving backward is
+         allowed of if the car should stop -->
     <node pkg="twizy_control" type="object_avoidance" name="rear_object_avoidance" required="true">
         <remap from="image" to="/camera/rear/aligned_depth_to_color/image_raw" />
         <remap from="object_in_front" to="/vision/rear/object_in_front" />

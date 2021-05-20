@@ -1,14 +1,30 @@
+<!--
+    Main launch file for twizy simulation. This file starts every node you
+    need to simulate the car locally in Webots. This launch file might not run
+    on the car's on-board computer since webots might not be installed on there.
+-->
+
 <?xml version="1.0"?>
 <launch>
     <arg name="world" default="flat.wbt" doc="Path to the world to load" />
 
+    <!-- Start webots, including publishing of simulated sensor values -->
     <include file="$(find twizy_webots)/launch/webots.launch">
         <arg name="world" value="$(arg world)" />
     </include>
 
-    <include file="$(find twizy_bringup)/launch/include/twist_to_ackermann.launch" />
+    <!-- Publish transforms and perform localization -->
     <include file="$(find twizy_bringup)/launch/include/transforms.launch" />
-    <include file="$(find twizy_bringup)/launch/include/rviz.launch" />
+
+    <!-- Start Navigation Stack -->
     <include file="$(find twizy_bringup)/launch/include/nav_stack.launch" />
+
+    <!-- Start YOLO -->
     <include file="$(find twizy_bringup)/launch/include/yolo.launch" />
+
+    <!-- Convert /cmd_vel to /ackermann_cmd -->
+    <include file="$(find twizy_bringup)/launch/include/twist_to_ackermann.launch" />
+
+    <!-- Start rviz -->
+    <include file="$(find twizy_bringup)/launch/include/rviz.launch" />
 </launch>

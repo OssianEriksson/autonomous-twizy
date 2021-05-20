@@ -1,11 +1,34 @@
+<!-- 
+    This is the main launch file of the Twizy. All systems for driving in the
+    real world are started. To give the car a goal to drive towards through a
+    GUI you can then start rviz separately (manually, possibly in another
+    terminal window) using
+    
+    $ roslaunch twizy_bringup rviz.launch
+
+    It is expected for all nodes started by this launch file to run on the
+    car's on-board computer while you are expected to run rviz locally using
+    methods described at http://wiki.ros.org/ROS/Tutorials/MultipleMachines to
+    communicate with the car through rviz.
+-->
+
 <?xml version="1.0"?>
 <launch>
+    <!-- Publish transforms and perform localization -->
     <include file="$(find twizy_bringup)/launch/include/transforms.launch" />
+
+    <!-- Start sensors -->
     <include file="$(find twizy_bringup)/launch/include/piksi.launch" />
     <include file="$(find twizy_bringup)/launch/include/realsense.launch" />
     <include file="$(find twizy_bringup)/launch/include/wheel_encoders.launch" />
-    <include file="$(find twizy_bringup)/launch/include/nav_stack.launch" />
-    <include file="$(find twizy_bringup)/launch/include/can_control.launch" />
     <include file="$(find twizy_bringup)/launch/include/velodyne.launch" />
+
+    <!-- Start Navigation Stack -->
+    <include file="$(find twizy_bringup)/launch/include/nav_stack.launch" />
+
+    <!-- Start YOLO -->
     <include file="$(find twizy_bringup)/launch/include/yolo.launch" />
+
+    <!-- Start communication with the car over CAN -->
+    <include file="$(find twizy_bringup)/launch/include/can_control.launch" />
 </launch>

@@ -1,7 +1,9 @@
 <?xml version="1.0"?>
 <launch>
+    <!-- Load YAML file containg physical parameters of the twizy -->
     <rosparam command="load" param="physical" file="$(find twizy_description)/config/physical.yaml" />
 
+    <!-- Convert /cmd_vel to /ackermann_cmd and incorporate stop signals -->
     <node pkg="twizy_control" type="twist_to_ackermann" name="twist_to_ackermann" required="true">
         <remap from="~max_steering_angle" to="/physical/max_steering_angle" />
     </node>

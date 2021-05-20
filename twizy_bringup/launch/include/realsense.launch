@@ -1,7 +1,9 @@
 <?xml version="1.0"?>
 <launch>
+    <!-- Start a common nodelet mannager for the front camera -->
     <node pkg="nodelet" type="nodelet" name="realsense_manager" args="manager" ns="/camera/front" required="true" />
 
+    <!-- Start the front camera on the already started nodelet manager -->
     <include file="$(find realsense2_camera)/launch/rs_camera.launch">
         <arg name="camera" value="camera/front" />
         <arg name="serial_no" value="817412071115" />
@@ -13,6 +15,13 @@
         <arg name="manager" value="realsense_manager" />
         <arg name="output" value="log" />
     </include>
+    <!-- The front camera has been observed to report a few points which do not
+         correspond to real world objects. These effect path planning greately
+         since the car will refuse to move forward if it detects objects in
+         front of it. This is solved by (quite aggressively) cropping out the
+         faulty points from the point cloud reported by the front camera.
+         Cropping is performed on the same nodelet manager as the camera driver
+         runs on to aid performance -->
     <node pkg="nodelet" type="nodelet" name="pcl_crop" args="load pcl_crop/PclCropNodelet realsense_manager" ns="/camera/front">
         <rosparam param="crops">[{xmin: 0.2, ymin: 0.5, xmax: 0.8, ymax: 0.8, interior: False}]</rosparam>
         <param name="zmin" value="0.05" />
@@ -20,6 +29,7 @@
         <remap from="cropped" to="/camera/front/depth/color/cropped/points" />
     </node>
 
+    <!-- Start the rear camera -->
     <include file="$(find realsense2_camera)/launch/rs_camera.launch">
         <arg name="camera" value="camera/rear" />
         <arg name="serial_no" value="938422076468" />
