@@ -36,15 +36,21 @@ class StopSignChecker:
         self.images_for_clear = images_for_clear
         self.sign_first_spotted_time = rospy.Time(0)
         self.images_with_signs = 0
+        self.first_sign_of_frame = False
 
     def new_image(self, time):
         self.images_with_signs = max(self.images_with_signs - 1, 0)
+        self.first_sign_of_frame = True
 
     def process_object(self, distance, obj_class, time):
-        if obj_class == 'stop sign' and distance <= self.max_sign_distance:
+        if (obj_class == 'stop sign' and distance <= self.max_sign_distance and
+                self.first_sign_of_frame):
+            self.first_sign_of_frame = False
+
             if self.images_with_signs == 0:
                 self.sign_first_spotted_time = time
-            self.images_with_signs = min(self.images_with_signs + 1,
+
+            self.images_with_signs = min(self.images_with_signs + 2,
                                          self.images_for_clear)
 
     def should_stop(self, time):
