@@ -5,6 +5,7 @@
 namespace pcl_crop {
 
 PclCrop::PclCrop(ros::NodeHandle &nh, ros::NodeHandle &nh_private) {
+    // Read the list of crops from the ROS parameter server
     XmlRpc::XmlRpcValue crops;
     nh_private.getParam("crops", crops);
     ROS_ASSERT(crops.getType() == XmlRpc::XmlRpcValue::TypeArray);
@@ -28,14 +29,17 @@ PclCrop::PclCrop(ros::NodeHandle &nh, ros::NodeHandle &nh_private) {
         crops_.push_back(c);
     }
 
+    // Read more parameters from the ROS parameter server
     nh_private.getParam("zmin", zmin_);
     nh_private.getParam("zmax", zmax_);
 
+    // Initialize publishers and subscribers
     publisher_ = nh.advertise<sensor_msgs::PointCloud2>("cropped", 1);
     subscriber_ = nh.subscribe("image", 1, &PclCrop::callback, this);
 }
 
 void PclCrop::callback(const sensor_msgs::PointCloud2::ConstPtr &msg) {
+    // Prepare a PointCloud2 message to be published
     sensor_msgs::PointCloud2 points;
     points.header = msg->header;
     points.is_dense = true;
@@ -48,22 +52,27 @@ void PclCrop::callback(const sensor_msgs::PointCloud2::ConstPtr &msg) {
     sensor_msgs::PointCloud2Iterator<float> iter_y(points, "y");
     sensor_msgs::PointCloud2Iterator<float> iter_z(points, "z");
 
+    // Iterate over all points in the old point cloud
     int i = 0;
     int valid_points = 0;
     for (sensor_msgs::PointCloud2ConstIterator<float> it(*msg, "x");
          it != it.end(); ++it, ++i) {
+        // Check if the point lies within bounds on the z coordinate
         if (it[2] > zmax_ || it[2] < zmin_) {
             continue;
         }
 
+        // Check if the point is not removed by any crop
         double x = (i % msg->width + 0.5) / msg->width;
         double y = (i / msg->width + 0.5) / msg->height;
         for (auto const &crop : crops_) {
             if (!crop.validate(x, y)) {
+                // Continue outer loop
                 goto skip_point;
             }
         }
 
+        // Add the old point to the new pointcloud
         *iter_x = it[0];
         *iter_y = it[1];
         *iter_z = it[2];
@@ -74,6 +83,7 @@ void PclCrop::callback(const sensor_msgs::PointCloud2::ConstPtr &msg) {
 
         valid_points++;
 
+    // Continue outer loop
     skip_point:;
     }
 
@@ -81,6 +91,7 @@ void PclCrop::callback(const sensor_msgs::PointCloud2::ConstPtr &msg) {
     points.width = valid_points;
     pcd_modifier.resize(valid_points);
 
+    // Publish the cropped point cloud
     publisher_.publish(points);
 }
 

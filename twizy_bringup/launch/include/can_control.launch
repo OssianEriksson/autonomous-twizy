@@ -1,7 +1,13 @@
 <?xml version="1.0"?>
 <launch>
+    <!-- Load YAML file containg physical parameters of the twizy -->
+    <rosparam command="load" param="physical" file="$(find twizy_description)/config/physical.yaml" />
+
+    <!-- Start conversion from /cmd_vel to /ackermann_cmd -->
     <include file="$(find twizy_bringup)/launch/include/twist_to_ackermann.launch" />
 
+    <!-- Start node listening to /ackermann_cmd and communicating those
+         messages to the car over CAN -->
     <node pkg="twizy_control" type="can_control" name="can_control" required="true">
         <remap from="~max_forward_speed" to="/physical/max_forward_speed" />
         <remap from="~max_reverse_speed" to="/physical/max_reverse_speed" />

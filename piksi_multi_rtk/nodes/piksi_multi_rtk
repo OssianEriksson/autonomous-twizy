@@ -13,6 +13,7 @@ from sensor_msgs.msg import NavSatFix, NavSatStatus, Imu, MagneticField
 
 
 def main():
+    # Initialize ROS node
     rospy.init_node('piski_multi_rtk', anonymous=True)
 
     # Inspired by
@@ -21,7 +22,6 @@ def main():
     default_imu_acc_cov[::4] = [(50e-3 * 9.82)**2] * 3
     default_imu_gyro_cov = [0.0] * 9
     default_imu_gyro_cov[::4] = [radians(3)**2] * 3
-
 
     # For default settings see https://www.swiftnav.com/resource-files/
     # Piksi%20Multi/v2.4.15/Manual/PiksiMulti-settings-v2.4.15.pdf
@@ -36,15 +36,17 @@ def main():
     imu_gyro_offset = rospy.get_param('~imu_gyro_offset', [0.0] * 3)
     imu_gyro_cov = rospy.get_param('~imu_gyro_cov', default_imu_gyro_cov)
     imu_frame = rospy.get_param('~imu_frame', 'piksi_imu')
-    mag_sense = rospy.get_param('~mag_sense', 1e-6)
+    mag_sens = rospy.get_param('~mag_sens', 1e-6)
     mag_offset = rospy.get_param('~mag_offset', [0.0] * 3)
     mag_frame = rospy.get_param('~mag_frame', imu_frame)
     gnss_frame = rospy.get_param('~gnss_frame', 'piksi_gnss')
 
+    # Initialize publishers
     pub_imu = rospy.Publisher('imu/raw', Imu, queue_size=1)
     pub_mag = rospy.Publisher('mag/raw', MagneticField, queue_size=1)
     pub_fix = rospy.Publisher('gnss/fix', NavSatFix, queue_size=1)
 
+    # Initialize imu message to be published
     imu = Imu()
     imu.header.frame_id = imu_frame
     # Means no data http://docs.ros.org/en/api/sensor_msgs/html/msg/Imu.html
@@ -52,6 +54,7 @@ def main():
     imu.angular_velocity_covariance = imu_gyro_cov
     imu.linear_acceleration_covariance = imu_acc_cov
 
+    # Initialize MagneticField message to be published
     mag = MagneticField()
     mag.header.frame_id = mag_frame
     # Inspired by https://www.bosch-sensortec.com/products/motion-sensors/
@@ -59,6 +62,7 @@ def main():
     mag.magnetic_field_covariance = [0.0] * 9
     mag.magnetic_field_covariance[::4] = [(40e-6)**2] * 3
 
+    # Initialize NavSatFix message to be published
     fix = NavSatFix()
     fix.header.frame_id = gnss_frame
 
@@ -74,9 +78,9 @@ def main():
 
     def publish_mag_msg(msg, **metadata):
         mag.header.stamp = rospy.Time.now()
-        mag.magnetic_field.x = msg.mag_x * mag_sense + mag_offset[0]
-        mag.magnetic_field.y = msg.mag_y * mag_sense + mag_offset[1]
-        mag.magnetic_field.z = msg.mag_z * mag_sense + mag_offset[2]
+        mag.magnetic_field.x = msg.mag_x * mag_sens + mag_offset[0]
+        mag.magnetic_field.y = msg.mag_y * mag_sens + mag_offset[1]
+        mag.magnetic_field.z = msg.mag_z * mag_sens + mag_offset[2]
         pub_mag.publish(mag)
 
     def publish_llh_msg(msg, **metadata):
@@ -117,8 +121,13 @@ def main():
                                    0.0,   0.0,   v_var]
         pub_fix.publish(fix)
 
+    # While we are still supposed to run, try reconnecting to the piksi board
+    # every time we disconnect or can't establish a connection in the first
+    # place
     while not rospy.is_shutdown():
         try:
+            # Listen for magnetometer, IMU and GNSS messages reported over TCP
+            # using SBP (Swift Binary Protocol)
             with TCPDriver(tcp_addr, tcp_port) as driver:
                 framer = Framer(driver.read, driver.write)
                 with Handler(framer, autostart=False) as src:
@@ -130,11 +139,13 @@ def main():
                     # added
                     src.start()
 
+                    # Wait for shutdown
                     try:
                         rospy.spin()
                     except rospy.ROSInterruptException:
                         src.stop()
         except ConnectionError as e:
+            # Wait a while before trying to connect again
             t = 1
             rospy.logwarn(f'Unable to connect to {tcp_addr}:{tcp_port}, '
                           f'retrying in {t} second')

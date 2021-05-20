@@ -3,7 +3,6 @@
 import rospy
 
 import sys
-import select
 import termios
 import tty
 from math import degrees
@@ -24,18 +23,25 @@ special = {
 
 
 def main():
+    # Initialize ROS node
     rospy.init_node('key_teleop')
 
+    # Read parameters from parameter server
     max_forward_speed = rospy.get_param('~max_forward_speed')
     max_reverse_speed = rospy.get_param('~max_reverse_speed')
     max_steering_angle = rospy.get_param('~max_steering_angle')
 
+    # fr is 1 for forward and -1 for reverse drive, lr is 1 for turing left and
+    # -1 for turning right
     fr, lr = 0, 0
 
+    # Initialize control signal message to be published
     msg = AckermannDriveStamped()
 
     pub = rospy.Publisher('ackermann_cmd', AckermannDriveStamped, queue_size=1)
 
+    # Print usage instructions, make sure output="screen" is set if using
+    # roslaunch!
     print('**********************************************************')
     print('* - Toggle forward, reverse and steering with arrow keys *')
     print('* - Reset all controls to zero by hitting space          *')
@@ -43,15 +49,25 @@ def main():
     print('**********************************************************')
 
     while not rospy.is_shutdown():
+        # Store old terminal settings
         old_attr = termios.tcgetattr(sys.stdin)
         char = None
         try:
+            # Set the terminal mode to where key presses are reported
+            # immediately to stdin instead of waiting for enter to be pressed
+            # at the end of the line.
             tty.setraw(sys.stdin.fileno())
             char = sys.stdin.read(1)
         finally:
+            # Reset the terminal settings to the way they were before
             termios.tcsetattr(sys.stdin, termios.TCSADRAIN, old_attr)
 
         if char in controls.values() or char in special.values():
+            # Very confusing logic to handle controls, please redo this to
+            # something more intuitive! As of now, when going forward, pressing
+            # forward again will make the car stop, pressing reverse will make
+            # the car revese. The same idea is used for turning. There is no
+            # granularity: Forward means full speed ahead!
             if char == controls['forward']:
                 fr = 1 if fr == -1 else (1 - fr)
             if char == controls['reverse']:
@@ -61,11 +77,14 @@ def main():
             if char == controls['right']:
                 lr = -1 if lr == 1 else (-1 - lr)
             elif char == special['reset'] or char == special['exit']:
+                # Stop the vehicle before the program exits
                 fr, lr = 0, 0
 
             angle = lr * max_steering_angle
+            # Different speeds are used for reversing and driving forwards
             speed = fr * (max_forward_speed if fr > 0 else max_reverse_speed)
 
+            # Populate control signal message
             msg.header.stamp = rospy.Time.now()
             msg.drive.steering_angle = angle
             msg.drive.speed = speed

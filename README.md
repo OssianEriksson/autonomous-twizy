@@ -13,11 +13,15 @@ For more detailed information see the [wiki](https://github.com/OssianEriksson/a
 
 1. Installing
 
+   Clone the repo using
    ```sh
    git clone git@github.com:OssianEriksson/autonomous-twizy.git ~/autonomous-twizy/src
-   ~/autonomous-twizy/src/install.sh
-   source ~/.bashrc
    ```
+   Then run
+   ```sh
+   ~/autonomous-twizy/src/install.sh
+   ```
+   and follow any instructions that are printed out once the script completes successfully.
 
 2. Building
 

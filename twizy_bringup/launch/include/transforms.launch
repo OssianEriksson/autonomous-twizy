@@ -1,13 +1,17 @@
 <?xml version="1.0"?>
 <launch>
-    <arg name="robot" default="$(find twizy_description)/robot/twizy.py" />
+    <arg name="robot" default="$(find twizy_description)/robot/twizy.py" doc="robot description python script" />
 
+    <!-- Generate and load the twizy model in URDF format -->
     <param name="robot_description" command="$(arg robot) urdf" />
 
+    <!-- Publish joint states from the twizy model -->
     <node pkg="joint_state_publisher" type="joint_state_publisher" name="joint_state_publisher" required="true" />
 
+    <!-- Accumulate joint states -->
     <node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher" required="true" />
 
+    <!-- Start localization node -->
     <node pkg="ackermann_ekf" type="ackermann_ekf" name="ackermann_ekf" required="true" output="screen">
         <rosparam subst_value="true">$(eval exec('global load; from twizy_bringup.twizyparam import load') or load(f'{find("twizy_bringup")}/params/ekf_params.yaml'))</rosparam>
         <remap from="odom" to="/ekf/global/odom" />

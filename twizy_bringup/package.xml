@@ -78,5 +78,6 @@
   <export>
     <!-- Other tools can request additional information be placed here -->
 
+    <rosdoc config="rosdoc.yaml"/>
   </export>
 </package>

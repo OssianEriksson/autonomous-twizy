@@ -1,8 +1,15 @@
 <?xml version="1.0"?>
 <launch>
+    <!-- Start the VLP-16 LiDAR driver -->
     <remap from="/velodyne_points" to="/lidar/points" />
     <include file="$(find velodyne_pointcloud)/launch/VLP16_points.launch">
         <arg name="frame_id" value="lidar_vlp16" />
+
+        <!-- We would like to see points in all directions in the published
+             point cloud since Navigation Stack then uses these points for
+             clearing of costmaps: If there are no points (e.g. they are
+             discarded by the velodyne driver for beeing too far away) then
+             there can be no clearing of the costmaps -->
         <arg name="max_range" value="10000" />
     </include>
 </launch>
