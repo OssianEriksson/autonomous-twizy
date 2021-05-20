@@ -1,6 +1,6 @@
 <map id="pcl_crop_nodelet.cpp" name="pcl_crop_nodelet.cpp">
 <area shape="rect" id="node1" title=" " alt="" coords="252,5,411,32"/>
-<area shape="rect" id="node2" href="$pcl__crop_8h.html" title=" " alt="" coords="122,87,269,114"/>
+<area shape="rect" id="node2" href="$pcl__crop_8h.html" title="Contains classes used for cropping point clouds." alt="" coords="122,87,269,114"/>
 <area shape="rect" id="node3" title=" " alt="" coords="5,169,84,196"/>
 <area shape="rect" id="node6" title=" " alt="" coords="293,87,370,114"/>
 <area shape="rect" id="node7" title=" " alt="" coords="394,87,530,114"/>

@@ -1,5 +1,5 @@
 <map id="pcl_crop.h" name="pcl_crop.h">
-<area shape="rect" id="node1" title=" " alt="" coords="90,5,178,32"/>
+<area shape="rect" id="node1" title="Contains classes used for cropping point clouds." alt="" coords="90,5,178,32"/>
 <area shape="rect" id="node2" href="$pcl__crop_8cpp.html" title=" " alt="" coords="5,80,108,107"/>
 <area shape="rect" id="node3" href="$pcl__crop__nodelet_8cpp.html" title=" " alt="" coords="132,80,291,107"/>
 </map>

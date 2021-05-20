@@ -3,12 +3,12 @@ authors: Albin Ekelund Karlsson <ekalbin@student.chalmers.se>, Ossian Eriksson <
 brief: ''
 bugtracker: https://github.com/OssianEriksson/autonomous-twizy/issues
 depends:
-- catkin
-- geometry_msgs
-- roslaunch
-- ackermann_msgs
 - rostest
+- ackermann_msgs
+- roslaunch
+- geometry_msgs
 - python3-tk
+- catkin
 - rospy
 description: Nodes for processing control signals
 license: Apache 2.0

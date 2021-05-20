@@ -30,6 +30,9 @@ $(function() {
 </div><!--header-->
 <div class="contents">
 
+<p>Class representing a rectangular crop in two dimensions.  
+ <a href="classpcl__crop_1_1Crop.html#details">More...</a></p>
+
 <p><code>#include &lt;<a class="el" href="pcl__crop_8h_source.html">pcl_crop.h</a>&gt;</code></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
@@ -53,8 +56,9 @@ Public Attributes</h2></td></tr>
 <tr class="separator:a7b1e9ed1afafa9c7a207d6a2640f3124"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock">
-<p class="definition">Definition at line <a class="el" href="pcl__crop_8h_source.html#l00010">10</a> of file <a class="el" href="pcl__crop_8h_source.html">pcl_crop.h</a>.</p>
+<div class="textblock"><p>Class representing a rectangular crop in two dimensions. </p>
+
+<p class="definition">Definition at line <a class="el" href="pcl__crop_8h_source.html#l00021">21</a> of file <a class="el" href="pcl__crop_8h_source.html">pcl_crop.h</a>.</p>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a id="a420cbd5717d89262d1d55cd47c6a74cf"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a420cbd5717d89262d1d55cd47c6a74cf">&#9670;&nbsp;</a></span>Crop()</h2>
@@ -79,7 +83,7 @@ Public Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="pcl__crop_8h_source.html#l00015">15</a> of file <a class="el" href="pcl__crop_8h_source.html">pcl_crop.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="pcl__crop_8h_source.html#l00050">50</a> of file <a class="el" href="pcl__crop_8h_source.html">pcl_crop.h</a>.</p>
 
 </div>
 </div>
@@ -109,8 +113,16 @@ Public Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">x</td><td>Horizontal position as fraction of source width of point to investigate </td></tr>
+    <tr><td class="paramname">y</td><td>Vertical position as fraction of source height of point to investigate</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>true if the point (x, y) should be discarded as a result of this crop, false otherwise </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="pcl__crop_8cpp_source.html#l00087">87</a> of file <a class="el" href="pcl__crop_8cpp_source.html">pcl_crop.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="pcl__crop_8cpp_source.html#l00098">98</a> of file <a class="el" href="pcl__crop_8cpp_source.html">pcl_crop.cpp</a>.</p>
 
 </div>
 </div>
@@ -126,8 +138,9 @@ Public Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<p>A value of true indicates that the interiour of the rectagle defined by <a class="el" href="classpcl__crop_1_1Crop.html#a88af742ca94c23ced09aba96d7e9b6f7">xmin</a>, <a class="el" href="classpcl__crop_1_1Crop.html#a74627baf9640ab551b2fd5ec98316754">xmax</a>, <a class="el" href="classpcl__crop_1_1Crop.html#a7b1e9ed1afafa9c7a207d6a2640f3124">ymin</a> and <a class="el" href="classpcl__crop_1_1Crop.html#aa63d8a331dd673c0268d95a898f400ef">ymax</a> is to be removed, false indicates that it is the outside which is to be cropped out </p>
 
-<p class="definition">Definition at line <a class="el" href="pcl__crop_8h_source.html#l00013">13</a> of file <a class="el" href="pcl__crop_8h_source.html">pcl_crop.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="pcl__crop_8h_source.html#l00048">48</a> of file <a class="el" href="pcl__crop_8h_source.html">pcl_crop.h</a>.</p>
 
 </div>
 </div>
@@ -142,8 +155,9 @@ Public Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<p>Right edge of crop as fraction of source width </p>
 
-<p class="definition">Definition at line <a class="el" href="pcl__crop_8h_source.html#l00012">12</a> of file <a class="el" href="pcl__crop_8h_source.html">pcl_crop.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="pcl__crop_8h_source.html#l00031">31</a> of file <a class="el" href="pcl__crop_8h_source.html">pcl_crop.h</a>.</p>
 
 </div>
 </div>
@@ -158,8 +172,9 @@ Public Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<p>Left edge of crop as fraction of source width </p>
 
-<p class="definition">Definition at line <a class="el" href="pcl__crop_8h_source.html#l00012">12</a> of file <a class="el" href="pcl__crop_8h_source.html">pcl_crop.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="pcl__crop_8h_source.html#l00026">26</a> of file <a class="el" href="pcl__crop_8h_source.html">pcl_crop.h</a>.</p>
 
 </div>
 </div>
@@ -174,8 +189,9 @@ Public Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<p>Bottom edge of crop as fraction of source height </p>
 
-<p class="definition">Definition at line <a class="el" href="pcl__crop_8h_source.html#l00012">12</a> of file <a class="el" href="pcl__crop_8h_source.html">pcl_crop.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="pcl__crop_8h_source.html#l00041">41</a> of file <a class="el" href="pcl__crop_8h_source.html">pcl_crop.h</a>.</p>
 
 </div>
 </div>
@@ -190,8 +206,9 @@ Public Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<p>Top edge of crop as fraction of source height </p>
 
-<p class="definition">Definition at line <a class="el" href="pcl__crop_8h_source.html#l00012">12</a> of file <a class="el" href="pcl__crop_8h_source.html">pcl_crop.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="pcl__crop_8h_source.html#l00036">36</a> of file <a class="el" href="pcl__crop_8h_source.html">pcl_crop.h</a>.</p>
 
 </div>
 </div>
@@ -205,7 +222,7 @@ Public Attributes</h2></td></tr>
 <hr size="1"><div style="align: right;">
 <a href="http://wiki.ros.org/pcl_crop">pcl_crop</a><br />
 Author(s): Ossian Eriksson <ossiane@student.chalmers.se></br />
-<small>autogenerated on Thu May 20 2021 09:19:49</small>
+<small>autogenerated on Thu May 20 2021 18:13:48</small>
 </div>
 </body>
 </html>

@@ -1,0 +1,274 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>twizy_bringup.twizyparam &#8212; twizy_bringup 1.0.0 documentation</title>
+    <link rel="stylesheet" href="../../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../_static/language_data.js"></script>
+    
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">twizy_bringup 1.0.0 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for twizy_bringup.twizyparam</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Enhanced YAML parsing for roslaunch</span>
+
+<span class="sd">This script can be used to parse YAML-files before uploading the contents as</span>
+<span class="sd">parameters to the ROS parameter server in launch files. The following entry in</span>
+<span class="sd">a roslaunch file accomplishes this:</span>
+
+<span class="sd">.. code-block:: XML</span>
+
+<span class="sd">    &lt;rosparam subst_value=&quot;true&quot;&gt;</span>
+<span class="sd">        $(eval exec(&#39;global load; from twizy_bringup.twizyparam import load&#39;) or load(f&#39;{find(&quot;my_pkg&quot;)}/my_params.yaml&#39;))</span>
+<span class="sd">    &lt;/rosparam&gt;</span>
+
+<span class="sd">This is quite the hack, but it&#39;s atleast something before the launching system</span>
+<span class="sd">is overhauled in ROS 2</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">yaml</span>
+<span class="kn">import</span> <span class="nn">subprocess</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="k">import</span> <span class="n">Path</span>
+<span class="kn">import</span> <span class="nn">copy</span>
+<span class="kn">import</span> <span class="nn">math</span>
+
+
+<span class="k">class</span> <span class="nc">_Eval</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">expr</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">expr</span> <span class="o">=</span> <span class="n">expr</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">constructor</span><span class="p">(</span><span class="n">loader</span><span class="p">,</span> <span class="n">node</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">_Eval</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">_Include</span><span class="p">:</span>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">constructor</span><span class="p">(</span><span class="n">loader</span><span class="p">,</span> <span class="n">node</span><span class="p">):</span>
+        <span class="c1"># Arguments to the !include tag will be expanded by the shell, allowing</span>
+        <span class="c1"># for things like !include $(rospack find my_pkg)/my_file.yaml</span>
+        <span class="k">return</span> <span class="n">parse</span><span class="p">(</span><span class="n">subprocess</span><span class="o">.</span><span class="n">getoutput</span><span class="p">(</span><span class="n">f</span><span class="s1">&#39;echo </span><span class="si">{node.value}</span><span class="s1">&#39;</span><span class="p">))</span>
+
+
+<span class="k">class</span> <span class="nc">_Merge</span><span class="p">:</span>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">constructor</span><span class="p">(</span><span class="n">loader</span><span class="p">,</span> <span class="n">node</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">_Merge</span><span class="p">()</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">representer</span><span class="p">(</span><span class="n">dumper</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">dumper</span><span class="o">.</span><span class="n">represent_scalar</span><span class="p">(</span><span class="s1">&#39;!merge&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">_Variable</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">constructor</span><span class="p">(</span><span class="n">loader</span><span class="p">,</span> <span class="n">node</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">_Variable</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_merge</span><span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="n">dst</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Merges two dictionaries recursively</span>
+
+<span class="sd">    :param src: Source dictionary</span>
+<span class="sd">    :type src: dict</span>
+<span class="sd">    :param dst: Destination dictionary, will have src merged into it</span>
+<span class="sd">    :type dst: dict</span>
+
+<span class="sd">    :return: dst, now with src merged into it</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">src</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="n">_merge</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">dst</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="p">{}))</span>
+        <span class="k">elif</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">dst</span><span class="p">:</span>
+            <span class="n">dst</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+    <span class="k">return</span> <span class="n">dst</span>
+
+
+<span class="k">def</span> <span class="nf">_traverse_dict</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">callback</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Calls a callback for every key-value pair in d recursively</span>
+<span class="sd">    </span>
+<span class="sd">    :param d: A dictionary to traverse</span>
+<span class="sd">    :type d: list</span>
+<span class="sd">    :param callback: A callback accepting a dictionary, key and value as</span>
+<span class="sd">        arguments</span>
+<span class="sd">    :type callback: callable</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">kv</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="k">else</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">d</span><span class="o">.</span><span class="n">copy</span><span class="p">())</span>
+    <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">kv</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="p">(</span><span class="nb">dict</span><span class="p">,</span> <span class="nb">list</span><span class="p">)):</span>
+                <span class="n">_traverse_dict</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">callback</span><span class="p">)</span>
+        <span class="n">callback</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span>
+
+
+<span class="n">yaml</span><span class="o">.</span><span class="n">add_constructor</span><span class="p">(</span><span class="s1">&#39;!merge&#39;</span><span class="p">,</span> <span class="n">_Merge</span><span class="o">.</span><span class="n">constructor</span><span class="p">,</span> <span class="n">yaml</span><span class="o">.</span><span class="n">SafeLoader</span><span class="p">)</span>
+<span class="n">yaml</span><span class="o">.</span><span class="n">add_constructor</span><span class="p">(</span><span class="s1">&#39;!eval&#39;</span><span class="p">,</span> <span class="n">_Eval</span><span class="o">.</span><span class="n">constructor</span><span class="p">,</span> <span class="n">yaml</span><span class="o">.</span><span class="n">SafeLoader</span><span class="p">)</span>
+<span class="n">yaml</span><span class="o">.</span><span class="n">add_constructor</span><span class="p">(</span><span class="s1">&#39;!include&#39;</span><span class="p">,</span> <span class="n">_Include</span><span class="o">.</span><span class="n">constructor</span><span class="p">,</span> <span class="n">yaml</span><span class="o">.</span><span class="n">SafeLoader</span><span class="p">)</span>
+<span class="n">yaml</span><span class="o">.</span><span class="n">add_constructor</span><span class="p">(</span><span class="s1">&#39;!variable&#39;</span><span class="p">,</span> <span class="n">_Variable</span><span class="o">.</span><span class="n">constructor</span><span class="p">,</span> <span class="n">yaml</span><span class="o">.</span><span class="n">SafeLoader</span><span class="p">)</span>
+
+<span class="n">yaml</span><span class="o">.</span><span class="n">add_representer</span><span class="p">(</span><span class="n">_Merge</span><span class="p">,</span> <span class="n">_Merge</span><span class="o">.</span><span class="n">representer</span><span class="p">,</span> <span class="n">yaml</span><span class="o">.</span><span class="n">SafeDumper</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="parse"><a class="viewcode-back" href="../../index.html#twizy_bringup.twizyparam.parse">[docs]</a><span class="k">def</span> <span class="nf">parse</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Parse a YAML file</span>
+
+<span class="sd">    The following extra tags are supported:</span>
+
+<span class="sd">    * !eval: Evaluates a Python expression</span>
+<span class="sd">    * !include: Includes another YAML file by path</span>
+<span class="sd">    * !variable: A variable to be used in !eval expressions</span>
+
+<span class="sd">    :param path: Path to a YAML file</span>
+<span class="sd">    :type path: str</span>
+<span class="sd">    </span>
+<span class="sd">    :return: A parsed YAML object where the tags defined above have been</span>
+<span class="sd">        expanded</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Load the YAML file</span>
+    <span class="n">text</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">path</span><span class="p">)</span><span class="o">.</span><span class="n">read_text</span><span class="p">()</span>
+    <span class="c1"># Pyyaml does its merging early on, which we don&#39;t want. We instead want</span>
+    <span class="c1"># to e.g. evalueate !eval and !include tags before mergeing. So replace</span>
+    <span class="c1"># all merges with a custom tag for now so Pyyaml doesn&#39;t recognize them</span>
+    <span class="n">text</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;^( *)&lt;&lt; *:&#39;</span><span class="p">,</span> <span class="sa">r</span><span class="s1">&#39;\1!merge :&#39;</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">flags</span><span class="o">=</span><span class="n">re</span><span class="o">.</span><span class="n">M</span><span class="p">)</span>
+    <span class="c1"># Parse the YAML string</span>
+    <span class="n">parsed</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">yaml</span><span class="o">.</span><span class="n">SafeLoader</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">extract_variables</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">_Variable</span><span class="p">):</span>
+            <span class="c1"># Variables have so far been stored as objects in the parsed</span>
+            <span class="c1"># structure to distinguish them from other keys. However we need</span>
+            <span class="c1"># variables to be accessable by their name like other keys in the</span>
+            <span class="c1"># structure, so replace the objects keys by string keys where the</span>
+            <span class="c1"># the string is the variable name</span>
+            <span class="k">del</span> <span class="n">root</span><span class="p">[</span><span class="n">k</span><span class="p">]</span>
+            <span class="n">variables</span><span class="p">[</span><span class="n">k</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">_Eval</span><span class="p">):</span>
+            <span class="c1"># We delete all eval expressions here since we are in general not</span>
+            <span class="c1"># able to evalueate expressions before the variables have been</span>
+            <span class="c1"># expanded. Remember that entries in a YAML file are by</span>
+            <span class="c1"># specification unordered, so we cannot traverse a YAML file line</span>
+            <span class="c1"># by line, parsing !variables:s and !eval:ss as we go. Instead all</span>
+            <span class="c1"># !variables are paresed first, then all !eval:s. This does however</span>
+            <span class="c1"># have the unfortunate side effect of not beeing able to use !eval</span>
+            <span class="c1"># inside a !variable value</span>
+            <span class="k">del</span> <span class="n">root</span><span class="p">[</span><span class="n">k</span><span class="p">]</span>
+    <span class="n">variables</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">parsed</span><span class="p">)</span>
+    <span class="c1"># Extract variables</span>
+    <span class="n">_traverse_dict</span><span class="p">(</span><span class="n">variables</span><span class="p">,</span> <span class="n">extract_variables</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">eval_expressions</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">_Eval</span><span class="p">):</span>
+            <span class="c1"># Evaluate !eval expression. Make the math module available inside</span>
+            <span class="c1"># the expression</span>
+            <span class="n">root</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="nb">eval</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">expr</span><span class="p">,</span> <span class="p">{</span>
+                <span class="s1">&#39;math&#39;</span><span class="p">:</span> <span class="n">math</span><span class="p">,</span>
+                <span class="o">**</span><span class="n">variables</span>
+            <span class="p">})</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">_Variable</span><span class="p">):</span>
+            <span class="c1"># Remove all variables from the final output</span>
+            <span class="k">del</span> <span class="n">root</span><span class="p">[</span><span class="n">k</span><span class="p">]</span>
+    <span class="c1"># Evaluate !eval expressions only after !variable:s have been parsed</span>
+    <span class="n">_traverse_dict</span><span class="p">(</span><span class="n">parsed</span><span class="p">,</span> <span class="n">eval_expressions</span><span class="p">)</span>
+
+    <span class="c1"># Finally convert back to text...</span>
+    <span class="n">text</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">safe_dump</span><span class="p">(</span><span class="n">parsed</span><span class="p">)</span>
+    <span class="c1"># ... so we can replace all the !merge tags with &lt;&lt; again so mergeing can</span>
+    <span class="c1"># be taken care of by Pyyaml...</span>
+    <span class="n">text</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;^( *).*?!merge.*?(\n?.*?):&#39;</span><span class="p">,</span> <span class="sa">r</span><span class="s1">&#39;\1&lt;&lt;:\2 &#39;</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">flags</span><span class="o">=</span><span class="n">re</span><span class="o">.</span><span class="n">M</span><span class="p">)</span>
+    <span class="c1"># ... by parsing the string another time</span>
+    <span class="n">parsed</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">safe_load</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">parsed</span></div>
+
+
+<div class="viewcode-block" id="load"><a class="viewcode-back" href="../../index.html#twizy_bringup.twizyparam.load">[docs]</a><span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Load/convert a YAML file</span>
+
+<span class="sd">    See :py:func:`parse` for more information.</span>
+<span class="sd">    </span>
+<span class="sd">    :param path: Path to a YAML file</span>
+<span class="sd">    :type path: str</span>
+
+<span class="sd">    :return: A plain YAML string where the tags defined above have been</span>
+<span class="sd">        expanded</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">return</span> <span class="n">yaml</span><span class="o">.</span><span class="n">safe_dump</span><span class="p">(</span><span class="n">parse</span><span class="p">(</span><span class="n">path</span><span class="p">))</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">twizy_bringup 1.0.0 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2021, Ossian Eriksson, Albin Ekelund Karlsson, Arvid Enliden, Emil Hölvold.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.5.
+    </div>
+  </body>
+</html>
