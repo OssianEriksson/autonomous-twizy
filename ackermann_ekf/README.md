@@ -9,7 +9,7 @@ Extended Kalman filter for robot localization with a physical model based on the
 
 **Contents**
 
-- [Filter Design](#filter-design)
+- [State Estimation](#state-estimation)
   - [Coordinate Frames](#coordinate-frames)
     - [Global Frame](#global-frame)
     - [Local Frame](#local-frame)
@@ -22,23 +22,21 @@ Extended Kalman filter for robot localization with a physical model based on the
     - [Published Transforms](#published-transforms)
     - [Parameters](#parameters)
 
-# Filter Design
+# State Estimation
 
-The state vector is 11-dimensional:
-
-[_X_ _Y_ _Z_ _ẋ_ _ẍ_ _Roll_ _Pitch_ _Yaw_ d<i>roll/</i>d<i>x</i> d<i>pitch/</i>d<i>x</i> d<i>yaw/</i>d<i>x</i>],
-
-with the possibility to measure 15 variables:
-
-[_X_ _Y_ _Z_ _ẋ_ _ẏ_ _ż_ _ẍ_ _ÿ_ _z̈_ _Roll_ _Pitch_ _Yaw_ d<i>roll/</i>d<i>t</i> d<i>pitch/</i>d<i>t</i> d<i>yaw/</i>d<i>t</i>]
-
-where
+The following notation is used in this section, see [Coordinate Frames](#coordinate-frames) for a definition of the different reference frames:
 * _x_, _y_, _z_ are position in global frame
 * _ẋ_, _ẏ_, _ż_ are velocity in local farme
 * _ẍ_, _ÿ_, _z̈_ are acceleration in local frame
 * _Roll_, _Pitch_, _Yaw_ are rotation in global frame
 * d<i>roll/</i>d<i>x</i>, d<i>pitch/</i>d<i>x</i>, d<i>yaw/</i>d<i>x</i> are derivatives of rotation in local frame with respect to forward position
 * d<i>roll/</i>d<i>t</i>, d<i>pitch/</i>d<i>t</i>, d<i>yaw/</i>d<i>t</i> are derivatives of rotation in local frame with respect to time
+
+State estimation is performed using two identical extended Kalman filters, each with the following 11-dimensional state vector:
+
+[_X_ _Y_ _Z_ _ẋ_ _ẍ_ _Roll_ _Pitch_ _Yaw_ d<i>roll/</i>d<i>x</i> d<i>pitch/</i>d<i>x</i> d<i>yaw/</i>d<i>x</i>].
+
+The state can be corrected by GNSS, IMU or velocity measurements. Velocity measurements provided as the [twizy_wheel_encoder/WheelEncoder](../twizy_wheel_encoder/msg/WheelEncoder.msg) message type carries no sign. These cannot be fused into the main EKF state directly without introducing instabilities. Therefore a secondary EKF is used whose only purpose is to predict the sign of velocity message. This secondary filter is corrected by all measurements except [twizy_wheel_encoder/WheelEncoder](../twizy_wheel_encoder/msg/WheelEncoder.msg) ones to avoid instability. These messages insted get fused only into the main filter after signs have been provided by the secondary filter.
 
 ## Coordinate Frames
 
