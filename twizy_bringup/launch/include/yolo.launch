@@ -1,26 +1,26 @@
 <?xml version="1.0"?>
 <launch>
     <node pkg="yolo_detection" type="bounding_box_calc" name="bounding_box_calc" required="true">
-        <remap from="/camera/color/image_raw_1" to="/camera/front/color/image_raw" />
-        <remap from="/image_with_boxes_1" to="/front_image_with_boxes" />
-        <remap from="boxes_1" to="front_boxes" />
+        <param name="num_image_sources" value="2" />
 
-        <remap from="/camera/color/image_raw_2" to="/camera/rear/color/image_raw" />
-        <remap from="/image_with_boxes_2" to="/rear_image_with_boxes" />
-        <remap from="boxes_2" to="rear_boxes" />
+        <remap from="image1" to="/camera/front/color/image_raw" />
+        <remap from="image_with_boxes1" to="/vision/front/image_with_boxes" />
+        <remap from="boxes1" to="/vision/front/boxes" />
 
+        <remap from="image2" to="/camera/rear/color/image_raw" />
+        <remap from="image_with_boxes2" to="/vision/rear/image_with_boxes" />
+        <remap from="boxes2" to="/vision/rear/boxes" />
     </node>
 
-
     <node pkg="twizy_control" type="object_avoidance" name="front_object_avoidance" required="true">
-        <remap from="/camera/aligned_depth_to_color/image_raw" to="/camera/front/aligned_depth_to_color/image_raw" />
-        <remap from="object_detection" to="/object_detection_front" />
-        <remap from="/boxes" to="/front_boxes" />
+        <remap from="image" to="/camera/front/aligned_depth_to_color/image_raw" />
+        <remap from="object_in_front" to="/vision/front/object_in_front" />
+        <remap from="boxes" to="/vision/front/boxes" />
     </node>
 
     <node pkg="twizy_control" type="object_avoidance" name="rear_object_avoidance" required="true">
-        <remap from="/camera/aligned_depth_to_color/image_raw" to="/camera/rear/aligned_depth_to_color/image_raw" />
-        <remap from="object_detection" to="/object_detection_rear" />
-        <remap from="/boxes" to="/rear_boxes" />
+        <remap from="image" to="/camera/rear/aligned_depth_to_color/image_raw" />
+        <remap from="object_in_front" to="/vision/rear/object_in_front" />
+        <remap from="boxes" to="/vision/rear/boxes" />
     </node>
 </launch>
