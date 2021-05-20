@@ -41,7 +41,7 @@ class StopSignChecker:
         self.images_with_signs = max(self.images_with_signs - 1, 0)
 
     def process_object(self, distance, obj_class, time):
-        if obj_class == 'stop sign' and distance > self.max_sign_distance:
+        if obj_class == 'stop sign' and distance <= self.max_sign_distance:
             if self.images_with_signs == 0:
                 self.sign_first_spotted_time = time
             self.images_with_signs = min(self.images_with_signs + 1,
