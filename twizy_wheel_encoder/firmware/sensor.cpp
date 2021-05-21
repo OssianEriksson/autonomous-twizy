@@ -26,6 +26,14 @@ void Sensor::publish(const ros::Time &stamp) {
 
     msg_.header.frame_id = side_.frame_id;
     msg_.header.stamp = stamp;
+    // If a long time has passed without an encoder tick, without using min()
+    // the speed would get stuck at whatever the last value was. We would prefer
+    // if the published speed would instead be reduced, preferably after a while
+    // to zero. This way of doing things ensures that speed measurements will be
+    // continuous when slowing down, but it would be nice if the measurements
+    // would approach zero faster when encoder ticks stop coming. Integrating
+    // the speed as it is now the position will tend to infinity, even after the
+    // car stops (\int_1^\infty \frac{1}{x} \dd{x} = \infty).
     msg_.speed = min(msg_.speed, params_.sensitivity / (time - last_time_));
     msg_.covariance = params_.covariance;
     publisher.publish(&msg_);
@@ -33,6 +41,8 @@ void Sensor::publish(const ros::Time &stamp) {
 
 void Sensor::tick() {
     unsigned long time = millis();
+    // Really basic way of calculating speed... Something more fancy can be done
+    // here for sure
     msg_.speed = params_.sensitivity / (time - last_time_);
     last_time_ = time;
 }

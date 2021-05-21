@@ -18,12 +18,22 @@ unsigned long last_time;
 void setup() {
     nh.initNode();
 
+    // Read ROS parameters
     update_parameters();
 
+    // Inialize wheel encoder sensors
     sensor_left.initialize(nh, 3, tick_sensor_left);
     sensor_right.initialize(nh, 2, tick_sensor_right);
 }
 
+/**
+ * Read a required ROS parameter by blocking unitl the parameter becomes
+ * available
+ *
+ * @param name Name of parameter
+ * @param param Pointer to location of parameter value
+ * @param length
+ */
 template <class T>
 void get_required_param(const char *name, T *param, int length = 1) {
     while (!nh.getParam(name, param, length, 1000)) {
@@ -32,6 +42,9 @@ void get_required_param(const char *name, T *param, int length = 1) {
     }
 }
 
+/**
+ * Read ROS parameters
+ */
 void update_parameters() {
     get_required_param("~covariance", (float *)&params.covariance);
 
@@ -54,11 +67,20 @@ void update_parameters() {
 void loop() {
     unsigned long time = millis();
     if (time - last_time >= params.mspt) {
+        // Publish sensor values
         const ros::Time stamp = nh.now();
         sensor_left.publish(stamp);
         sensor_right.publish(stamp);
         nh.spinOnce();
 
+        // If we lost connection through the serial communications channel
+        // (which happens e.g. when the ROS node on the other end is terminated)
+        // we prepare for re-reading parameters. This is so that when the node
+        // on the other end is stopped to update the parameters on the parameter
+        // server and then started again the changes will actually be reflected.
+        // Remember that the arduino is alwas on and the setup() method will
+        // only be called once power is first supplied to the board and not when
+        // the ROS node is started.
         if (!nh.connected()) {
             update_parameters();
         }
