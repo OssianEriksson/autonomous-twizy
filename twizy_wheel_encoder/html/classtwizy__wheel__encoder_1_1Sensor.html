@@ -31,6 +31,9 @@ $(function() {
 </div><!--header-->
 <div class="contents">
 
+<p>Class representing a wheel encoder sensor.  
+ <a href="classtwizy__wheel__encoder_1_1Sensor.html#details">More...</a></p>
+
 <p><code>#include &lt;<a class="el" href="sensor_8h_source.html">sensor.h</a>&gt;</code></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
@@ -61,8 +64,9 @@ Private Attributes</h2></td></tr>
 <tr class="separator:a69e3b661eca1faed1f79e1dd8704e4eb"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock">
-<p class="definition">Definition at line <a class="el" href="sensor_8h_source.html#l00010">10</a> of file <a class="el" href="sensor_8h_source.html">sensor.h</a>.</p>
+<div class="textblock"><p>Class representing a wheel encoder sensor. </p>
+
+<p class="definition">Definition at line <a class="el" href="sensor_8h_source.html#l00013">13</a> of file <a class="el" href="sensor_8h_source.html">sensor.h</a>.</p>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a id="a64f0c5648a4b6ba4b04eaebb86818ef3"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a64f0c5648a4b6ba4b04eaebb86818ef3">&#9670;&nbsp;</a></span>Sensor()</h2>
@@ -132,6 +136,15 @@ Private Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<p>Initializes this sensor</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">nh</td><td>Publish node handle of a ROS node </td></tr>
+    <tr><td class="paramname">pin</td><td>Index of arduino pin connected to the encoder </td></tr>
+    <tr><td class="paramname">calls_tick</td><td>a callback calling <a class="el" href="classtwizy__wheel__encoder_1_1Sensor.html#a332fd4c2320d192321b48b8b91603ed1">Sensor::tick()</a> </td></tr>
+  </table>
+  </dd>
+</dl>
 
 <p class="definition">Definition at line <a class="el" href="sensor_8cpp_source.html#l00014">14</a> of file <a class="el" href="sensor_8cpp_source.html">sensor.cpp</a>.</p>
 
@@ -152,6 +165,13 @@ Private Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<p>Publishes a WheelEncoder</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">stamp</td><td>Time stamp to assign to the stamp field of the published message </td></tr>
+  </table>
+  </dd>
+</dl>
 
 <p class="definition">Definition at line <a class="el" href="sensor_8cpp_source.html#l00024">24</a> of file <a class="el" href="sensor_8cpp_source.html">sensor.cpp</a>.</p>
 
@@ -171,8 +191,9 @@ Private Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<p>Callback to be called on encoder ticks </p>
 
-<p class="definition">Definition at line <a class="el" href="sensor_8cpp_source.html#l00034">34</a> of file <a class="el" href="sensor_8cpp_source.html">sensor.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="sensor_8cpp_source.html#l00042">42</a> of file <a class="el" href="sensor_8cpp_source.html">sensor.cpp</a>.</p>
 
 </div>
 </div>
@@ -196,8 +217,9 @@ Private Attributes</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+<p>Last time (ms) an encoder tick was recorded </p>
 
-<p class="definition">Definition at line <a class="el" href="sensor_8h_source.html#l00017">17</a> of file <a class="el" href="sensor_8h_source.html">sensor.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="sensor_8h_source.html#l00033">33</a> of file <a class="el" href="sensor_8h_source.html">sensor.h</a>.</p>
 
 </div>
 </div>
@@ -220,8 +242,9 @@ Private Attributes</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+<p>ROS message to be published by this sensor </p>
 
-<p class="definition">Definition at line <a class="el" href="sensor_8h_source.html#l00012">12</a> of file <a class="el" href="sensor_8h_source.html">sensor.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="sensor_8h_source.html#l00018">18</a> of file <a class="el" href="sensor_8h_source.html">sensor.h</a>.</p>
 
 </div>
 </div>
@@ -244,8 +267,9 @@ Private Attributes</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+<p><a class="el" href="structtwizy__wheel__encoder_1_1Parameters.html" title="Collection of parameters to the wheel encoder ROS node.">Parameters</a> for this sensor common to all wheel encoder sensors </p>
 
-<p class="definition">Definition at line <a class="el" href="sensor_8h_source.html#l00014">14</a> of file <a class="el" href="sensor_8h_source.html">sensor.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="sensor_8h_source.html#l00023">23</a> of file <a class="el" href="sensor_8h_source.html">sensor.h</a>.</p>
 
 </div>
 </div>
@@ -260,8 +284,9 @@ Private Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<p>Publisher of WheelEncoder messages </p>
 
-<p class="definition">Definition at line <a class="el" href="sensor_8h_source.html#l00020">20</a> of file <a class="el" href="sensor_8h_source.html">sensor.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="sensor_8h_source.html#l00039">39</a> of file <a class="el" href="sensor_8h_source.html">sensor.h</a>.</p>
 
 </div>
 </div>
@@ -284,8 +309,9 @@ Private Attributes</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+<p><a class="el" href="structtwizy__wheel__encoder_1_1Parameters.html" title="Collection of parameters to the wheel encoder ROS node.">Parameters</a> for this sensor specific to this wheel encoder sensor </p>
 
-<p class="definition">Definition at line <a class="el" href="sensor_8h_source.html#l00015">15</a> of file <a class="el" href="sensor_8h_source.html">sensor.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="sensor_8h_source.html#l00028">28</a> of file <a class="el" href="sensor_8h_source.html">sensor.h</a>.</p>
 
 </div>
 </div>
@@ -299,7 +325,7 @@ Private Attributes</h2></td></tr>
 <hr size="1"><div style="align: right;">
 <a href="http://wiki.ros.org/twizy_wheel_encoder">twizy_wheel_encoder</a><br />
 Author(s): Ossian Eriksson <ossiane@student.chalmers.se></br />
-<small>autogenerated on Thu May 20 2021 18:13:54</small>
+<small>autogenerated on Fri May 21 2021 14:48:38</small>
 </div>
 </body>
 </html>

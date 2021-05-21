@@ -3,20 +3,20 @@ authors: Ossian Eriksson <ossiane@student.chalmers.se>
 brief: ''
 bugtracker: https://github.com/OssianEriksson/autonomous-twizy/issues
 depends:
-- geographic_msgs
-- nav_msgs
-- ackermann_msgs
-- tf2_geometry_msgs
-- catkin
-- eigen
-- geodesy
-- geometry_msgs
 - sensor_msgs
+- eigen
+- geometry_msgs
+- tf2_ros
 - std_msgs
 - roscpp
-- boost
+- nav_msgs
+- catkin
+- ackermann_msgs
 - twizy_wheel_encoder
-- tf2_ros
+- tf2_geometry_msgs
+- geodesy
+- boost
+- geographic_msgs
 description: Extended Kalman filter for Ackermann vehicle
 license: Apache 2.0
 maintainers: Ossian Eriksson <ossiane@student.chalmers.se>

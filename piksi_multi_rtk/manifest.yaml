@@ -3,11 +3,11 @@ authors: Ossian Eriksson <ossiane@student.chalmers.se>
 brief: ''
 bugtracker: https://github.com/OssianEriksson/autonomous-twizy/issues
 depends:
-- sensor_msgs
+- catkin
 - rostest
 - rospy
+- sensor_msgs
 - roslaunch
-- catkin
 description: Interfacing with the Piksi Multi RTK GNSS module
 license: Apache 2.0
 maintainers: Ossian Eriksson <ossiane@student.chalmers.se>
