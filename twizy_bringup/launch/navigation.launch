@@ -1,4 +1,6 @@
-<!-- 
+<?xml version="1.0"?>
+
+<!--
     This is the main launch file of the Twizy. All systems for driving in the
     real world are started. To give the car a goal to drive towards through a
     GUI you can then start rviz separately (manually, possibly in another
@@ -12,7 +14,6 @@
     communicate with the car through rviz.
 -->
 
-<?xml version="1.0"?>
 <launch>
     <!-- Publish transforms and perform localization -->
     <include file="$(find twizy_bringup)/launch/include/transforms.launch" />

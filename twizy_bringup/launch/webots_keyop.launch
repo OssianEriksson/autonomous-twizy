@@ -1,10 +1,11 @@
-<!-- 
+<?xml version="1.0"?>
+
+<!--
     Demo launch file showing the car driving locally in simulation by keyboard
     control. This launch file might not run on the car's on-board computer
     since webots might not be installed on there.
 -->
 
-<?xml version="1.0"?>
 <launch>
     <arg name="world" default="trees.wbt" doc="Path to the world to load" />
 

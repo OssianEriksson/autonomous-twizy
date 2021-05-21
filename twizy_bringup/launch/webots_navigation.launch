@@ -1,10 +1,11 @@
+<?xml version="1.0"?>
+
 <!--
     Main launch file for twizy simulation. This file starts every node you
     need to simulate the car locally in Webots. This launch file might not run
     on the car's on-board computer since webots might not be installed on there.
 -->
 
-<?xml version="1.0"?>
 <launch>
     <arg name="world" default="flat.wbt" doc="Path to the world to load" />
 
