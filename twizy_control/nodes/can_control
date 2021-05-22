@@ -6,10 +6,16 @@ from canlib import canlib, Frame
 
 from ackermann_msgs.msg import AckermannDriveStamped
 
-import twizy_control.ackermann
-
 
 def byte_range(a):
+    """Convert float in range [0, 1] to int in range [0, 255]
+
+    :param a: Value between 0 and 1
+    :type a: float
+
+    :return: The input value mapped to the range [0, 255], rounded to an int
+    """
+
     return int(min(max(round(a * 255.0), 0), 255))
 
 
@@ -31,19 +37,24 @@ def main():
     channel.busOn()
 
     def callback(msg):
-        """
-        Publishes control signals to CAN bus
-        """
+        """Publishes control signals to CAN bus"""
+
+        # The multiplication with 1.2 here is completely arbitrary and should
+        # probably be handeled some better way. When driving the twizy in the
+        # real world the car was noticed to not follow curved paths correctly.
+        # The turning radius of the car was measured and matches parameters in
+        # config files. This extra factor is also not needed in the simulation.
+        # My spontaneous guess as im writing this as to why the car performed
+        # better with this extra factor might be because of the delay in the
+        # steering system which we can compensate for by then oversteering a
+        # bit
         angle = msg.drive.steering_angle * 1.2
         speed = msg.drive.speed
 
-        angle_scale, speed_scale = twizy_control.ackermann.cmd_scale(
-            angle,
-            speed,
-            max_steering_angle,
-            max_forward_speed,
-            max_reverse_speed
-        )
+        # Convert steering inputs to fractions of the maximum values
+        angle_scale = abs(angle / max_steering_angle)
+        speed_scale = abs(speed / (max_forward_speed if speed > 0
+                                   else max_reverse_speed))
 
         # Prepare and write reference steering angle data
         angle_data = [byte_range(angle_scale), 0 if angle > 0 else 255]
@@ -61,7 +72,7 @@ def main():
         # Wait for shutdown
         rospy.spin()
     except rospy.ROSInterruptException:
-        # Close can channel
+        # Close CAN channel
         channel.busOff()
         channel.close()
 

@@ -9,15 +9,16 @@ from std_msgs.msg import Bool
 
 class TwistToAckermann:
     def __init__(self):
+        # A thread lock is neccessary since ROS subscriber callbacks are not
+        # thread safe
         self.lock = Lock()
 
         self.ack = AckermannDriveStamped()
         # Read parameters from ROS parameter server
         self.ack.header.frame_id = rospy.get_param('~frame_id', 'odom')
-        self.max_steering_angle = rospy.get_param('~max_steering_angle')
 
         cameras = ['front', 'rear']
-        self.object_in_the_way = {c: False for c in cameras}
+        self.object_in_front = {c: False for c in cameras}
 
         self.pub = rospy.Publisher(
             'ackermann_cmd', AckermannDriveStamped, queue_size=1)
@@ -33,13 +34,12 @@ class TwistToAckermann:
         # The cmd_angle_instead_rotvel parameter of teb_local_planner modifies
         # the Twist message on the cmd_vel topic to contain absolute steering
         # angle in its angular component instead of angular velocity
-        self.ack.drive.steering_angle = min(
-            max(msg.angular.z, -self.max_steering_angle),
-            self.max_steering_angle)
+        self.ack.drive.steering_angle = msg.angular.z
 
         with self.lock:
-            if (self.object_in_the_way['front'] and msg.linear.x > 0.0
-                    or self.object_in_the_way['rear'] and msg.linear.x < 0.0):
+            # Stop the car if there is something in it's desired path
+            if (self.object_in_front['front'] and msg.linear.x > 0.0
+                    or self.object_in_front['rear'] and msg.linear.x < 0.0):
                 self.ack.drive.speed = 0.0
             else:
                 self.ack.drive.speed = msg.linear.x
@@ -48,7 +48,7 @@ class TwistToAckermann:
 
     def cb_object_detection(self, msg, camera):
         with self.lock:
-            self.object_in_the_way[camera] = msg.data
+            self.object_in_front[camera] = msg.data
 
 
 def main():

@@ -39,21 +39,34 @@ class StopSignChecker:
         self.first_sign_of_frame = False
 
     def new_image(self, time):
+        """Callback to be called whenever there is a new camera image"""
+
         self.images_with_signs = max(self.images_with_signs - 1, 0)
         self.first_sign_of_frame = True
 
     def process_object(self, distance, obj_class, time):
+        """Function to be called for every bounding box in every camera frame"""
+
+        # If it's the first stop sign of the current camera image...
         if (obj_class == 'stop sign' and distance <= self.max_sign_distance and
                 self.first_sign_of_frame):
             self.first_sign_of_frame = False
 
+            # ... and it's the first stop sign we se after a period of no stop
+            # sign...
             if self.images_with_signs == 0:
+                # ... Mark this as the time when we first spotted a sign
                 self.sign_first_spotted_time = time
 
+            # Increase by two here since we also decrease by one every frame in
+            # new_image(): 2 + (-1) = 1, meaning we increment images_with_signs
+            # by one every frame where there is atleast one stop sign
             self.images_with_signs = min(self.images_with_signs + 2,
                                          self.images_for_clear)
 
     def should_stop(self, time):
+        """Determines if the car should stop according to this check"""
+
         return time <= self.sign_first_spotted_time + self.stop_time
 
 
@@ -77,13 +90,19 @@ class FullStopChecker:
         self.obj_last_spotted_time = rospy.Time(0)
 
     def new_image(self, time):
+        """Callback to be called whenever there is a new camera image"""
+
         pass
 
     def process_object(self, distance, obj_class, time):
+        """Function to be called for every bounding box in every camera frame"""
+
         if distance <= self.max_obj_distance and obj_class in self.classes:
             self.obj_last_spotted_time = time
 
     def should_stop(self, time):
+        """Determines if the car should stop according to this check"""
+
         return time <= self.obj_last_spotted_time + self.remain_stopped_time
 
 
