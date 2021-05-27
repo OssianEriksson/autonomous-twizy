@@ -12,6 +12,9 @@ WheelEncoder::WheelEncoder(webots::Supervisor &supervisor, ros::NodeHandle &nh,
     : sensor_(supervisor.getPositionSensor(position + "_wheel_encoder")),
       position_(position) {
 
+    std::cout << "Initializing " << position << " wheel encoder\n";
+
+    // Read required ROS parameters
     double ups;
     if (!nh.getParam("/physical/rear_wheel/radius", wheel_radius_) ||
         !nh_private.getParam("wheel_encoder/cov", covariance_) ||
@@ -22,8 +25,7 @@ WheelEncoder::WheelEncoder(webots::Supervisor &supervisor, ros::NodeHandle &nh,
         return;
     }
 
-    std::cout << "Initializing " << position << " wheel encoder\n";
-
+    // Enable sensors
     sensor_->enable(round(1000.0 / ups));
 
     publisher_ = nh.advertise<twizy_wheel_encoder::WheelEncoder>(
@@ -35,6 +37,8 @@ WheelEncoder::WheelEncoder(webots::Supervisor &supervisor, ros::NodeHandle &nh,
 
 void WheelEncoder::update(const ros::TimerEvent &evt) {
     double position = sensor_->getValue();
+    // Webots will return NaNs at the beginning of the simulation, don't bother
+    // with those
     if (std::isnan(position)) {
         return;
     }
@@ -42,6 +46,9 @@ void WheelEncoder::update(const ros::TimerEvent &evt) {
     ros::Time stamp = ros::Time::now();
     double time = stamp.toSec();
 
+    // Speed is calculated by a simple first order approximation of the
+    // derivative of the wheel axis position. We need two position measurements
+    // to perform this calculations
     if (time > last_time_ && last_time_ > 0) {
         twizy_wheel_encoder::WheelEncoder enc;
         enc.header.frame_id = "rear_" + position_ + "_wheel";

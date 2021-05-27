@@ -1,0 +1,1 @@
+The compiled Webots controller will be moved into this directory once `catkin_make` is called: Webots looks for controllers here.

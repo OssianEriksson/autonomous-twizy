@@ -20,6 +20,7 @@ Realsense::Realsense(webots::Supervisor &supervisor, ros::NodeHandle &nh,
 
     std::cout << "Initializing " << position << " RealSense camera\n";
 
+    // Constant hard coded update rate
     double ups = 30.0;
 
     camera_->enable(round(1000.0 / ups));

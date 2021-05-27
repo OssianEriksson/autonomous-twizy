@@ -12,8 +12,10 @@ Velodyne::Velodyne(webots::Supervisor &supervisor, ros::NodeHandle &nh)
 
     std::cout << "Initializing Velodyne VLP16 LiDAR\n";
 
+    // Constant hard coded update rate
     double ups = 20.0;
 
+    // Enable sensors
     lidar_->enable(round(1000.0 / ups));
     lidar_->enablePointCloud();
 
@@ -42,8 +44,28 @@ void Velodyne::update(const ros::TimerEvent &evt) {
     int valid_points = 0;
     for (int i = 0; i < points.width; i++) {
         if (std::isfinite(pc[i].x)) {
+            // Estimate the distance of this point from the LiDAR sensor
             double distance = abs(pc[i].x) + abs(pc[i].y) + abs(pc[i].z);
+            // Distance from the LiDAR sensor of this point compared to the
+            // previous
             double ratio = distance / last_distance;
+
+            // This filtering is done to reduce a problem with the way Webots
+            // samples its depth textures: The sampling is not e.g. nearest
+            // neighbor but maybe linear or something like it which basically
+            // blurs the depth image when accessing values between pixels. If
+            // you imagine having two walls beside each other, one 50 m and one
+            // 100 m away from the camera, this blur could mean that values
+            // other than 50 or 100 m are reported on the edge between the two
+            // distances. This results in unwanted point cloud points. To reduce
+            // this effect we require that neighbouring points in the point
+            // cloud must be a similar distance from the camera or be discarded.
+            // This way we e.g. let through the bunches of 50 m points and the
+            // bunches of 100 m points but discard the few points which have
+            // values ranging between 50 and 100 m. This is still a hacky
+            // solution since the point cloud returned by Webots is not
+            // guarranteed to be organized (points could come in any order) but
+            // it works for now. (Take care when sampling depth textures kids!)
             if (ratio > 0.99 && ratio < 1.01) {
                 *iter_x = pc[i].x;
                 *iter_y = pc[i].y;

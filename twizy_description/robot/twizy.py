@@ -1,5 +1,16 @@
 #!/usr/bin/python3
 
+"""Generation of URDF and PROTO represetations of an autonomous Renault Twizy
+
+Please run
+
+.. code-block:: bash
+
+    python3 twizy.py -h
+
+for usage instructions
+"""
+
 from twizy_description.robot_description import Node
 from twizy_description.collada_node import Collada
 
@@ -7,7 +18,7 @@ import argparse
 import yaml
 from pathlib import Path
 
-from math import atan2, sqrt, pi
+from math import sqrt, pi
 
 parser = argparse.ArgumentParser(
     description='Produces a model of an autonomous Twizy')
