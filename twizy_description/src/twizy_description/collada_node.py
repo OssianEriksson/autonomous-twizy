@@ -6,7 +6,26 @@ import numbers
 from pathlib import Path
 
 class Collada(Node):
+    """Represent a collada model in a robot_description data structure
+
+    An instance of this class can be used in a robot_description node tree to
+    represent a collada model. Generation of both URDF and proto is supported.
+    When generating URDF the <mesh>-tag will be used, and when generating PROTO
+    the IndexedFaceSet Webots node will be used, effectively copying the entire
+    model representation into the PROTO instead of referencing the original
+    collada file.
+    """
+
     def __init__(self, path, urdf_ignore=False):
+        """Initialize a collada node
+        
+        :param path: Path to a collada (.dae) file
+        :type path: str
+        :param urdf_ignore: Whether to exclude this node when generating URDF
+            representations of robots
+        :type urdf_ignore: bool
+        """
+
         self.path = path
 
         shape = self._shape()
@@ -15,6 +34,15 @@ class Collada(Node):
 
     def _indexed_face_set(self, p):
         def terminate(a):
+            """Flattens a matrix of coordinates terminating each tuple with -1
+
+            :param a: A matrix where each row represents a tuple of coordinates
+
+            :return: A flat list where each row in the input matrix follows
+                after the next, but where every row has been terminated with -1
+                to separate out rows
+            """
+
             return np.hstack((a, np.full((a.shape[0], 1), -1))).flatten()
         
         def vec2str(v):
