@@ -9,6 +9,12 @@ voxel_layer:
 
   observation_sources: rear_realsense_marking rear_realsense_clearing lidar_marking lidar_clearing front_realsense_marking front_realsense_clearing
 
+  # PointCloud2 observations sources are split up into two sensors where the
+  # first does marking with {max|min}_obstacle_height set to reasonable values
+  # and the second does clearing with large {max|min}_obstacle_height values.
+  # This is to avoid the problem described here:
+  # https://github.com/ros-planning/navigation/issues/662
+
   rear_realsense_marking: &rear_realsense_marking
     data_type: PointCloud2
     topic: /camera/rear/depth/color/points

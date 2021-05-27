@@ -5,6 +5,12 @@
 obstacle_layer:
   observation_sources: lidar_marking lidar_clearing
 
+  # PointCloud2 observations sources are split up into two sensors where the
+  # first does marking with {max|min}_obstacle_height set to reasonable values
+  # and the second does clearing with large {max|min}_obstacle_height values.
+  # This is to avoid the problem described here:
+  # https://github.com/ros-planning/navigation/issues/662
+
   lidar_marking: &lidar_marking
     data_type: PointCloud2
     topic: /lidar/points
