@@ -1,0 +1,581 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>twizy_description.robot_description &#8212; twizy_description 1.0.0 documentation</title>
+    <link rel="stylesheet" href="../../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../_static/language_data.js"></script>
+    
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">twizy_description 1.0.0 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for twizy_description.robot_description</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Module for generating PROTO and URDF files</span>
+
+<span class="sd">The physics/robotics simulator webots uses files in a PROTO format while most</span>
+<span class="sd">ROS-packages work with URDF, which is an xml format.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+
+<span class="kn">from</span> <span class="nn">transforms3d.axangles</span> <span class="k">import</span> <span class="n">axangle2aff</span>
+<span class="kn">from</span> <span class="nn">transforms3d.affines</span> <span class="k">import</span> <span class="n">decompose44</span>
+<span class="kn">from</span> <span class="nn">transforms3d.euler</span> <span class="k">import</span> <span class="n">mat2euler</span>
+<span class="kn">from</span> <span class="nn">transforms3d.shears</span> <span class="k">import</span> <span class="n">striu2mat</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">xml.dom</span> <span class="k">import</span> <span class="n">minidom</span>
+
+
+<div class="viewcode-block" id="translation_matrix"><a class="viewcode-back" href="../../index.html#twizy_description.robot_description.translation_matrix">[docs]</a><span class="k">def</span> <span class="nf">translation_matrix</span><span class="p">(</span><span class="n">direction</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Create a translation matrix</span>
+
+<span class="sd">    :param direction: A three dimensional vector</span>
+
+<span class="sd">    :return: A 4x4 matrix representing a translation by the provided vector</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">M</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">identity</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+    <span class="n">M</span><span class="p">[:</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="n">direction</span><span class="p">[:</span><span class="mi">3</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">M</span></div>
+
+
+<div class="viewcode-block" id="scale_matrix"><a class="viewcode-back" href="../../index.html#twizy_description.robot_description.scale_matrix">[docs]</a><span class="k">def</span> <span class="nf">scale_matrix</span><span class="p">(</span><span class="n">axis</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Create a scale matrix</span>
+
+<span class="sd">    :param axis: A three dimensional vector</span>
+
+<span class="sd">    :return: A 4x4 matrix representing scaling around the major axis in 3D by</span>
+<span class="sd">        the amounts specified in the input vector</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">([</span><span class="o">*</span><span class="n">axis</span><span class="p">[:</span><span class="mi">3</span><span class="p">],</span> <span class="mi">1</span><span class="p">])</span></div>
+
+
+<div class="viewcode-block" id="shear_matrix"><a class="viewcode-back" href="../../index.html#twizy_description.robot_description.shear_matrix">[docs]</a><span class="k">def</span> <span class="nf">shear_matrix</span><span class="p">(</span><span class="n">striu</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Convert a 3x3 matrix representation of shear to a 4x4 representation</span>
+
+<span class="sd">    :striu: A 3x3 shear matrix</span>
+
+<span class="sd">    :return: A 4x4 shear matrix</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">S</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">identity</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+    <span class="n">S</span><span class="p">[:</span><span class="mi">3</span><span class="p">,</span> <span class="p">:</span><span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="n">striu2mat</span><span class="p">(</span><span class="n">striu</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">S</span></div>
+
+
+<div class="viewcode-block" id="xyz_rpy"><a class="viewcode-back" href="../../index.html#twizy_description.robot_description.xyz_rpy">[docs]</a><span class="k">def</span> <span class="nf">xyz_rpy</span><span class="p">(</span><span class="n">transformation</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Decompose a transformation matrix into translation and euler angles</span>
+
+<span class="sd">    :param transformation: A 4x4 transformation matrix</span>
+
+<span class="sd">    :return: A tuple of (x, y, z, r, p, y) where (x, y, z) are coordinates of a</span>
+<span class="sd">        cartesian translation and (r, p, y) are roll, pitch, yaw applied in</span>
+<span class="sd">        that order around fixed axis</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">T</span><span class="p">,</span> <span class="n">R</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">decompose44</span><span class="p">(</span><span class="n">transformation</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">T</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">T</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">T</span><span class="p">[</span><span class="mi">2</span><span class="p">]),</span> <span class="n">mat2euler</span><span class="p">(</span><span class="n">R</span><span class="p">)</span></div>
+
+
+<span class="k">class</span> <span class="nc">_IndentedOutput</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Convenience class for generating text with indentation&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tab</span><span class="o">=</span><span class="s1">&#39;  &#39;</span><span class="p">,</span> <span class="n">lines</span><span class="o">=</span><span class="p">[],</span> <span class="n">indent</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_tab</span> <span class="o">=</span> <span class="n">tab</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_lines</span> <span class="o">=</span> <span class="n">lines</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_indent</span> <span class="o">=</span> <span class="n">indent</span>
+
+    <span class="k">def</span> <span class="nf">write</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_tab</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_indent</span> <span class="o">+</span> <span class="n">indent</span><span class="p">)</span> <span class="o">+</span> <span class="n">line</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">indent</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">_IndentedOutput</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_tab</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lines</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_indent</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_lines</span><span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">_URDFLink</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Representation of an URDF &lt;link&gt; element&quot;&quot;&quot;</span>
+
+    <span class="n">index</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">name</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">f</span><span class="s1">&#39;_webots_link_</span><span class="si">{_URDFLink.index}</span><span class="s1">&#39;</span>
+            <span class="n">_URDFLink</span><span class="o">.</span><span class="n">index</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">children</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">visuals</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">def</span> <span class="nf">connect_joint</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">joint</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Connect a joint (as a child) to this link&quot;&quot;&quot;</span>
+
+        <span class="n">joint</span><span class="o">.</span><span class="n">parent</span> <span class="o">=</span> <span class="bp">self</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">children</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">joint</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">connect_link</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">link</span><span class="p">,</span> <span class="n">trans</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Connect a link (as a child) to this link&quot;&quot;&quot;</span>
+
+        <span class="c1"># Create a new joint to sit between this link and the provided link</span>
+        <span class="n">joint</span> <span class="o">=</span> <span class="n">_URDFJoint</span><span class="p">(</span><span class="s1">&#39;fixed&#39;</span><span class="p">,</span> <span class="n">trans</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">connect_joint</span><span class="p">(</span><span class="n">joint</span><span class="p">)</span>
+        <span class="n">joint</span><span class="o">.</span><span class="n">connect_link</span><span class="p">(</span><span class="n">link</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">connect_visual</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">visual</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Connect a visual element (as a child) to this link&quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">visuals</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">visual</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">xml</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">doc</span><span class="p">,</span> <span class="n">robot</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Represent this link and all its children as xml&quot;&quot;&quot;</span>
+
+        <span class="n">link</span> <span class="o">=</span> <span class="n">doc</span><span class="o">.</span><span class="n">createElement</span><span class="p">(</span><span class="s1">&#39;link&#39;</span><span class="p">)</span>
+        <span class="n">link</span><span class="o">.</span><span class="n">setAttribute</span><span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">visuals</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">visual</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">visuals</span><span class="p">:</span>
+                <span class="n">visual</span><span class="o">.</span><span class="n">xml</span><span class="p">(</span><span class="n">doc</span><span class="p">,</span> <span class="n">link</span><span class="p">)</span>
+
+        <span class="n">robot</span><span class="o">.</span><span class="n">appendChild</span><span class="p">(</span><span class="n">link</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">child</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">children</span><span class="p">:</span>
+            <span class="n">child</span><span class="o">.</span><span class="n">xml</span><span class="p">(</span><span class="n">doc</span><span class="p">,</span> <span class="n">robot</span><span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">_URDFJoint</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Representation of an URDF &lt;joint&gt; element&quot;&quot;&quot;</span>
+
+    <span class="n">index</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">type</span><span class="p">,</span> <span class="n">trans</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">=</span> <span class="nb">type</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">params</span> <span class="o">=</span> <span class="n">Node</span><span class="p">(</span><span class="s1">&#39;jointParameters&#39;</span><span class="p">)</span> <span class="k">if</span> <span class="n">params</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">params</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">trans</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">identity</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span> <span class="k">if</span> <span class="n">trans</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">trans</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">parent</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">child</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">def</span> <span class="nf">connect_joint</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">joint</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Connect a joint (as a child) to this joint&quot;&quot;&quot;</span>
+
+        <span class="c1"># Create a new link to sit between this joint and the provided joint</span>
+        <span class="n">link</span> <span class="o">=</span> <span class="n">_URDFLink</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">connect_link</span><span class="p">(</span><span class="n">link</span><span class="p">)</span>
+        <span class="n">link</span><span class="o">.</span><span class="n">connect_joint</span><span class="p">(</span><span class="n">joint</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">connect_link</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">link</span><span class="p">,</span> <span class="n">trans</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">identity</span><span class="p">(</span><span class="mi">4</span><span class="p">)):</span>
+        <span class="sd">&quot;&quot;&quot;Connect a link (as a child) to this joint&quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">f</span><span class="s1">&#39;</span><span class="si">{link.name}</span><span class="s1">_joint&#39;</span>
+
+        <span class="c1"># If the relative position/rotation of the provided link is zero we can</span>
+        <span class="c1"># connect the link directly to this joint, otherwise we need another</span>
+        <span class="c1"># link to sit right where this joint ends which then connects to the</span>
+        <span class="c1"># provided link through another joint</span>
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">xyz_rpy</span><span class="p">(</span><span class="n">trans</span><span class="p">),</span> <span class="mi">0</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">child</span> <span class="o">=</span> <span class="n">link</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">joint_link</span> <span class="o">=</span> <span class="n">_URDFLink</span><span class="p">(</span><span class="n">f</span><span class="s1">&#39;</span><span class="si">{self.name}</span><span class="s1">_link&#39;</span><span class="p">)</span>
+            <span class="n">joint_link</span><span class="o">.</span><span class="n">connect_link</span><span class="p">(</span><span class="n">link</span><span class="p">,</span> <span class="n">trans</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">child</span> <span class="o">=</span> <span class="n">joint_link</span>
+
+    <span class="k">def</span> <span class="nf">connect_visual</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">visual</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Connect a visual element (as a child) to this joint&quot;&quot;&quot;</span>
+
+        <span class="n">link</span> <span class="o">=</span> <span class="n">_URDFLink</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">connect_link</span><span class="p">(</span><span class="n">link</span><span class="p">)</span>
+        <span class="n">link</span><span class="o">.</span><span class="n">connect_visual</span><span class="p">(</span><span class="n">visual</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">xml</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">doc</span><span class="p">,</span> <span class="n">robot</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Represent this joint and all its children as xml&quot;&quot;&quot;</span>
+
+        <span class="c1"># A joint is only valid if it has both a parent and a child</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">child</span><span class="p">:</span>
+            <span class="n">joint</span> <span class="o">=</span> <span class="n">doc</span><span class="o">.</span><span class="n">createElement</span><span class="p">(</span><span class="s1">&#39;joint&#39;</span><span class="p">)</span>
+            <span class="n">joint</span><span class="o">.</span><span class="n">setAttribute</span><span class="p">(</span><span class="s1">&#39;type&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="p">)</span>
+            <span class="n">joint</span><span class="o">.</span><span class="n">setAttribute</span><span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+
+            <span class="n">parent</span> <span class="o">=</span> <span class="n">doc</span><span class="o">.</span><span class="n">createElement</span><span class="p">(</span><span class="s1">&#39;parent&#39;</span><span class="p">)</span>
+            <span class="n">parent</span><span class="o">.</span><span class="n">setAttribute</span><span class="p">(</span><span class="s1">&#39;link&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+            <span class="n">joint</span><span class="o">.</span><span class="n">appendChild</span><span class="p">(</span><span class="n">parent</span><span class="p">)</span>
+
+            <span class="n">child</span> <span class="o">=</span> <span class="n">doc</span><span class="o">.</span><span class="n">createElement</span><span class="p">(</span><span class="s1">&#39;child&#39;</span><span class="p">)</span>
+            <span class="n">child</span><span class="o">.</span><span class="n">setAttribute</span><span class="p">(</span><span class="s1">&#39;link&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">child</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+            <span class="n">joint</span><span class="o">.</span><span class="n">appendChild</span><span class="p">(</span><span class="n">child</span><span class="p">)</span>
+
+            <span class="n">xyz</span><span class="p">,</span> <span class="n">rpy</span> <span class="o">=</span> <span class="n">xyz_rpy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">trans</span><span class="p">)</span>
+            <span class="n">origin</span> <span class="o">=</span> <span class="n">doc</span><span class="o">.</span><span class="n">createElement</span><span class="p">(</span><span class="s1">&#39;origin&#39;</span><span class="p">)</span>
+            <span class="n">origin</span><span class="o">.</span><span class="n">setAttribute</span><span class="p">(</span><span class="s1">&#39;xyz&#39;</span><span class="p">,</span> <span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">xyz</span><span class="p">))</span>
+            <span class="n">origin</span><span class="o">.</span><span class="n">setAttribute</span><span class="p">(</span><span class="s1">&#39;rpy&#39;</span><span class="p">,</span> <span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">rpy</span><span class="p">))</span>
+            <span class="n">joint</span><span class="o">.</span><span class="n">appendChild</span><span class="p">(</span><span class="n">origin</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">!=</span> <span class="s1">&#39;fixed&#39;</span><span class="p">:</span>
+                <span class="n">axis</span> <span class="o">=</span> <span class="n">doc</span><span class="o">.</span><span class="n">createElement</span><span class="p">(</span><span class="s1">&#39;axis&#39;</span><span class="p">)</span>
+                <span class="n">axis</span><span class="o">.</span><span class="n">setAttribute</span><span class="p">(</span><span class="s1">&#39;xyz&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">fields</span><span class="p">[</span><span class="s1">&#39;axis&#39;</span><span class="p">])</span>
+                <span class="n">joint</span><span class="o">.</span><span class="n">appendChild</span><span class="p">(</span><span class="n">axis</span><span class="p">)</span>
+
+            <span class="n">robot</span><span class="o">.</span><span class="n">appendChild</span><span class="p">(</span><span class="n">joint</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">child</span><span class="o">.</span><span class="n">xml</span><span class="p">(</span><span class="n">doc</span><span class="p">,</span> <span class="n">robot</span><span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">_URDFVisual</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Representation of an URDF &lt;visual&gt; element&quot;&quot;&quot;</span>
+
+    <span class="k">class</span> <span class="nc">_VisualMeta</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Some properties held by certain types of visual elements&quot;&quot;&quot;</span>
+
+        <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">shear</span><span class="p">,</span> <span class="n">non_uniform_scale</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">shear</span> <span class="o">=</span> <span class="n">shear</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">non_uniform_scale</span> <span class="o">=</span> <span class="n">non_uniform_scale</span>
+
+    <span class="n">meta</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;Box&#39;</span><span class="p">:</span> <span class="n">_VisualMeta</span><span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="kc">True</span><span class="p">),</span>
+        <span class="s1">&#39;Cylinder&#39;</span><span class="p">:</span> <span class="n">_VisualMeta</span><span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
+        <span class="s1">&#39;Sphere&#39;</span><span class="p">:</span> <span class="n">_VisualMeta</span><span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
+        <span class="s1">&#39;Mesh&#39;</span><span class="p">:</span> <span class="n">_VisualMeta</span><span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+    <span class="p">}</span>
+
+    <span class="c1"># List of supported Webots PROTO nodes</span>
+    <span class="n">supported</span> <span class="o">=</span> <span class="n">meta</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">,</span> <span class="n">trans</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">node</span> <span class="o">=</span> <span class="n">node</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">trans</span> <span class="o">=</span> <span class="n">trans</span>
+
+    <span class="k">def</span> <span class="nf">xml</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">doc</span><span class="p">,</span> <span class="n">link</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Represent this visual element as xml&quot;&quot;&quot;</span>
+
+        <span class="c1"># Extract scale and shear from transformation</span>
+        <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">Z</span><span class="p">,</span> <span class="n">S</span> <span class="o">=</span> <span class="n">decompose44</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">trans</span><span class="p">)</span>
+        <span class="n">z</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">Z</span><span class="p">)</span>
+
+        <span class="n">meta</span> <span class="o">=</span> <span class="n">_URDFVisual</span><span class="o">.</span><span class="n">meta</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">node</span><span class="o">.</span><span class="n">name</span><span class="p">]</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">meta</span><span class="o">.</span><span class="n">non_uniform_scale</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">Z</span><span class="p">,</span> <span class="n">z</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Non uniform scale not supported for node &#39;</span>
+                             <span class="n">f</span><span class="s1">&#39;</span><span class="si">{self.node.name}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">meta</span><span class="o">.</span><span class="n">shear</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">S</span><span class="p">,</span> <span class="mi">0</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Scaling which induces shear is not supported &#39;</span>
+                             <span class="n">f</span><span class="s1">&#39;for node </span><span class="si">{self.node.name}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+        <span class="n">fields</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">node</span><span class="o">.</span><span class="n">fields</span>
+
+        <span class="n">visual</span> <span class="o">=</span> <span class="n">doc</span><span class="o">.</span><span class="n">createElement</span><span class="p">(</span><span class="s1">&#39;visual&#39;</span><span class="p">)</span>
+
+        <span class="n">xyz</span><span class="p">,</span> <span class="n">rpy</span> <span class="o">=</span> <span class="n">xyz_rpy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">trans</span><span class="p">)</span>
+        <span class="n">origin</span> <span class="o">=</span> <span class="n">doc</span><span class="o">.</span><span class="n">createElement</span><span class="p">(</span><span class="s1">&#39;origin&#39;</span><span class="p">)</span>
+        <span class="n">origin</span><span class="o">.</span><span class="n">setAttribute</span><span class="p">(</span><span class="s1">&#39;xyz&#39;</span><span class="p">,</span> <span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">xyz</span><span class="p">))</span>
+        <span class="n">origin</span><span class="o">.</span><span class="n">setAttribute</span><span class="p">(</span><span class="s1">&#39;rpy&#39;</span><span class="p">,</span> <span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">rpy</span><span class="p">))</span>
+        <span class="n">visual</span><span class="o">.</span><span class="n">appendChild</span><span class="p">(</span><span class="n">origin</span><span class="p">)</span>
+
+        <span class="n">geometry</span> <span class="o">=</span> <span class="n">doc</span><span class="o">.</span><span class="n">createElement</span><span class="p">(</span><span class="s1">&#39;geometry&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">node</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s1">&#39;Box&#39;</span><span class="p">:</span>
+            <span class="n">size</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">fields</span><span class="p">[</span><span class="s1">&#39;size&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">()]</span>
+            <span class="n">box</span> <span class="o">=</span> <span class="n">doc</span><span class="o">.</span><span class="n">createElement</span><span class="p">(</span><span class="s1">&#39;box&#39;</span><span class="p">)</span>
+            <span class="n">box</span><span class="o">.</span><span class="n">setAttribute</span><span class="p">(</span><span class="s1">&#39;size&#39;</span><span class="p">,</span> <span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">Z</span> <span class="o">*</span> <span class="n">size</span><span class="p">))</span>
+            <span class="n">geometry</span><span class="o">.</span><span class="n">appendChild</span><span class="p">(</span><span class="n">box</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">node</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s1">&#39;Cylinder&#39;</span><span class="p">:</span>
+            <span class="n">cylinder</span> <span class="o">=</span> <span class="n">doc</span><span class="o">.</span><span class="n">createElement</span><span class="p">(</span><span class="s1">&#39;cylinder&#39;</span><span class="p">)</span>
+            <span class="n">cylinder</span><span class="o">.</span><span class="n">setAttribute</span><span class="p">(</span><span class="s1">&#39;radius&#39;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">fields</span><span class="p">[</span><span class="s1">&#39;radius&#39;</span><span class="p">])</span> <span class="o">*</span> <span class="n">z</span><span class="p">))</span>
+            <span class="n">cylinder</span><span class="o">.</span><span class="n">setAttribute</span><span class="p">(</span><span class="s1">&#39;length&#39;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">fields</span><span class="p">[</span><span class="s1">&#39;height&#39;</span><span class="p">])</span> <span class="o">*</span> <span class="n">z</span><span class="p">))</span>
+            <span class="n">geometry</span><span class="o">.</span><span class="n">appendChild</span><span class="p">(</span><span class="n">cylinder</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">node</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s1">&#39;Sphere&#39;</span><span class="p">:</span>
+            <span class="n">sphere</span> <span class="o">=</span> <span class="n">doc</span><span class="o">.</span><span class="n">createElement</span><span class="p">(</span><span class="s1">&#39;sphere&#39;</span><span class="p">)</span>
+            <span class="n">sphere</span><span class="o">.</span><span class="n">setAttribute</span><span class="p">(</span><span class="s1">&#39;radius&#39;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">fields</span><span class="p">[</span><span class="s1">&#39;radius&#39;</span><span class="p">])</span> <span class="o">*</span> <span class="n">z</span><span class="p">))</span>
+            <span class="n">geometry</span><span class="o">.</span><span class="n">appendChild</span><span class="p">(</span><span class="n">sphere</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">node</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s1">&#39;Mesh&#39;</span><span class="p">:</span>
+            <span class="n">mesh</span> <span class="o">=</span> <span class="n">doc</span><span class="o">.</span><span class="n">createElement</span><span class="p">(</span><span class="s1">&#39;mesh&#39;</span><span class="p">)</span>
+            <span class="n">mesh</span><span class="o">.</span><span class="n">setAttribute</span><span class="p">(</span><span class="s1">&#39;filename&#39;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">fields</span><span class="p">[</span><span class="s1">&#39;url&#39;</span><span class="p">]))</span>
+            <span class="n">mesh</span><span class="o">.</span><span class="n">setAttribute</span><span class="p">(</span><span class="s1">&#39;scale&#39;</span><span class="p">,</span> <span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">Z</span><span class="p">))</span>
+            <span class="n">geometry</span><span class="o">.</span><span class="n">appendChild</span><span class="p">(</span><span class="n">mesh</span><span class="p">)</span>
+        <span class="n">visual</span><span class="o">.</span><span class="n">appendChild</span><span class="p">(</span><span class="n">geometry</span><span class="p">)</span>
+
+        <span class="n">link</span><span class="o">.</span><span class="n">appendChild</span><span class="p">(</span><span class="n">visual</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="Node"><a class="viewcode-back" href="../../index.html#twizy_description.robot_description.Node">[docs]</a><span class="k">class</span> <span class="nc">Node</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Representation of a node in a robot_description tree</span>
+<span class="sd">    </span>
+<span class="sd">    A robot_description tree is a representation of a robot with joints, visual</span>
+<span class="sd">    elements and sensors. This structure can then be used to generate webots</span>
+<span class="sd">    PROTO or URDF representations of the robot. The structure and names of</span>
+<span class="sd">    nodes of this tree is very similar to the Webots PROTO format. This</span>
+<span class="sd">    similarity is the reason why all features of the Webots PROTO format can be</span>
+<span class="sd">    generated using a robot_description node tree. The generation of URDF is</span>
+<span class="sd">    however compartively limited. The generated URDF will contain supported</span>
+<span class="sd">    visual elements, and all nodes with the &quot;name&quot; field defined as links.</span>
+<span class="sd">    </span>
+<span class="sd">    The generation of URDF models is somewhat clever in that it will discard</span>
+<span class="sd">    intermittent nodes with no name and instead accumulate transforms between</span>
+<span class="sd">    parent and children nodes.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">fields</span><span class="o">=</span><span class="p">{},</span> <span class="n">urdf_ignore</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Initialize a robot_description node</span>
+
+<span class="sd">        :param name: Name of the node type. Names are identical to the node</span>
+<span class="sd">            names defined by the webots PROTO format, e.g. &quot;Transform&quot;,</span>
+<span class="sd">            &quot;Solid&quot;, &quot;GPS&quot;, &quot;Robot&quot; etc.webots_descr</span>
+<span class="sd">        :type name: str</span>
+<span class="sd">        :param fields: Fields of this node which are also identical to the</span>
+<span class="sd">            webots Node fields. Values can be strings, floats or integers or</span>
+<span class="sd">            lists. Vectors and floats are represed like &#39;1.23 0.34 0.56&#39; or</span>
+<span class="sd">            &#39;0.56&#39;. Note that strings must be quoted like</span>
+<span class="sd">            &#39;&quot;This is a string value&quot;&#39;</span>
+<span class="sd">        :type fields: dict</span>
+<span class="sd">        :param urdf_ignore: Whether to exclude this node and all its children</span>
+<span class="sd">            when generating URDF representations of robots</span>
+<span class="sd">        :type urdf_ignore: bool</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fields</span> <span class="o">=</span> <span class="n">fields</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">urdf_ignore</span> <span class="o">=</span> <span class="n">urdf_ignore</span>
+
+    <span class="k">def</span> <span class="nf">_proto_field</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">out</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">field</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">((</span><span class="n">field</span> <span class="ow">and</span> <span class="n">f</span><span class="s1">&#39;</span><span class="si">{field}</span><span class="s1"> &#39;</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;[&#39;</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">value</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_proto_field</span><span class="p">(</span><span class="n">out</span><span class="o">.</span><span class="n">indent</span><span class="p">(),</span> <span class="n">v</span><span class="p">)</span>
+            <span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;]&#39;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">Node</span><span class="p">):</span>
+            <span class="n">value</span><span class="o">.</span><span class="n">_proto</span><span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="n">field</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">((</span><span class="n">field</span> <span class="ow">and</span> <span class="n">f</span><span class="s1">&#39;</span><span class="si">{field}</span><span class="s1"> &#39;</span><span class="p">)</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">_proto</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">out</span><span class="p">,</span> <span class="n">field</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">):</span>
+        <span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">((</span><span class="n">field</span> <span class="ow">and</span> <span class="n">f</span><span class="s1">&#39;</span><span class="si">{field}</span><span class="s1"> &#39;</span><span class="p">)</span> <span class="o">+</span> <span class="n">f</span><span class="s1">&#39;</span><span class="si">{self.name}</span><span class="s1"> {{&#39;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_proto_field</span><span class="p">(</span><span class="n">out</span><span class="o">.</span><span class="n">indent</span><span class="p">(),</span> <span class="n">v</span><span class="p">,</span> <span class="n">k</span><span class="p">)</span>
+        <span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;}&#39;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Node.proto_str"><a class="viewcode-back" href="../../index.html#twizy_description.robot_description.Node.proto_str">[docs]</a>    <span class="k">def</span> <span class="nf">proto_str</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">fields</span><span class="o">=</span><span class="p">[],</span> <span class="n">header</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Generate a PROTO string representation of this node tree</span>
+
+<span class="sd">        :param name: Name of the PROTO (must be the same as an eventual file</span>
+<span class="sd">            name according to webots specifications)</span>
+<span class="sd">        :type name: str</span>
+<span class="sd">        :param fields: List of field definitions for the generated PROTO, one</span>
+<span class="sd">            list element might for example be</span>
+<span class="sd">            &#39;field SFVec3f translation 0.0 0.0 0.0&#39;</span>
+<span class="sd">        :type fields: list</span>
+<span class="sd">        :param header: A header to put in a comment at the start of the</span>
+<span class="sd">            generated PROTO</span>
+<span class="sd">        :type header: str</span>
+
+<span class="sd">        :return: A PROTO string representation of this node and it&#39;s children</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">out</span> <span class="o">=</span> <span class="n">_IndentedOutput</span><span class="p">()</span>
+        <span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;#VRML_SIM R2021a utf8&#39;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">header</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">):</span>
+            <span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">((</span><span class="s1">&#39;&#39;</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">line</span> <span class="ow">or</span> <span class="n">line</span><span class="o">.</span><span class="n">isspace</span><span class="p">()</span> <span class="k">else</span> <span class="s1">&#39;# &#39;</span><span class="p">)</span> <span class="o">+</span> <span class="n">line</span><span class="p">)</span>
+        <span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">f</span><span class="s1">&#39;PROTO </span><span class="si">{name}</span><span class="s1"> [&#39;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">fields</span><span class="p">:</span>
+            <span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">field</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;]&#39;</span><span class="p">)</span>
+        <span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;{&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_proto</span><span class="p">(</span><span class="n">out</span><span class="o">.</span><span class="n">indent</span><span class="p">())</span>
+        <span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;}&#39;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">out</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Node.translation"><a class="viewcode-back" href="../../index.html#twizy_description.robot_description.Node.translation">[docs]</a>    <span class="k">def</span> <span class="nf">translation</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;4x4 translanslation matrix of this node relative to its parent&quot;&quot;&quot;</span>
+
+        <span class="n">t</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;translation&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">t</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">3</span> <span class="ow">or</span> <span class="n">t</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;IS&#39;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">identity</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">translation_matrix</span><span class="p">([</span><span class="nb">float</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">t</span><span class="p">])</span></div>
+
+<div class="viewcode-block" id="Node.rotation"><a class="viewcode-back" href="../../index.html#twizy_description.robot_description.Node.rotation">[docs]</a>    <span class="k">def</span> <span class="nf">rotation</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;4x4 rotation matrix of this node relative to its parent&quot;&quot;&quot;</span>
+
+        <span class="n">r</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;rotation&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">r</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">4</span> <span class="ow">or</span> <span class="n">r</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;IS&#39;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">identity</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">axangle2aff</span><span class="p">([</span><span class="nb">float</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">r</span><span class="p">[:</span><span class="mi">3</span><span class="p">]],</span> <span class="nb">float</span><span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="mi">3</span><span class="p">]))</span></div>
+
+<div class="viewcode-block" id="Node.scale"><a class="viewcode-back" href="../../index.html#twizy_description.robot_description.Node.scale">[docs]</a>    <span class="k">def</span> <span class="nf">scale</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;4x4 scale matrix of this node relative to its parent&quot;&quot;&quot;</span>
+
+        <span class="n">s</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;scale&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">3</span> <span class="ow">or</span> <span class="n">s</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;IS&#39;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">identity</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">scale_matrix</span><span class="p">([</span><span class="nb">float</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">s</span><span class="p">])</span></div>
+
+    <span class="k">def</span> <span class="nf">_reset_trans</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">trans</span><span class="p">):</span>
+        <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">Z</span><span class="p">,</span> <span class="n">S</span> <span class="o">=</span> <span class="n">decompose44</span><span class="p">(</span><span class="n">trans</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">scale_matrix</span><span class="p">(</span><span class="n">Z</span><span class="p">)</span> <span class="o">*</span> <span class="n">shear_matrix</span><span class="p">(</span><span class="n">S</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_urdf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">trans</span><span class="p">,</span> <span class="n">parent</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">urdf_ignore</span><span class="p">:</span>
+            <span class="k">return</span>
+
+        <span class="n">trans</span> <span class="o">=</span> <span class="n">trans</span> <span class="o">@</span> <span class="bp">self</span><span class="o">.</span><span class="n">translation</span><span class="p">()</span> <span class="o">@</span> <span class="bp">self</span><span class="o">.</span><span class="n">rotation</span><span class="p">()</span> <span class="o">@</span> <span class="bp">self</span><span class="o">.</span><span class="n">scale</span><span class="p">()</span>
+
+        <span class="n">jointType</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;HingeJoint&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;continuous&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;&#39;</span><span class="p">]),</span>
+            <span class="s1">&#39;SliderJoint&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;prismatic&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;&#39;</span><span class="p">]),</span>
+            <span class="s1">&#39;Hinge2Joint&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;continuous&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;2&#39;</span><span class="p">]),</span>
+            <span class="s1">&#39;BallJoint&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;continuous&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;2&#39;</span><span class="p">,</span> <span class="s1">&#39;3&#39;</span><span class="p">]),</span>
+        <span class="p">}</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">jointType</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">postfix</span> <span class="ow">in</span> <span class="n">jointType</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
+                <span class="n">params</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">f</span><span class="s1">&#39;jointParameters</span><span class="si">{postfix}</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="n">joint</span> <span class="o">=</span> <span class="n">_URDFJoint</span><span class="p">(</span><span class="n">jointType</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">trans</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span>
+                <span class="n">parent</span><span class="o">.</span><span class="n">connect_joint</span><span class="p">(</span><span class="n">joint</span><span class="p">)</span>
+                <span class="n">parent</span> <span class="o">=</span> <span class="n">joint</span>
+                <span class="n">trans</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_reset_trans</span><span class="p">(</span><span class="n">trans</span><span class="p">)</span>
+
+            <span class="n">endPoint</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;endPoint&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">endPoint</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">endPoint</span><span class="p">,</span> <span class="n">Node</span><span class="p">):</span>
+                <span class="n">endPoint</span><span class="o">.</span><span class="n">_urdf</span><span class="p">(</span><span class="n">trans</span><span class="p">,</span> <span class="n">parent</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="ow">in</span> <span class="n">_URDFVisual</span><span class="o">.</span><span class="n">supported</span><span class="p">:</span>
+            <span class="n">parent</span><span class="o">.</span><span class="n">connect_visual</span><span class="p">(</span><span class="n">_URDFVisual</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">trans</span><span class="p">))</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s1">&#39;Capsule&#39;</span><span class="p">:</span>
+            <span class="n">r</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="p">[</span><span class="s1">&#39;radius&#39;</span><span class="p">])</span>
+            <span class="n">h</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="p">[</span><span class="s1">&#39;height&#39;</span><span class="p">])</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;side&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">!=</span> <span class="s1">&#39;FALSE&#39;</span><span class="p">:</span>
+                <span class="n">cylinder</span> <span class="o">=</span> <span class="n">Node</span><span class="p">(</span><span class="s1">&#39;Cylinder&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;radius&#39;</span><span class="p">:</span> <span class="n">r</span><span class="p">,</span> <span class="s1">&#39;height&#39;</span><span class="p">:</span> <span class="n">h</span><span class="p">})</span>
+                <span class="n">parent</span><span class="o">.</span><span class="n">connect_visual</span><span class="p">(</span><span class="n">_URDFVisual</span><span class="p">(</span><span class="n">cylinder</span><span class="p">,</span> <span class="n">trans</span><span class="p">))</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;top&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">!=</span> <span class="s1">&#39;FALSE&#39;</span><span class="p">:</span>
+                <span class="n">sphere</span> <span class="o">=</span> <span class="n">Node</span><span class="p">(</span><span class="s1">&#39;Sphere&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;radius&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="p">[</span><span class="s1">&#39;radius&#39;</span><span class="p">]})</span>
+                <span class="n">trans_</span> <span class="o">=</span> <span class="n">trans</span> <span class="o">@</span> <span class="n">translation_matrix</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="n">h</span> <span class="o">/</span> <span class="mf">2.0</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+                <span class="n">parent</span><span class="o">.</span><span class="n">connect_visual</span><span class="p">(</span><span class="n">_URDFVisual</span><span class="p">(</span><span class="n">sphere</span><span class="p">,</span> <span class="n">trans_</span><span class="p">))</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;bottom&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">!=</span> <span class="s1">&#39;FALSE&#39;</span><span class="p">:</span>
+                <span class="n">sphere</span> <span class="o">=</span> <span class="n">Node</span><span class="p">(</span><span class="s1">&#39;Sphere&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;radius&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="p">[</span><span class="s1">&#39;radius&#39;</span><span class="p">]})</span>
+                <span class="n">trans_</span> <span class="o">=</span> <span class="n">trans</span> <span class="o">@</span> <span class="n">translation_matrix</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="n">h</span> <span class="o">/</span> <span class="mf">2.0</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+                <span class="n">parent</span><span class="o">.</span><span class="n">connect_visual</span><span class="p">(</span><span class="n">_URDFVisual</span><span class="p">(</span><span class="n">sphere</span><span class="p">,</span> <span class="n">trans_</span><span class="p">))</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s1">&#39;Shape&#39;</span><span class="p">:</span>
+            <span class="n">geometry</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;geometry&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">geometry</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">geometry</span><span class="p">,</span> <span class="n">Node</span><span class="p">):</span>
+                <span class="n">geometry</span><span class="o">.</span><span class="n">_urdf</span><span class="p">(</span><span class="n">trans</span><span class="p">,</span> <span class="n">parent</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">name</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                <span class="n">link</span> <span class="o">=</span> <span class="n">_URDFLink</span><span class="p">(</span><span class="n">name</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+                <span class="n">parent</span><span class="o">.</span><span class="n">connect_link</span><span class="p">(</span><span class="n">link</span><span class="p">,</span> <span class="n">trans</span><span class="p">)</span>
+                <span class="n">parent</span> <span class="o">=</span> <span class="n">link</span>
+                <span class="n">trans</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_reset_trans</span><span class="p">(</span><span class="n">trans</span><span class="p">)</span>
+
+            <span class="n">children</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;children&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">children</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">children</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+                <span class="k">for</span> <span class="n">child</span> <span class="ow">in</span> <span class="n">children</span><span class="p">:</span>
+                    <span class="n">child</span><span class="o">.</span><span class="n">_urdf</span><span class="p">(</span><span class="n">trans</span><span class="p">,</span> <span class="n">parent</span><span class="p">)</span>
+
+            <span class="n">bounding_obj</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;boundingObject&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">bounding_obj</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">bounding_obj</span><span class="p">,</span> <span class="n">Node</span><span class="p">):</span>
+                <span class="n">bounding_obj</span><span class="o">.</span><span class="n">_urdf</span><span class="p">(</span><span class="n">trans</span><span class="p">,</span> <span class="n">parent</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Node.urdf_str"><a class="viewcode-back" href="../../index.html#twizy_description.robot_description.Node.urdf_str">[docs]</a>    <span class="k">def</span> <span class="nf">urdf_str</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">base</span><span class="o">=</span><span class="s1">&#39;base_link&#39;</span><span class="p">,</span> <span class="n">transformation</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">identity</span><span class="p">(</span><span class="mi">4</span><span class="p">),</span>
+                 <span class="n">header</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Generate a URDF string representation of this node tree</span>
+
+<span class="sd">        :param name: Name of the robot</span>
+<span class="sd">        :type name: str</span>
+<span class="sd">        :param base: Name of the base link in the URDF representation</span>
+<span class="sd">        :type base: str</span>
+<span class="sd">        :param transformation: A 4x4 transformation matrix to apply to the</span>
+<span class="sd">            robot before generating its URDF representation</span>
+<span class="sd">        :param header: A header to put in a comment at the start of the</span>
+<span class="sd">            generated URDF</span>
+<span class="sd">        :type header: str</span>
+
+<span class="sd">        :return: A URDF string representation of this node and it&#39;s children</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">_URDFLink</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">_URDFJoint</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span>
+
+        <span class="n">base_link</span> <span class="o">=</span> <span class="n">_URDFLink</span><span class="p">(</span><span class="n">base</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_urdf</span><span class="p">(</span><span class="n">transformation</span><span class="p">,</span> <span class="n">base_link</span><span class="p">)</span>
+
+        <span class="n">doc</span> <span class="o">=</span> <span class="n">minidom</span><span class="o">.</span><span class="n">Document</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">header</span><span class="p">:</span>
+            <span class="n">doc</span><span class="o">.</span><span class="n">appendChild</span><span class="p">(</span><span class="n">doc</span><span class="o">.</span><span class="n">createComment</span><span class="p">(</span><span class="n">header</span><span class="p">))</span>
+
+        <span class="n">robot</span> <span class="o">=</span> <span class="n">doc</span><span class="o">.</span><span class="n">createElement</span><span class="p">(</span><span class="s1">&#39;robot&#39;</span><span class="p">)</span>
+        <span class="n">robot</span><span class="o">.</span><span class="n">setAttribute</span><span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+
+        <span class="n">base_link</span><span class="o">.</span><span class="n">xml</span><span class="p">(</span><span class="n">doc</span><span class="p">,</span> <span class="n">robot</span><span class="p">)</span>
+
+        <span class="n">doc</span><span class="o">.</span><span class="n">appendChild</span><span class="p">(</span><span class="n">robot</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">doc</span><span class="o">.</span><span class="n">toprettyxml</span><span class="p">(</span><span class="n">indent</span><span class="o">=</span><span class="s1">&#39;    &#39;</span><span class="p">)</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">twizy_description 1.0.0 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2021, Ossian Eriksson.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.5.
+    </div>
+  </body>
+</html>

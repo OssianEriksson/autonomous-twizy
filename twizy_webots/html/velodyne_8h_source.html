@@ -25,48 +25,50 @@ $(function() {
 <div class="title">velodyne.h</div>  </div>
 </div><!--header-->
 <div class="contents">
-<a href="velodyne_8h.html">Go to the documentation of this file.</a><div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno">    1</span>&#160;<span class="preprocessor">#ifndef TWIZY_WEBOTS_VELODYNE</span></div>
-<div class="line"><a name="l00002"></a><span class="lineno">    2</span>&#160;<span class="preprocessor">#define TWIZY_WEBOTS_VELODYNE</span></div>
-<div class="line"><a name="l00003"></a><span class="lineno">    3</span>&#160; </div>
-<div class="line"><a name="l00004"></a><span class="lineno">    4</span>&#160;<span class="preprocessor">#include &lt;ros/ros.h&gt;</span></div>
-<div class="line"><a name="l00005"></a><span class="lineno">    5</span>&#160;<span class="preprocessor">#include &lt;string&gt;</span></div>
-<div class="line"><a name="l00006"></a><span class="lineno">    6</span>&#160;<span class="preprocessor">#include &lt;webots/Lidar.hpp&gt;</span></div>
-<div class="line"><a name="l00007"></a><span class="lineno">    7</span>&#160;<span class="preprocessor">#include &lt;webots/Supervisor.hpp&gt;</span></div>
-<div class="line"><a name="l00008"></a><span class="lineno">    8</span>&#160; </div>
-<div class="line"><a name="l00009"></a><span class="lineno">    9</span>&#160;<span class="keyword">namespace </span><a class="code" href="namespacetwizy__webots.html">twizy_webots</a> {</div>
-<div class="line"><a name="l00010"></a><span class="lineno">   10</span>&#160; </div>
-<div class="line"><a name="l00011"></a><span class="lineno"><a class="line" href="classtwizy__webots_1_1Velodyne.html">   11</a></span>&#160;<span class="keyword">class </span><a class="code" href="classtwizy__webots_1_1Velodyne.html">Velodyne</a> {</div>
-<div class="line"><a name="l00012"></a><span class="lineno">   12</span>&#160;  <span class="keyword">private</span>:</div>
-<div class="line"><a name="l00013"></a><span class="lineno"><a class="line" href="classtwizy__webots_1_1Velodyne.html#a08691b688725b3a6d440a4af89589c37">   13</a></span>&#160;    std::unique_ptr&lt;webots::Lidar&gt; <a class="code" href="classtwizy__webots_1_1Velodyne.html#a08691b688725b3a6d440a4af89589c37">lidar_</a>;</div>
-<div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160; </div>
-<div class="line"><a name="l00015"></a><span class="lineno"><a class="line" href="classtwizy__webots_1_1Velodyne.html#ab40f5288d9fde64054b340cb417d2259">   15</a></span>&#160;    ros::Publisher <a class="code" href="classtwizy__webots_1_1Velodyne.html#ab40f5288d9fde64054b340cb417d2259">publisher_</a>;</div>
-<div class="line"><a name="l00016"></a><span class="lineno"><a class="line" href="classtwizy__webots_1_1Velodyne.html#a3765f94f2e1dd1a4cf96fd60b09b7d9c">   16</a></span>&#160;    ros::Timer <a class="code" href="classtwizy__webots_1_1Velodyne.html#a3765f94f2e1dd1a4cf96fd60b09b7d9c">update_timer_</a>;</div>
-<div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160; </div>
-<div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classtwizy__webots_1_1Velodyne.html#a5895f5515e45538677188f81c0e258a4">update</a>(<span class="keyword">const</span> ros::TimerEvent &amp;evt);</div>
-<div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160; </div>
-<div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160;  <span class="keyword">public</span>:</div>
-<div class="line"><a name="l00021"></a><span class="lineno">   21</span>&#160;    <a class="code" href="classtwizy__webots_1_1Velodyne.html#ab7cc567555a62c94146f0a1782826c6b">Velodyne</a>(webots::Supervisor &amp;supervisor, ros::NodeHandle &amp;nh);</div>
-<div class="line"><a name="l00022"></a><span class="lineno">   22</span>&#160;    <a class="code" href="classtwizy__webots_1_1Velodyne.html#a73fdccc5cee4f6f15debe399a6444f97">~Velodyne</a>();</div>
-<div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;};</div>
-<div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160; </div>
-<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;} <span class="comment">// namespace twizy_webots</span></div>
-<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160; </div>
-<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;<span class="preprocessor">#endif</span></div>
+<a href="velodyne_8h.html">Go to the documentation of this file.</a><div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno">    1</span>&#160; </div>
+<div class="line"><a name="l00011"></a><span class="lineno">   11</span>&#160;<span class="preprocessor">#ifndef TWIZY_WEBOTS_VELODYNE</span></div>
+<div class="line"><a name="l00012"></a><span class="lineno">   12</span>&#160;<span class="preprocessor">#define TWIZY_WEBOTS_VELODYNE</span></div>
+<div class="line"><a name="l00013"></a><span class="lineno">   13</span>&#160; </div>
+<div class="line"><a name="l00014"></a><span class="lineno">   14</span>&#160;<span class="preprocessor">#include &lt;ros/ros.h&gt;</span></div>
+<div class="line"><a name="l00015"></a><span class="lineno">   15</span>&#160;<span class="preprocessor">#include &lt;string&gt;</span></div>
+<div class="line"><a name="l00016"></a><span class="lineno">   16</span>&#160;<span class="preprocessor">#include &lt;webots/Lidar.hpp&gt;</span></div>
+<div class="line"><a name="l00017"></a><span class="lineno">   17</span>&#160;<span class="preprocessor">#include &lt;webots/Supervisor.hpp&gt;</span></div>
+<div class="line"><a name="l00018"></a><span class="lineno">   18</span>&#160; </div>
+<div class="line"><a name="l00019"></a><span class="lineno">   19</span>&#160;<span class="keyword">namespace </span><a class="code" href="namespacetwizy__webots.html">twizy_webots</a> {</div>
+<div class="line"><a name="l00020"></a><span class="lineno">   20</span>&#160; </div>
+<div class="line"><a name="l00024"></a><span class="lineno"><a class="line" href="classtwizy__webots_1_1Velodyne.html">   24</a></span>&#160;<span class="keyword">class </span><a class="code" href="classtwizy__webots_1_1Velodyne.html">Velodyne</a> {</div>
+<div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;  <span class="keyword">private</span>:</div>
+<div class="line"><a name="l00029"></a><span class="lineno"><a class="line" href="classtwizy__webots_1_1Velodyne.html#a08691b688725b3a6d440a4af89589c37">   29</a></span>&#160;    std::unique_ptr&lt;webots::Lidar&gt; <a class="code" href="classtwizy__webots_1_1Velodyne.html#a08691b688725b3a6d440a4af89589c37">lidar_</a>;</div>
+<div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160; </div>
+<div class="line"><a name="l00034"></a><span class="lineno"><a class="line" href="classtwizy__webots_1_1Velodyne.html#ab40f5288d9fde64054b340cb417d2259">   34</a></span>&#160;    ros::Publisher <a class="code" href="classtwizy__webots_1_1Velodyne.html#ab40f5288d9fde64054b340cb417d2259">publisher_</a>;</div>
+<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160; </div>
+<div class="line"><a name="l00039"></a><span class="lineno"><a class="line" href="classtwizy__webots_1_1Velodyne.html#a3765f94f2e1dd1a4cf96fd60b09b7d9c">   39</a></span>&#160;    ros::Timer <a class="code" href="classtwizy__webots_1_1Velodyne.html#a3765f94f2e1dd1a4cf96fd60b09b7d9c">update_timer_</a>;</div>
+<div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160; </div>
+<div class="line"><a name="l00044"></a><span class="lineno">   44</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classtwizy__webots_1_1Velodyne.html#a5895f5515e45538677188f81c0e258a4">update</a>(<span class="keyword">const</span> ros::TimerEvent &amp;evt);</div>
+<div class="line"><a name="l00045"></a><span class="lineno">   45</span>&#160; </div>
+<div class="line"><a name="l00046"></a><span class="lineno">   46</span>&#160;  <span class="keyword">public</span>:</div>
+<div class="line"><a name="l00047"></a><span class="lineno">   47</span>&#160;    <a class="code" href="classtwizy__webots_1_1Velodyne.html#ab7cc567555a62c94146f0a1782826c6b">Velodyne</a>(webots::Supervisor &amp;supervisor, ros::NodeHandle &amp;nh);</div>
+<div class="line"><a name="l00048"></a><span class="lineno">   48</span>&#160;    <a class="code" href="classtwizy__webots_1_1Velodyne.html#a73fdccc5cee4f6f15debe399a6444f97">~Velodyne</a>();</div>
+<div class="line"><a name="l00049"></a><span class="lineno">   49</span>&#160;};</div>
+<div class="line"><a name="l00050"></a><span class="lineno">   50</span>&#160; </div>
+<div class="line"><a name="l00051"></a><span class="lineno">   51</span>&#160;} <span class="comment">// namespace twizy_webots</span></div>
+<div class="line"><a name="l00052"></a><span class="lineno">   52</span>&#160; </div>
+<div class="line"><a name="l00053"></a><span class="lineno">   53</span>&#160;<span class="preprocessor">#endif</span></div>
 </div><!-- fragment --></div><!-- contents -->
-<div class="ttc" id="aclasstwizy__webots_1_1Velodyne_html"><div class="ttname"><a href="classtwizy__webots_1_1Velodyne.html">twizy_webots::Velodyne</a></div><div class="ttdef"><b>Definition:</b> <a href="velodyne_8h_source.html#l00011">velodyne.h:11</a></div></div>
-<div class="ttc" id="aclasstwizy__webots_1_1Velodyne_html_a3765f94f2e1dd1a4cf96fd60b09b7d9c"><div class="ttname"><a href="classtwizy__webots_1_1Velodyne.html#a3765f94f2e1dd1a4cf96fd60b09b7d9c">twizy_webots::Velodyne::update_timer_</a></div><div class="ttdeci">ros::Timer update_timer_</div><div class="ttdef"><b>Definition:</b> <a href="velodyne_8h_source.html#l00016">velodyne.h:16</a></div></div>
-<div class="ttc" id="aclasstwizy__webots_1_1Velodyne_html_a08691b688725b3a6d440a4af89589c37"><div class="ttname"><a href="classtwizy__webots_1_1Velodyne.html#a08691b688725b3a6d440a4af89589c37">twizy_webots::Velodyne::lidar_</a></div><div class="ttdeci">std::unique_ptr&lt; webots::Lidar &gt; lidar_</div><div class="ttdef"><b>Definition:</b> <a href="velodyne_8h_source.html#l00013">velodyne.h:13</a></div></div>
-<div class="ttc" id="aclasstwizy__webots_1_1Velodyne_html_a5895f5515e45538677188f81c0e258a4"><div class="ttname"><a href="classtwizy__webots_1_1Velodyne.html#a5895f5515e45538677188f81c0e258a4">twizy_webots::Velodyne::update</a></div><div class="ttdeci">void update(const ros::TimerEvent &amp;evt)</div><div class="ttdef"><b>Definition:</b> <a href="velodyne_8cpp_source.html#l00026">velodyne.cpp:26</a></div></div>
-<div class="ttc" id="aclasstwizy__webots_1_1Velodyne_html_ab40f5288d9fde64054b340cb417d2259"><div class="ttname"><a href="classtwizy__webots_1_1Velodyne.html#ab40f5288d9fde64054b340cb417d2259">twizy_webots::Velodyne::publisher_</a></div><div class="ttdeci">ros::Publisher publisher_</div><div class="ttdef"><b>Definition:</b> <a href="velodyne_8h_source.html#l00015">velodyne.h:15</a></div></div>
+<div class="ttc" id="aclasstwizy__webots_1_1Velodyne_html"><div class="ttname"><a href="classtwizy__webots_1_1Velodyne.html">twizy_webots::Velodyne</a></div><div class="ttdoc">Handler class for the simulated Velodyne VLP-16 LiDAR.</div><div class="ttdef"><b>Definition:</b> <a href="velodyne_8h_source.html#l00024">velodyne.h:24</a></div></div>
+<div class="ttc" id="aclasstwizy__webots_1_1Velodyne_html_a3765f94f2e1dd1a4cf96fd60b09b7d9c"><div class="ttname"><a href="classtwizy__webots_1_1Velodyne.html#a3765f94f2e1dd1a4cf96fd60b09b7d9c">twizy_webots::Velodyne::update_timer_</a></div><div class="ttdeci">ros::Timer update_timer_</div><div class="ttdef"><b>Definition:</b> <a href="velodyne_8h_source.html#l00039">velodyne.h:39</a></div></div>
+<div class="ttc" id="aclasstwizy__webots_1_1Velodyne_html_a08691b688725b3a6d440a4af89589c37"><div class="ttname"><a href="classtwizy__webots_1_1Velodyne.html#a08691b688725b3a6d440a4af89589c37">twizy_webots::Velodyne::lidar_</a></div><div class="ttdeci">std::unique_ptr&lt; webots::Lidar &gt; lidar_</div><div class="ttdef"><b>Definition:</b> <a href="velodyne_8h_source.html#l00029">velodyne.h:29</a></div></div>
+<div class="ttc" id="aclasstwizy__webots_1_1Velodyne_html_a5895f5515e45538677188f81c0e258a4"><div class="ttname"><a href="classtwizy__webots_1_1Velodyne.html#a5895f5515e45538677188f81c0e258a4">twizy_webots::Velodyne::update</a></div><div class="ttdeci">void update(const ros::TimerEvent &amp;evt)</div><div class="ttdef"><b>Definition:</b> <a href="velodyne_8cpp_source.html#l00028">velodyne.cpp:28</a></div></div>
+<div class="ttc" id="aclasstwizy__webots_1_1Velodyne_html_ab40f5288d9fde64054b340cb417d2259"><div class="ttname"><a href="classtwizy__webots_1_1Velodyne.html#ab40f5288d9fde64054b340cb417d2259">twizy_webots::Velodyne::publisher_</a></div><div class="ttdeci">ros::Publisher publisher_</div><div class="ttdef"><b>Definition:</b> <a href="velodyne_8h_source.html#l00034">velodyne.h:34</a></div></div>
 <div class="ttc" id="aclasstwizy__webots_1_1Velodyne_html_ab7cc567555a62c94146f0a1782826c6b"><div class="ttname"><a href="classtwizy__webots_1_1Velodyne.html#ab7cc567555a62c94146f0a1782826c6b">twizy_webots::Velodyne::Velodyne</a></div><div class="ttdeci">Velodyne(webots::Supervisor &amp;supervisor, ros::NodeHandle &amp;nh)</div><div class="ttdef"><b>Definition:</b> <a href="velodyne_8cpp_source.html#l00010">velodyne.cpp:10</a></div></div>
-<div class="ttc" id="anamespacetwizy__webots_html"><div class="ttname"><a href="namespacetwizy__webots.html">twizy_webots</a></div><div class="ttdef"><b>Definition:</b> <a href="motors_8h_source.html#l00010">motors.h:10</a></div></div>
-<div class="ttc" id="aclasstwizy__webots_1_1Velodyne_html_a73fdccc5cee4f6f15debe399a6444f97"><div class="ttname"><a href="classtwizy__webots_1_1Velodyne.html#a73fdccc5cee4f6f15debe399a6444f97">twizy_webots::Velodyne::~Velodyne</a></div><div class="ttdeci">~Velodyne()</div><div class="ttdef"><b>Definition:</b> <a href="velodyne_8cpp_source.html#l00068">velodyne.cpp:68</a></div></div>
+<div class="ttc" id="anamespacetwizy__webots_html"><div class="ttname"><a href="namespacetwizy__webots.html">twizy_webots</a></div><div class="ttdef"><b>Definition:</b> <a href="motors_8h_source.html#l00018">motors.h:18</a></div></div>
+<div class="ttc" id="aclasstwizy__webots_1_1Velodyne_html_a73fdccc5cee4f6f15debe399a6444f97"><div class="ttname"><a href="classtwizy__webots_1_1Velodyne.html#a73fdccc5cee4f6f15debe399a6444f97">twizy_webots::Velodyne::~Velodyne</a></div><div class="ttdeci">~Velodyne()</div><div class="ttdef"><b>Definition:</b> <a href="velodyne_8cpp_source.html#l00090">velodyne.cpp:90</a></div></div>
 
 <br clear="all" />
 <hr size="1"><div style="align: right;">
 <a href="http://wiki.ros.org/twizy_webots">twizy_webots</a><br />
 Author(s): Ossian Eriksson <ossiane@student.chalmers.se></br />
-<small>autogenerated on Fri May 21 2021 14:48:37</small>
+<small>autogenerated on Thu May 27 2021 18:48:25</small>
 </div>
 </body>
 </html>

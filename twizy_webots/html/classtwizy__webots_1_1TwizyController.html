@@ -30,6 +30,9 @@ $(function() {
 </div><!--header-->
 <div class="contents">
 
+<p>"Brain" of the Twizy Webots controller  
+ <a href="classtwizy__webots_1_1TwizyController.html#details">More...</a></p>
+
 <p><code>#include &lt;<a class="el" href="twizy__controller_8h_source.html">twizy_controller.h</a>&gt;</code></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
@@ -47,8 +50,8 @@ Private Attributes</h2></td></tr>
 <tr class="separator:ad3964cac0af0dea898bba6d6c70887b1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a1f0da901ce330e54ed709e04c7007610"><td class="memItemLeft" align="right" valign="top">ros::NodeHandle &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtwizy__webots_1_1TwizyController.html#a1f0da901ce330e54ed709e04c7007610">nh_</a></td></tr>
 <tr class="separator:a1f0da901ce330e54ed709e04c7007610"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af888f5232e6711c6f46c69fe78f1a34a"><td class="memItemLeft" align="right" valign="top">ros::NodeHandle &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtwizy__webots_1_1TwizyController.html#af888f5232e6711c6f46c69fe78f1a34a">nh_private_</a></td></tr>
-<tr class="separator:af888f5232e6711c6f46c69fe78f1a34a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7bfb51684d306442e736d0865bcc82bc"><td class="memItemLeft" align="right" valign="top">ros::NodeHandle &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtwizy__webots_1_1TwizyController.html#a7bfb51684d306442e736d0865bcc82bc">nh_private_</a></td></tr>
+<tr class="separator:a7bfb51684d306442e736d0865bcc82bc"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6ae186ac72f7880cbc211dc303e86043"><td class="memItemLeft" align="right" valign="top">ros::Publisher&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtwizy__webots_1_1TwizyController.html#a6ae186ac72f7880cbc211dc303e86043">position_publisher_</a></td></tr>
 <tr class="separator:a6ae186ac72f7880cbc211dc303e86043"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af45e7c4b2ae2aacd0af334b3299859e0"><td class="memItemLeft" align="right" valign="top">std::unique_ptr&lt; webots::Supervisor &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classtwizy__webots_1_1TwizyController.html#af45e7c4b2ae2aacd0af334b3299859e0">supervisor_</a></td></tr>
@@ -57,8 +60,10 @@ Private Attributes</h2></td></tr>
 <tr class="separator:a30a51caa5b6a058bb8dceaa63f81216d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock">
-<p class="definition">Definition at line <a class="el" href="twizy__controller_8h_source.html#l00010">10</a> of file <a class="el" href="twizy__controller_8h_source.html">twizy_controller.h</a>.</p>
+<div class="textblock"><p>"Brain" of the Twizy Webots controller </p>
+<p>This class should initialize sensors, make sure sensors publish their readings, as well as handle overarching processing like publishing ROS clock messages </p>
+
+<p class="definition">Definition at line <a class="el" href="twizy__controller_8h_source.html#l00029">29</a> of file <a class="el" href="twizy__controller_8h_source.html">twizy_controller.h</a>.</p>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a id="ac2b9bdd2412a206c147f1558777445c5"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ac2b9bdd2412a206c147f1558777445c5">&#9670;&nbsp;</a></span>TwizyController()</h2>
@@ -105,7 +110,7 @@ Private Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="twizy__controller_8cpp_source.html#l00067">67</a> of file <a class="el" href="twizy__controller_8cpp_source.html">twizy_controller.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="twizy__controller_8cpp_source.html#l00074">74</a> of file <a class="el" href="twizy__controller_8cpp_source.html">twizy_controller.cpp</a>.</p>
 
 </div>
 </div>
@@ -124,6 +129,7 @@ Private Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<p>Starts the Twizy Webots controller </p>
 
 <p class="definition">Definition at line <a class="el" href="twizy__controller_8cpp_source.html#l00029">29</a> of file <a class="el" href="twizy__controller_8cpp_source.html">twizy_controller.cpp</a>.</p>
 
@@ -149,8 +155,9 @@ Private Attributes</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+<p>ROS publisher of clock messages </p>
 
-<p class="definition">Definition at line <a class="el" href="twizy__controller_8h_source.html#l00014">14</a> of file <a class="el" href="twizy__controller_8h_source.html">twizy_controller.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="twizy__controller_8h_source.html#l00040">40</a> of file <a class="el" href="twizy__controller_8h_source.html">twizy_controller.h</a>.</p>
 
 </div>
 </div>
@@ -173,13 +180,14 @@ Private Attributes</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+<p>Reference to the ROS public node handle </p>
 
-<p class="definition">Definition at line <a class="el" href="twizy__controller_8h_source.html#l00016">16</a> of file <a class="el" href="twizy__controller_8h_source.html">twizy_controller.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="twizy__controller_8h_source.html#l00050">50</a> of file <a class="el" href="twizy__controller_8h_source.html">twizy_controller.h</a>.</p>
 
 </div>
 </div>
-<a id="af888f5232e6711c6f46c69fe78f1a34a"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#af888f5232e6711c6f46c69fe78f1a34a">&#9670;&nbsp;</a></span>nh_private_</h2>
+<a id="a7bfb51684d306442e736d0865bcc82bc"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7bfb51684d306442e736d0865bcc82bc">&#9670;&nbsp;</a></span>nh_private_</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -188,7 +196,7 @@ Private Attributes</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">ros::NodeHandle &amp; twizy_webots::TwizyController::nh_private_</td>
+          <td class="memname">ros::NodeHandle&amp; twizy_webots::TwizyController::nh_private_</td>
         </tr>
       </table>
   </td>
@@ -197,8 +205,9 @@ Private Attributes</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+<p>Reference to the ROS public node handle </p>
 
-<p class="definition">Definition at line <a class="el" href="twizy__controller_8h_source.html#l00016">16</a> of file <a class="el" href="twizy__controller_8h_source.html">twizy_controller.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="twizy__controller_8h_source.html#l00055">55</a> of file <a class="el" href="twizy__controller_8h_source.html">twizy_controller.h</a>.</p>
 
 </div>
 </div>
@@ -221,8 +230,9 @@ Private Attributes</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+<p>ROS publisher of the simulated Twizy's ground truth position </p>
 
-<p class="definition">Definition at line <a class="el" href="twizy__controller_8h_source.html#l00015">15</a> of file <a class="el" href="twizy__controller_8h_source.html">twizy_controller.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="twizy__controller_8h_source.html#l00045">45</a> of file <a class="el" href="twizy__controller_8h_source.html">twizy_controller.h</a>.</p>
 
 </div>
 </div>
@@ -245,8 +255,9 @@ Private Attributes</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+<p>Pointer to the Webots supervisor for the Twizy robot </p>
 
-<p class="definition">Definition at line <a class="el" href="twizy__controller_8h_source.html#l00018">18</a> of file <a class="el" href="twizy__controller_8h_source.html">twizy_controller.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="twizy__controller_8h_source.html#l00060">60</a> of file <a class="el" href="twizy__controller_8h_source.html">twizy_controller.h</a>.</p>
 
 </div>
 </div>
@@ -269,8 +280,9 @@ Private Attributes</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+<p>Whether ROS uses simulated time as controlled by the ROS parameter /use_sim_time </p>
 
-<p class="definition">Definition at line <a class="el" href="twizy__controller_8h_source.html#l00012">12</a> of file <a class="el" href="twizy__controller_8h_source.html">twizy_controller.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="twizy__controller_8h_source.html#l00035">35</a> of file <a class="el" href="twizy__controller_8h_source.html">twizy_controller.h</a>.</p>
 
 </div>
 </div>
@@ -284,7 +296,7 @@ Private Attributes</h2></td></tr>
 <hr size="1"><div style="align: right;">
 <a href="http://wiki.ros.org/twizy_webots">twizy_webots</a><br />
 Author(s): Ossian Eriksson <ossiane@student.chalmers.se></br />
-<small>autogenerated on Fri May 21 2021 14:48:37</small>
+<small>autogenerated on Thu May 27 2021 18:48:25</small>
 </div>
 </body>
 </html>

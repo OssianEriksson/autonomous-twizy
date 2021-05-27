@@ -1,5 +1,5 @@
 <map id="piksi.h" name="piksi.h">
-<area shape="rect" id="node1" title=" " alt="" coords="82,5,147,32"/>
+<area shape="rect" id="node1" title="Simulation of an autonomous Twizy&#39;s Piksi Multi kit." alt="" coords="82,5,147,32"/>
 <area shape="rect" id="node2" href="$piksi_8cpp.html" title=" " alt="" coords="5,80,85,107"/>
 <area shape="rect" id="node3" href="$twizy__controller_8cpp.html" title=" " alt="" coords="109,80,261,107"/>
 </map>

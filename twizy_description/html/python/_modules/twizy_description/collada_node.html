@@ -1,0 +1,219 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>twizy_description.collada_node &#8212; twizy_description 1.0.0 documentation</title>
+    <link rel="stylesheet" href="../../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../_static/language_data.js"></script>
+    
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">twizy_description 1.0.0 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for twizy_description.collada_node</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">twizy_description.robot_description</span> <span class="k">import</span> <span class="n">Node</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">collada</span>
+<span class="kn">import</span> <span class="nn">numbers</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="k">import</span> <span class="n">Path</span>
+
+<div class="viewcode-block" id="Collada"><a class="viewcode-back" href="../../index.html#twizy_description.collada_node.Collada">[docs]</a><span class="k">class</span> <span class="nc">Collada</span><span class="p">(</span><span class="n">Node</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Represent a collada model in a robot_description data structure</span>
+
+<span class="sd">    An instance of this class can be used in a robot_description node tree to</span>
+<span class="sd">    represent a collada model. Generation of both URDF and proto is supported.</span>
+<span class="sd">    When generating URDF the &lt;mesh&gt;-tag will be used, and when generating PROTO</span>
+<span class="sd">    the IndexedFaceSet Webots node will be used, effectively copying the entire</span>
+<span class="sd">    model representation into the PROTO instead of referencing the original</span>
+<span class="sd">    collada file.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">urdf_ignore</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Initialize a collada node</span>
+<span class="sd">        </span>
+<span class="sd">        :param path: Path to a collada (.dae) file</span>
+<span class="sd">        :type path: str</span>
+<span class="sd">        :param urdf_ignore: Whether to exclude this node when generating URDF</span>
+<span class="sd">            representations of robots</span>
+<span class="sd">        :type urdf_ignore: bool</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">path</span> <span class="o">=</span> <span class="n">path</span>
+
+        <span class="n">shape</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_shape</span><span class="p">()</span>
+
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">shape</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">shape</span><span class="o">.</span><span class="n">fields</span><span class="p">,</span> <span class="n">urdf_ignore</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_indexed_face_set</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">p</span><span class="p">):</span>
+        <span class="k">def</span> <span class="nf">terminate</span><span class="p">(</span><span class="n">a</span><span class="p">):</span>
+            <span class="sd">&quot;&quot;&quot;Flattens a matrix of coordinates terminating each tuple with -1</span>
+
+<span class="sd">            :param a: A matrix where each row represents a tuple of coordinates</span>
+
+<span class="sd">            :return: A flat list where each row in the input matrix follows</span>
+<span class="sd">                after the next, but where every row has been terminated with -1</span>
+<span class="sd">                to separate out rows</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+
+            <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">((</span><span class="n">a</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">((</span><span class="n">a</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="mi">1</span><span class="p">),</span> <span class="o">-</span><span class="mi">1</span><span class="p">)))</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+        
+        <span class="k">def</span> <span class="nf">vec2str</span><span class="p">(</span><span class="n">v</span><span class="p">):</span>
+            <span class="k">return</span> <span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">f</span><span class="s1">&#39;</span><span class="si">{a:.6}</span><span class="s1">&#39;</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">v</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">Node</span><span class="p">(</span><span class="s1">&#39;IndexedFaceSet&#39;</span><span class="p">,</span> <span class="p">{</span>
+            <span class="s1">&#39;coord&#39;</span><span class="p">:</span> <span class="n">Node</span><span class="p">(</span><span class="s1">&#39;Coordinate&#39;</span><span class="p">,</span> <span class="p">{</span>
+                <span class="s1">&#39;point&#39;</span><span class="p">:</span> <span class="p">[</span>
+                    <span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">vec2str</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">p</span><span class="o">.</span><span class="n">vertex</span><span class="p">)</span>
+                <span class="p">]</span>
+            <span class="p">}),</span>
+            <span class="s1">&#39;normal&#39;</span><span class="p">:</span> <span class="n">Node</span><span class="p">(</span><span class="s1">&#39;Normal&#39;</span><span class="p">,</span> <span class="p">{</span>
+                <span class="s1">&#39;vector&#39;</span><span class="p">:</span> <span class="p">[</span>
+                    <span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">vec2str</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">p</span><span class="o">.</span><span class="n">normal</span><span class="p">)</span>
+                <span class="p">]</span>
+            <span class="p">}),</span>
+            <span class="s1">&#39;texCoord&#39;</span><span class="p">:</span> <span class="n">Node</span><span class="p">(</span><span class="s1">&#39;TextureCoordinate&#39;</span><span class="p">,</span> <span class="p">{</span>
+                <span class="s1">&#39;point&#39;</span><span class="p">:</span> <span class="p">[</span>
+                    <span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">vec2str</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">p</span><span class="o">.</span><span class="n">texcoordset</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+                <span class="p">]</span>
+            <span class="p">}),</span>
+            <span class="s1">&#39;coordIndex&#39;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">terminate</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">vertex_index</span><span class="p">))</span>
+            <span class="p">],</span>
+            <span class="s1">&#39;normalIndex&#39;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">terminate</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">normal_index</span><span class="p">))</span>
+            <span class="p">],</span>
+            <span class="s1">&#39;texCoordIndex&#39;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">terminate</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">texcoord_indexset</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+            <span class="p">],</span>
+            <span class="s1">&#39;convex&#39;</span><span class="p">:</span> <span class="s1">&#39;FALSE&#39;</span>
+        <span class="p">})</span>
+
+    <span class="k">def</span> <span class="nf">_appearance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">e</span><span class="p">):</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;metalness&#39;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>
+            <span class="s1">&#39;roughness&#39;</span><span class="p">:</span> <span class="mf">1.0</span>
+        <span class="p">}</span>
+
+        <span class="k">if</span> <span class="n">e</span><span class="o">.</span><span class="n">emission</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">emission</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">):</span>
+            <span class="n">fields</span><span class="p">[</span><span class="s1">&#39;emissiveColor&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">e</span><span class="o">.</span><span class="n">emission</span><span class="p">[:</span><span class="mi">3</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">e</span><span class="o">.</span><span class="n">specular</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">specular</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">):</span>
+            <span class="n">s</span> <span class="o">=</span> <span class="n">e</span><span class="o">.</span><span class="n">specular</span>
+            <span class="n">roughness</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">-</span> <span class="n">s</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="n">s</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">s</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">s</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span> <span class="o">/</span> <span class="mf">3.0</span>
+            <span class="n">fields</span><span class="p">[</span><span class="s1">&#39;roughness&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">roughness</span>
+        <span class="k">if</span> <span class="n">e</span><span class="o">.</span><span class="n">shininess</span><span class="p">:</span>
+            <span class="n">fields</span><span class="p">[</span><span class="s1">&#39;roughness&#39;</span><span class="p">]</span> <span class="o">*=</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">e</span><span class="o">.</span><span class="n">shininess</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">e</span><span class="o">.</span><span class="n">diffuse</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">diffuse</span><span class="p">,</span> <span class="n">collada</span><span class="o">.</span><span class="n">material</span><span class="o">.</span><span class="n">Map</span><span class="p">):</span>
+                <span class="n">texture_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">diffuse</span><span class="o">.</span><span class="n">sampler</span><span class="o">.</span><span class="n">surface</span><span class="o">.</span><span class="n">image</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">texture_path</span><span class="o">.</span><span class="n">is_absolute</span><span class="p">():</span>
+                    <span class="n">texture_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">)</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="n">texture_path</span>
+                <span class="n">fields</span><span class="p">[</span><span class="s1">&#39;baseColorMap&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">Node</span><span class="p">(</span><span class="s1">&#39;ImageTexture&#39;</span><span class="p">,</span> <span class="p">{</span>
+                    <span class="s1">&#39;url&#39;</span><span class="p">:</span> <span class="n">f</span><span class="s1">&#39;&quot;</span><span class="si">{texture_path}</span><span class="s1">&quot;&#39;</span>
+                <span class="p">})</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">fields</span><span class="p">[</span><span class="s1">&#39;baseColor&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">diffuse</span><span class="p">[:</span><span class="mi">3</span><span class="p">])</span>
+                <span class="n">fields</span><span class="p">[</span><span class="s1">&#39;transparency&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">-</span> <span class="n">e</span><span class="o">.</span><span class="n">diffuse</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="n">Node</span><span class="p">(</span><span class="s1">&#39;PBRAppearance&#39;</span><span class="p">,</span> <span class="n">fields</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_shape</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">shapes</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="n">c</span> <span class="o">=</span> <span class="n">collada</span><span class="o">.</span><span class="n">Collada</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">g</span> <span class="ow">in</span> <span class="n">c</span><span class="o">.</span><span class="n">geometries</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">g</span><span class="o">.</span><span class="n">primitives</span><span class="p">:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">collada</span><span class="o">.</span><span class="n">lineset</span><span class="o">.</span><span class="n">LineSet</span><span class="p">):</span>
+                    <span class="n">fields</span> <span class="o">=</span> <span class="p">{}</span>
+                    <span class="n">fields</span><span class="p">[</span><span class="s1">&#39;geometry&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_indexed_face_set</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+
+                    <span class="k">if</span> <span class="n">p</span><span class="o">.</span><span class="n">material</span><span class="p">:</span>
+                        <span class="n">material</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">materials</span><span class="p">[</span><span class="n">p</span><span class="o">.</span><span class="n">material</span><span class="p">]</span>
+                        <span class="k">if</span> <span class="n">material</span> <span class="ow">and</span> <span class="n">material</span><span class="o">.</span><span class="n">effect</span><span class="p">:</span>
+                            <span class="n">appearance</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_appearance</span><span class="p">(</span><span class="n">material</span><span class="o">.</span><span class="n">effect</span><span class="p">)</span>
+                            <span class="n">fields</span><span class="p">[</span><span class="s1">&#39;appearance&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">appearance</span>
+
+                    <span class="n">shapes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Node</span><span class="p">(</span><span class="s1">&#39;Shape&#39;</span><span class="p">,</span> <span class="n">fields</span><span class="p">))</span>
+        
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">shapes</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">shapes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        
+        <span class="k">return</span> <span class="n">Node</span><span class="p">(</span><span class="s1">&#39;Group&#39;</span><span class="p">,</span> <span class="p">{</span>
+            <span class="s1">&#39;children&#39;</span><span class="p">:</span> <span class="n">shapes</span>
+        <span class="p">})</span>
+
+    <span class="k">def</span> <span class="nf">_urdf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">trans</span><span class="p">,</span> <span class="n">parent</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">Node</span><span class="p">(</span><span class="s1">&#39;Mesh&#39;</span><span class="p">,</span> <span class="p">{</span>
+            <span class="s1">&#39;url&#39;</span><span class="p">:</span> <span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">)</span><span class="o">.</span><span class="n">absolute</span><span class="p">()</span><span class="o">.</span><span class="n">as_uri</span><span class="p">()</span>
+        <span class="p">})</span><span class="o">.</span><span class="n">_urdf</span><span class="p">(</span><span class="n">trans</span><span class="p">,</span> <span class="n">parent</span><span class="p">)</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">twizy_description 1.0.0 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2021, Ossian Eriksson.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.5.
+    </div>
+  </body>
+</html>

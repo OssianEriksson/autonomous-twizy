@@ -4,8 +4,8 @@ brief: ''
 bugtracker: https://github.com/OssianEriksson/autonomous-twizy/issues
 depends:
 - sensor_msgs
-- catkin
 - nodelet
+- catkin
 - roscpp
 description: Cropping of ordered PointCloud2s
 license: Apache 2.0
@@ -14,4 +14,4 @@ msgs: []
 package_type: package
 repo_url: https://github.com/OssianEriksson/autonomous-twizy.git
 srvs: []
-url: https://github.com/OssianEriksson/autonomous-twizy/tree/master/piksi_multi_rtk
+url: https://github.com/OssianEriksson/autonomous-twizy/tree/master/piksi_multi_rtk#readme

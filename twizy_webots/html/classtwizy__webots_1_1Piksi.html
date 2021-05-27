@@ -32,6 +32,9 @@ $(function() {
 </div><!--header-->
 <div class="contents">
 
+<p>Handler class for the simulated <a class="el" href="classtwizy__webots_1_1Piksi.html" title="Handler class for the simulated Piksi Multi boards and sensors.">Piksi</a> Multi boards and sensors.  
+ <a href="classtwizy__webots_1_1Piksi.html#details">More...</a></p>
+
 <p><code>#include &lt;<a class="el" href="piksi_8h_source.html">piksi.h</a>&gt;</code></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
@@ -81,8 +84,9 @@ Private Attributes</h2></td></tr>
 <tr class="separator:a4723973e49fb6909a1da30b248f652a6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock">
-<p class="definition">Definition at line <a class="el" href="piksi_8h_source.html#l00015">15</a> of file <a class="el" href="piksi_8h_source.html">piksi.h</a>.</p>
+<div class="textblock"><p>Handler class for the simulated <a class="el" href="classtwizy__webots_1_1Piksi.html" title="Handler class for the simulated Piksi Multi boards and sensors.">Piksi</a> Multi boards and sensors. </p>
+
+<p class="definition">Definition at line <a class="el" href="piksi_8h_source.html#l00026">26</a> of file <a class="el" href="piksi_8h_source.html">piksi.h</a>.</p>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a id="a7943e8ed115981a627b7a7b07b4855f3"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a7943e8ed115981a627b7a7b07b4855f3">&#9670;&nbsp;</a></span>Piksi()</h2>
@@ -141,7 +145,7 @@ Private Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="piksi_8cpp_source.html#l00122">122</a> of file <a class="el" href="piksi_8cpp_source.html">piksi.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="piksi_8cpp_source.html#l00132">132</a> of file <a class="el" href="piksi_8cpp_source.html">piksi.cpp</a>.</p>
 
 </div>
 </div>
@@ -169,8 +173,9 @@ Private Attributes</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+<p>Callback for <a class="el" href="classtwizy__webots_1_1Piksi.html#a6a0423dd92b7ef92ea1bb3ae8f62a541">gnss_update_timer_</a> </p>
 
-<p class="definition">Definition at line <a class="el" href="piksi_8cpp_source.html#l00089">89</a> of file <a class="el" href="piksi_8cpp_source.html">piksi.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="piksi_8cpp_source.html#l00094">94</a> of file <a class="el" href="piksi_8cpp_source.html">piksi.cpp</a>.</p>
 
 </div>
 </div>
@@ -197,8 +202,9 @@ Private Attributes</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+<p>Callback for <a class="el" href="classtwizy__webots_1_1Piksi.html#a42b81080a58af023f631ab9f726514b2">imu_update_timer_</a> </p>
 
-<p class="definition">Definition at line <a class="el" href="piksi_8cpp_source.html#l00060">60</a> of file <a class="el" href="piksi_8cpp_source.html">piksi.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="piksi_8cpp_source.html#l00063">63</a> of file <a class="el" href="piksi_8cpp_source.html">piksi.cpp</a>.</p>
 
 </div>
 </div>
@@ -241,8 +247,18 @@ Private Attributes</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+<p>Convert a latitude, longitude, altitude triplet to UTM</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">lat</td><td>Latitude (degrees) </td></tr>
+    <tr><td class="paramname">lon</td><td>Longitude (degrees) </td></tr>
+    <tr><td class="paramname">altitude</td><td>Altitude (meters) </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>The UTM point corresponding to lat, lon and altitude </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="piksi_8cpp_source.html#l00050">50</a> of file <a class="el" href="piksi_8cpp_source.html">piksi.cpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="piksi_8cpp_source.html#l00053">53</a> of file <a class="el" href="piksi_8cpp_source.html">piksi.cpp</a>.</p>
 
 </div>
 </div>
@@ -266,8 +282,9 @@ Private Attributes</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+<p>Pointer to instance of an accelorometer simulated by webots, part of the <a class="el" href="classtwizy__webots_1_1Piksi.html" title="Handler class for the simulated Piksi Multi boards and sensors.">Piksi</a> Multi IMU </p>
 
-<p class="definition">Definition at line <a class="el" href="piksi_8h_source.html#l00018">18</a> of file <a class="el" href="piksi_8h_source.html">piksi.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="piksi_8h_source.html#l00037">37</a> of file <a class="el" href="piksi_8h_source.html">piksi.h</a>.</p>
 
 </div>
 </div>
@@ -290,8 +307,9 @@ Private Attributes</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+<p>Covariance of accelerometer noise (m^2/s^4) </p>
 
-<p class="definition">Definition at line <a class="el" href="piksi_8h_source.html#l00027">27</a> of file <a class="el" href="piksi_8h_source.html">piksi.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="piksi_8h_source.html#l00084">84</a> of file <a class="el" href="piksi_8h_source.html">piksi.h</a>.</p>
 
 </div>
 </div>
@@ -314,8 +332,9 @@ Private Attributes</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+<p>Covariance of GNSS positioning noise (m^2) </p>
 
-<p class="definition">Definition at line <a class="el" href="piksi_8h_source.html#l00027">27</a> of file <a class="el" href="piksi_8h_source.html">piksi.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="piksi_8h_source.html#l00074">74</a> of file <a class="el" href="piksi_8h_source.html">piksi.h</a>.</p>
 
 </div>
 </div>
@@ -338,8 +357,9 @@ Private Attributes</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+<p>Timer for publishing of GNSS messages </p>
 
-<p class="definition">Definition at line <a class="el" href="piksi_8h_source.html#l00023">23</a> of file <a class="el" href="piksi_8h_source.html">piksi.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="piksi_8h_source.html#l00063">63</a> of file <a class="el" href="piksi_8h_source.html">piksi.h</a>.</p>
 
 </div>
 </div>
@@ -362,8 +382,9 @@ Private Attributes</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+<p>Pointer to instance of a GNSS simulated by webots </p>
 
-<p class="definition">Definition at line <a class="el" href="piksi_8h_source.html#l00017">17</a> of file <a class="el" href="piksi_8h_source.html">piksi.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="piksi_8h_source.html#l00031">31</a> of file <a class="el" href="piksi_8h_source.html">piksi.h</a>.</p>
 
 </div>
 </div>
@@ -386,8 +407,9 @@ Private Attributes</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+<p>Pointer to instance of a gyro simulated by webots, part of the <a class="el" href="classtwizy__webots_1_1Piksi.html" title="Handler class for the simulated Piksi Multi boards and sensors.">Piksi</a> Multi IMU </p>
 
-<p class="definition">Definition at line <a class="el" href="piksi_8h_source.html#l00019">19</a> of file <a class="el" href="piksi_8h_source.html">piksi.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="piksi_8h_source.html#l00043">43</a> of file <a class="el" href="piksi_8h_source.html">piksi.h</a>.</p>
 
 </div>
 </div>
@@ -410,8 +432,9 @@ Private Attributes</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+<p>Covariance of gyro noise (rad^2/s^2) </p>
 
-<p class="definition">Definition at line <a class="el" href="piksi_8h_source.html#l00027">27</a> of file <a class="el" href="piksi_8h_source.html">piksi.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="piksi_8h_source.html#l00079">79</a> of file <a class="el" href="piksi_8h_source.html">piksi.h</a>.</p>
 
 </div>
 </div>
@@ -434,8 +457,9 @@ Private Attributes</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+<p>Timer for publishing of IMU messages </p>
 
-<p class="definition">Definition at line <a class="el" href="piksi_8h_source.html#l00023">23</a> of file <a class="el" href="piksi_8h_source.html">piksi.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="piksi_8h_source.html#l00058">58</a> of file <a class="el" href="piksi_8h_source.html">piksi.h</a>.</p>
 
 </div>
 </div>
@@ -458,8 +482,9 @@ Private Attributes</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+<p>The UTM point on the real earth which corresponds to the origin of world coordinates in Webots </p>
 
-<p class="definition">Definition at line <a class="el" href="piksi_8h_source.html#l00029">29</a> of file <a class="el" href="piksi_8h_source.html">piksi.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="piksi_8h_source.html#l00090">90</a> of file <a class="el" href="piksi_8h_source.html">piksi.h</a>.</p>
 
 </div>
 </div>
@@ -482,8 +507,9 @@ Private Attributes</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+<p>String describing this <a class="el" href="classtwizy__webots_1_1Piksi.html" title="Handler class for the simulated Piksi Multi boards and sensors.">Piksi</a>'s position on the physical/model Twizy, e.g. "left" or "right" </p>
 
-<p class="definition">Definition at line <a class="el" href="piksi_8h_source.html#l00025">25</a> of file <a class="el" href="piksi_8h_source.html">piksi.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="piksi_8h_source.html#l00069">69</a> of file <a class="el" href="piksi_8h_source.html">piksi.h</a>.</p>
 
 </div>
 </div>
@@ -506,8 +532,9 @@ Private Attributes</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+<p>ROS publisher of GNSS measurement values </p>
 
-<p class="definition">Definition at line <a class="el" href="piksi_8h_source.html#l00022">22</a> of file <a class="el" href="piksi_8h_source.html">piksi.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="piksi_8h_source.html#l00053">53</a> of file <a class="el" href="piksi_8h_source.html">piksi.h</a>.</p>
 
 </div>
 </div>
@@ -530,8 +557,9 @@ Private Attributes</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+<p>ROS publisher of IMU measurement values </p>
 
-<p class="definition">Definition at line <a class="el" href="piksi_8h_source.html#l00021">21</a> of file <a class="el" href="piksi_8h_source.html">piksi.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="piksi_8h_source.html#l00048">48</a> of file <a class="el" href="piksi_8h_source.html">piksi.h</a>.</p>
 
 </div>
 </div>
@@ -545,7 +573,7 @@ Private Attributes</h2></td></tr>
 <hr size="1"><div style="align: right;">
 <a href="http://wiki.ros.org/twizy_webots">twizy_webots</a><br />
 Author(s): Ossian Eriksson <ossiane@student.chalmers.se></br />
-<small>autogenerated on Fri May 21 2021 14:48:37</small>
+<small>autogenerated on Thu May 27 2021 18:48:25</small>
 </div>
 </body>
 </html>

@@ -3,11 +3,11 @@ authors: Albin Ekelund Karlsson <ekalbin@student.chalmers.se>, Ossian Eriksson <
 brief: ''
 bugtracker: https://github.com/OssianEriksson/autonomous-twizy/issues
 depends:
-- python3-tk
 - rostest
-- ackermann_msgs
+- python3-tk
 - roslaunch
 - geometry_msgs
+- ackermann_msgs
 - catkin
 - rospy
 description: Nodes for processing control signals
@@ -18,4 +18,4 @@ msgs: []
 package_type: package
 repo_url: https://github.com/OssianEriksson/autonomous-twizy.git
 srvs: []
-url: https://github.com/OssianEriksson/autonomous-twizy/tree/master/twizy_control
+url: https://github.com/OssianEriksson/autonomous-twizy/tree/master/twizy_control#readme

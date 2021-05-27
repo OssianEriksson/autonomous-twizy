@@ -1,5 +1,5 @@
 <map id="motors.h" name="motors.h">
-<area shape="rect" id="node1" title=" " alt="" coords="344,5,424,32"/>
+<area shape="rect" id="node1" title="Control of a simulated autonomous Twizy&#39;s motors." alt="" coords="344,5,424,32"/>
 <area shape="rect" id="node2" title=" " alt="" coords="5,80,219,121"/>
 <area shape="rect" id="node3" title=" " alt="" coords="243,87,320,114"/>
 <area shape="rect" id="node4" title=" " alt="" coords="345,87,423,114"/>

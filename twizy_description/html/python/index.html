@@ -43,7 +43,7 @@
 <p class="caption"><span class="caption-text">Table of Contents</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">twizy_description Python API</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#module-twizy_description.robot_description">robot_description</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#robot-description">robot_description</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#extensions">Extensions</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#module-twizy_description.collada_node">collada_node</a></li>
 </ul>
@@ -53,16 +53,343 @@
 </li>
 </ul>
 </div>
-<div class="section" id="module-twizy_description.robot_description">
-<span id="robot-description"></span><h2>robot_description<a class="headerlink" href="#module-twizy_description.robot_description" title="Permalink to this headline">¶</a></h2>
-<p>Module for generating proto and urdf files</p>
-<p>The physics/robotics simulator webots uses files in a proto format while most
-ROS-packages work with urdf, which is an xml format.</p>
+<div class="section" id="robot-description">
+<h2>robot_description<a class="headerlink" href="#robot-description" title="Permalink to this headline">¶</a></h2>
+<p>This module is meant for generation of URDF and Webots PROTO representation of robots from a common base. An example usage of this module is presented below. Note the similarity with the raw Webots PROTO format. The robot described is a simple unicycle consisting of two elements: A steerable wheel and a vertical rod connecting to the wheel:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">simple_unicycle</span> <span class="o">=</span> <span class="n">Node</span><span class="p">(</span><span class="s1">&#39;Robot&#39;</span><span class="p">,</span> <span class="p">{</span>
+   <span class="s1">&#39;children&#39;</span><span class="p">:</span> <span class="p">[</span>
+      <span class="n">Node</span><span class="p">(</span><span class="s1">&#39;Transform&#39;</span><span class="p">,</span> <span class="p">{</span>
+            <span class="s1">&#39;children&#39;</span><span class="p">:</span> <span class="p">[</span>
+               <span class="n">Node</span><span class="p">(</span><span class="s1">&#39;Hinge2Joint&#39;</span><span class="p">,</span> <span class="p">{</span>
+                  <span class="s1">&#39;endPoint&#39;</span><span class="p">:</span> <span class="n">Node</span><span class="p">(</span><span class="s1">&#39;Solid&#39;</span><span class="p">,</span> <span class="p">{</span>
+                        <span class="s1">&#39;physics&#39;</span><span class="p">:</span> <span class="n">Node</span><span class="p">(</span><span class="s1">&#39;Physics&#39;</span><span class="p">,</span> <span class="p">{}),</span>
+                        <span class="s1">&#39;boundingObject&#39;</span><span class="p">:</span> <span class="n">Node</span><span class="p">(</span><span class="s1">&#39;Cylinder&#39;</span><span class="p">,</span> <span class="p">{</span>
+                           <span class="s1">&#39;radius&#39;</span><span class="p">:</span> <span class="mf">0.2</span><span class="p">,</span>
+                           <span class="s1">&#39;height&#39;</span><span class="p">:</span> <span class="mf">0.05</span><span class="p">,</span>
+                           <span class="s1">&#39;subdivision&#39;</span><span class="p">:</span> <span class="mi">24</span>
+                        <span class="p">}),</span>
+                        <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="s1">&#39;&quot;wheel&quot;&#39;</span>
+                  <span class="p">}),</span>
+                  <span class="s1">&#39;jointParameters&#39;</span><span class="p">:</span> <span class="n">Node</span><span class="p">(</span><span class="s1">&#39;HingeJointParameters&#39;</span><span class="p">,</span> <span class="p">{</span>
+                        <span class="s1">&#39;axis&#39;</span><span class="p">:</span> <span class="s1">&#39;0.0 0.0 1.0&#39;</span>
+                  <span class="p">}),</span>
+                  <span class="s1">&#39;jointParameters2&#39;</span><span class="p">:</span> <span class="n">Node</span><span class="p">(</span><span class="s1">&#39;JointParameters&#39;</span><span class="p">,</span> <span class="p">{</span>
+                        <span class="s1">&#39;axis&#39;</span><span class="p">:</span> <span class="s1">&#39;0.0 1.0 0.0&#39;</span>
+                  <span class="p">})</span>
+               <span class="p">})</span>
+            <span class="p">],</span>
+            <span class="s1">&#39;translation&#39;</span><span class="p">:</span> <span class="s1">&#39;0.0 0.0 -0.3&#39;</span>
+      <span class="p">})</span>
+   <span class="p">],</span>
+   <span class="s1">&#39;physics&#39;</span><span class="p">:</span> <span class="n">Node</span><span class="p">(</span><span class="s1">&#39;Physics&#39;</span><span class="p">,</span> <span class="p">{}),</span>
+   <span class="s1">&#39;boundingObject&#39;</span><span class="p">:</span> <span class="n">Node</span><span class="p">(</span><span class="s1">&#39;Box&#39;</span><span class="p">,</span> <span class="p">{</span>
+      <span class="s1">&#39;size&#39;</span><span class="p">:</span> <span class="s1">&#39;0.05 0.05 0.6&#39;</span>
+   <span class="p">}),</span>
+   <span class="s1">&#39;model&#39;</span><span class="p">:</span> <span class="s1">&#39;&quot;Simple unicycle&quot;&#39;</span><span class="p">,</span>
+   <span class="s1">&#39;translation&#39;</span><span class="p">:</span> <span class="s1">&#39;IS translation&#39;</span><span class="p">,</span>
+   <span class="s1">&#39;rotation&#39;</span><span class="p">:</span> <span class="s1">&#39;IS rotation&#39;</span>
+<span class="p">})</span>
+
+<span class="k">print</span><span class="p">(</span><span class="n">simple_unicycle</span><span class="o">.</span><span class="n">proto_str</span><span class="p">(</span><span class="s1">&#39;SimpleUnicycle&#39;</span><span class="p">,</span> <span class="p">[</span>
+   <span class="s1">&#39;field SFVec3f    translation    0.0 0.0 0.0&#39;</span><span class="p">,</span>
+   <span class="s1">&#39;field SFRotation rotation       0.0 0.0 1.0 0.0&#39;</span><span class="p">,</span>
+<span class="p">]))</span>
+
+<span class="k">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n\n\n</span><span class="s1">&#39;</span><span class="p">)</span>
+
+<span class="k">print</span><span class="p">(</span><span class="n">simple_unicycle</span><span class="o">.</span><span class="n">urdf_str</span><span class="p">(</span><span class="s1">&#39;simple_unicycle&#39;</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>Running this code would output</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>#VRML_SIM R2021a utf8
+
+PROTO SimpleUnicycle [
+  field SFVec3f    translation    0.0 0.0 0.0
+  field SFRotation rotation       0.0 0.0 1.0 0.0
+]
+{
+  Robot {
+    children [
+      Transform {
+        children [
+          Hinge2Joint {
+            endPoint Solid {
+              physics Physics {
+              }
+              boundingObject Cylinder {
+                radius 0.2
+                height 0.05
+                subdivision 24
+              }
+              name &quot;wheel&quot;
+            }
+            jointParameters HingeJointParameters {
+              axis 0.0 0.0 1.0
+            }
+            jointParameters2 JointParameters {
+              axis 0.0 1.0 0.0
+            }
+          }
+        ]
+        translation 0.0 0.0 -0.3
+      }
+    ]
+    physics Physics {
+    }
+    boundingObject Box {
+      size 0.05 0.05 0.6
+    }
+    model &quot;Simple unicycle&quot;
+    translation IS translation
+    rotation IS rotation
+  }
+}
+
+
+
+
+&lt;?xml version=&quot;1.0&quot; ?&gt;
+&lt;robot name=&quot;simple_unicycle&quot;&gt;
+    &lt;link name=&quot;base_link&quot;&gt;
+        &lt;visual&gt;
+            &lt;origin xyz=&quot;0.0 0.0 0.0&quot; rpy=&quot;0.0 -0.0 0.0&quot;/&gt;
+            &lt;geometry&gt;
+                &lt;box size=&quot;0.05 0.05 0.6&quot;/&gt;
+            &lt;/geometry&gt;
+        &lt;/visual&gt;
+    &lt;/link&gt;
+    &lt;joint type=&quot;continuous&quot; name=&quot;_webots_link_0_joint&quot;&gt;
+        &lt;parent link=&quot;base_link&quot;/&gt;
+        &lt;child link=&quot;_webots_link_0&quot;/&gt;
+        &lt;origin xyz=&quot;0.0 0.0 -0.3&quot; rpy=&quot;0.0 -0.0 0.0&quot;/&gt;
+        &lt;axis xyz=&quot;0.0 0.0 1.0&quot;/&gt;
+    &lt;/joint&gt;
+    &lt;link name=&quot;_webots_link_0&quot;/&gt;
+    &lt;joint type=&quot;continuous&quot; name=&quot;wheel_joint&quot;&gt;
+        &lt;parent link=&quot;_webots_link_0&quot;/&gt;
+        &lt;child link=&quot;wheel&quot;/&gt;
+        &lt;origin xyz=&quot;0.0 0.0 0.0&quot; rpy=&quot;0.0 -0.0 0.0&quot;/&gt;
+        &lt;axis xyz=&quot;0.0 1.0 0.0&quot;/&gt;
+    &lt;/joint&gt;
+    &lt;link name=&quot;wheel&quot;&gt;
+        &lt;visual&gt;
+            &lt;origin xyz=&quot;0.0 0.0 0.0&quot; rpy=&quot;0.0 -0.0 0.0&quot;/&gt;
+            &lt;geometry&gt;
+                &lt;cylinder radius=&quot;0.2&quot; length=&quot;0.05&quot;/&gt;
+            &lt;/geometry&gt;
+        &lt;/visual&gt;
+    &lt;/link&gt;
+&lt;/robot&gt;
+</pre></div>
+</div>
+<span class="target" id="module-twizy_description.robot_description"></span><p>Module for generating PROTO and URDF files</p>
+<p>The physics/robotics simulator webots uses files in a PROTO format while most
+ROS-packages work with URDF, which is an xml format.</p>
+<dl class="class">
+<dt id="twizy_description.robot_description.Node">
+<em class="property">class </em><code class="descclassname">twizy_description.robot_description.</code><code class="descname">Node</code><span class="sig-paren">(</span><em>name</em>, <em>fields={}</em>, <em>urdf_ignore=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/twizy_description/robot_description.html#Node"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#twizy_description.robot_description.Node" title="Permalink to this definition">¶</a></dt>
+<dd><p>Representation of a node in a robot_description tree</p>
+<p>A robot_description tree is a representation of a robot with joints, visual
+elements and sensors. This structure can then be used to generate webots
+PROTO or URDF representations of the robot. The structure and names of
+nodes of this tree is very similar to the Webots PROTO format. This
+similarity is the reason why all features of the Webots PROTO format can be
+generated using a robot_description node tree. The generation of URDF is
+however compartively limited. The generated URDF will contain supported
+visual elements, and all nodes with the “name” field defined as links.</p>
+<p>The generation of URDF models is somewhat clever in that it will discard
+intermittent nodes with no name and instead accumulate transforms between
+parent and children nodes.</p>
+<p>Initialize a robot_description node</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Name of the node type. Names are identical to the node
+names defined by the webots PROTO format, e.g. “Transform”,
+“Solid”, “GPS”, “Robot” etc.webots_descr</li>
+<li><strong>fields</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.9)"><em>dict</em></a>) – Fields of this node which are also identical to the
+webots Node fields. Values can be strings, floats or integers or
+lists. Vectors and floats are represed like ‘1.23 0.34 0.56’ or
+‘0.56’. Note that strings must be quoted like
+‘“This is a string value”’</li>
+<li><strong>urdf_ignore</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – Whether to exclude this node and all its children
+when generating URDF representations of robots</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="twizy_description.robot_description.Node.proto_str">
+<code class="descname">proto_str</code><span class="sig-paren">(</span><em>name</em>, <em>fields=[]</em>, <em>header=''</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/twizy_description/robot_description.html#Node.proto_str"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#twizy_description.robot_description.Node.proto_str" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate a PROTO string representation of this node tree</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Name of the PROTO (must be the same as an eventual file
+name according to webots specifications)</li>
+<li><strong>fields</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.9)"><em>list</em></a>) – List of field definitions for the generated PROTO, one
+list element might for example be
+‘field SFVec3f translation 0.0 0.0 0.0’</li>
+<li><strong>header</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – A header to put in a comment at the start of the
+generated PROTO</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A PROTO string representation of this node and it’s children</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="twizy_description.robot_description.Node.rotation">
+<code class="descname">rotation</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/twizy_description/robot_description.html#Node.rotation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#twizy_description.robot_description.Node.rotation" title="Permalink to this definition">¶</a></dt>
+<dd><p>4x4 rotation matrix of this node relative to its parent</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="twizy_description.robot_description.Node.scale">
+<code class="descname">scale</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/twizy_description/robot_description.html#Node.scale"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#twizy_description.robot_description.Node.scale" title="Permalink to this definition">¶</a></dt>
+<dd><p>4x4 scale matrix of this node relative to its parent</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="twizy_description.robot_description.Node.translation">
+<code class="descname">translation</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/twizy_description/robot_description.html#Node.translation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#twizy_description.robot_description.Node.translation" title="Permalink to this definition">¶</a></dt>
+<dd><p>4x4 translanslation matrix of this node relative to its parent</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="twizy_description.robot_description.Node.urdf_str">
+<code class="descname">urdf_str</code><span class="sig-paren">(</span><em>name, base='base_link', transformation=array([[1., 0., 0., 0.],        [0., 1., 0., 0.],        [0., 0., 1., 0.],        [0., 0., 0., 1.]]), header=''</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/twizy_description/robot_description.html#Node.urdf_str"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#twizy_description.robot_description.Node.urdf_str" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate a URDF string representation of this node tree</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Name of the robot</li>
+<li><strong>base</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Name of the base link in the URDF representation</li>
+<li><strong>transformation</strong> – A 4x4 transformation matrix to apply to the
+robot before generating its URDF representation</li>
+<li><strong>header</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – A header to put in a comment at the start of the
+generated URDF</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A URDF string representation of this node and it’s children</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="twizy_description.robot_description.scale_matrix">
+<code class="descclassname">twizy_description.robot_description.</code><code class="descname">scale_matrix</code><span class="sig-paren">(</span><em>axis</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/twizy_description/robot_description.html#scale_matrix"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#twizy_description.robot_description.scale_matrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a scale matrix</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>axis</strong> – A three dimensional vector</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A 4x4 matrix representing scaling around the major axis in 3D by
+the amounts specified in the input vector</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="twizy_description.robot_description.shear_matrix">
+<code class="descclassname">twizy_description.robot_description.</code><code class="descname">shear_matrix</code><span class="sig-paren">(</span><em>striu</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/twizy_description/robot_description.html#shear_matrix"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#twizy_description.robot_description.shear_matrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert a 3x3 matrix representation of shear to a 4x4 representation</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Striu:</th><td class="field-body">A 3x3 shear matrix</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A 4x4 shear matrix</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="twizy_description.robot_description.translation_matrix">
+<code class="descclassname">twizy_description.robot_description.</code><code class="descname">translation_matrix</code><span class="sig-paren">(</span><em>direction</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/twizy_description/robot_description.html#translation_matrix"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#twizy_description.robot_description.translation_matrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a translation matrix</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>direction</strong> – A three dimensional vector</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A 4x4 matrix representing a translation by the provided vector</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="twizy_description.robot_description.xyz_rpy">
+<code class="descclassname">twizy_description.robot_description.</code><code class="descname">xyz_rpy</code><span class="sig-paren">(</span><em>transformation</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/twizy_description/robot_description.html#xyz_rpy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#twizy_description.robot_description.xyz_rpy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Decompose a transformation matrix into translation and euler angles</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>transformation</strong> – A 4x4 transformation matrix</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A tuple of (x, y, z, r, p, y) where (x, y, z) are coordinates of a
+cartesian translation and (r, p, y) are roll, pitch, yaw applied in
+that order around fixed axis</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
 </div>
 <div class="section" id="extensions">
 <h2>Extensions<a class="headerlink" href="#extensions" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="module-twizy_description.collada_node">
 <span id="collada-node"></span><h3>collada_node<a class="headerlink" href="#module-twizy_description.collada_node" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="twizy_description.collada_node.Collada">
+<em class="property">class </em><code class="descclassname">twizy_description.collada_node.</code><code class="descname">Collada</code><span class="sig-paren">(</span><em>path</em>, <em>urdf_ignore=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/twizy_description/collada_node.html#Collada"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#twizy_description.collada_node.Collada" title="Permalink to this definition">¶</a></dt>
+<dd><p>Represent a collada model in a robot_description data structure</p>
+<p>An instance of this class can be used in a robot_description node tree to
+represent a collada model. Generation of both URDF and proto is supported.
+When generating URDF the &lt;mesh&gt;-tag will be used, and when generating PROTO
+the IndexedFaceSet Webots node will be used, effectively copying the entire
+model representation into the PROTO instead of referencing the original
+collada file.</p>
+<p>Initialize a collada node</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>path</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Path to a collada (.dae) file</li>
+<li><strong>urdf_ignore</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – Whether to exclude this node when generating URDF
+representations of robots</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
 </div>
 </div>
 <div class="section" id="indices-and-tables">
@@ -84,7 +411,7 @@ ROS-packages work with urdf, which is an xml format.</p>
   <h3><a href="#">Table of Contents</a></h3>
   <ul>
 <li><a class="reference internal" href="#">twizy_description Python API</a><ul>
-<li><a class="reference internal" href="#module-twizy_description.robot_description">robot_description</a></li>
+<li><a class="reference internal" href="#robot-description">robot_description</a></li>
 <li><a class="reference internal" href="#extensions">Extensions</a><ul>
 <li><a class="reference internal" href="#module-twizy_description.collada_node">collada_node</a></li>
 </ul>

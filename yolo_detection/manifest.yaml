@@ -3,9 +3,9 @@ authors: Albin Ekelund Karlsson <ekalbin@student.chalmers.se>
 brief: ''
 bugtracker: https://github.com/OssianEriksson/autonomous-twizy/issues
 depends:
-- catkin
 - message_generation
 - message_runtime
+- catkin
 description: Object classification using YOLOv4 CNN
 license: Apache 2.0
 maintainers: Albin Ekelund Karlsson <ekalbin@student.chalmers.se>
@@ -16,4 +16,4 @@ msgs:
 package_type: package
 repo_url: https://github.com/OssianEriksson/autonomous-twizy.git
 srvs: []
-url: https://github.com/OssianEriksson/autonomous-twizy/tree/master/yolo_detection
+url: https://github.com/OssianEriksson/autonomous-twizy/tree/master/yolo_detection#readme
