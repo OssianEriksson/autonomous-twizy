@@ -1,16 +1,26 @@
 <?xml version="1.0"?>
-<launch>
-    <arg name="port" />
-    <arg name="cycles_per_revolution" />
-    <arg name="wheel_radius" />
-    <arg name="frequency" default="20" />
-    <arg name="covariance" />
-    <arg name="left_frame_id" />
-    <arg name="right_frame_id" />
 
+<!--
+    This launch file starts the wheel_encoders node which communicates with an
+    arduino board over a serial connection. The wheel_encoders publish the
+    relevant topics in place of the arduino code and passes parameters etc to
+    the single board computer over serial.
+-->
+
+<launch>
+    <!-- Define some arguments -->
+    <arg name="port" doc="Serial port the arduino is connected to, e.g. /dev/ttyACM0" />
+    <arg name="cycles_per_revolution" doc="Number of pulses the wheel encoders have detected after the wheel has made a full revolution" />
+    <arg name="wheel_radius" doc="Radius of the wheels connected to the axis of the wheel encoders" />
+    <arg name="frequency" default="20" doc="Frequency to publish values at" />
+    <arg name="covariance" doc="Speed covariance (m^2/s^2) set in the pusblished messages" />
+    <arg name="left_frame_id" doc="frame_id of wheel corresponding to the left wheel encoder" />
+    <arg name="right_frame_id" doc="frame_id of wheel corresponding to the right wheel encoder" />
+
+    <!-- Establish connection with the Arduino board -->
     <node pkg="rosserial_python" type="serial_node.py" name="wheel_encoders" required="true">
         <param name="port" value="$(arg port)" />
-        
+
         <param name="cycles_per_revolution" type="int" value="$(arg cycles_per_revolution)" />
         <param name="wheel_radius" type="double" value="$(arg wheel_radius)" />
         <param name="frequency" type="double" value="$(arg frequency)" />
