@@ -1,5 +1,16 @@
 #!/usr/bin/python3
 
+"""Generates a Twizy PROTO model and then starts the Webots robotics simulator
+
+This script first generates a representation of an autonomous Twizy from the
+script robot/twizy.py provided in the package twizy_description. This PROTO is
+placed in a file inside the protos/ folder of this package. Webots is then
+started. Webots looks for worlds inside the worlds/ folder of this package and
+for PROTOs indide the protos/ folder. If the world file provided to Webots
+contains the Twizy model (as all worlds inside the worlds/ folder should) the
+Twizy Webots controller will also be started
+"""
+
 import rospkg
 import rospy
 import roslaunch
@@ -11,12 +22,27 @@ import subprocess
 
 
 def install_executable(src, dst, args=[], name=None):
+    """Excetutes a file and stores the output in a .proto file
+
+    :param src: Path to the executable file
+    :type src: str
+    :param dst: Path to the folder in which to store the executable's output
+    :type dst: str
+    :param args: List of arguments for the executable
+    :type args: list
+    :param name: File name of the file storing the executables output. .proto
+        will be appended to name, defaults to file name of executable file
+    :type name: str
+    """
+
     name = src.stem if name is None else name
 
+    # Run the executable
     process = subprocess.run([src] + args, stdout=subprocess.PIPE)
     content = process.stdout.decode('utf-8')
 
     out = dst / name
+    # Replace the output file extension with .proto
     if out.suffix.lower() != '.proto':
         out = out.parent / f'{out.name}.proto'
 
@@ -24,20 +50,37 @@ def install_executable(src, dst, args=[], name=None):
 
 
 def install_protos():
+    """Install all required PROTOs to the protos/ folder"""
+
     src = Path(rospkg.RosPack().get_path('twizy_description')) / 'robot'
     dst = Path(__file__).parent.parent / 'protos'
 
-    sim_time = rospy.get_param('/use_sim_time', False)
-
     l = 1.0 / sqrt(3)
     install_executable(src / 'twizy.py', dst, [
+        # We want to generate a PROTO, not e.g. an URDF representation
         'proto',
+        # Convert from ENU coordinates (which the model is represented in) to
+        # NUE coordinates which is the defualt coordinate system used by Webots
         f'--rotation={l} {l} {l} {4 * pi / 3}',
+        # Tell Webots to use the Twizy Webots controller to control the Twizy
         '--controller=twizy_controller'
     ], 'Twizy')
 
 
 def get_launch_entry(pkg, launch, args):
+    """Generate a roslaunch API launch entry from a launch file
+
+    :param pkg: Package of the launch file
+    :type pkg: str
+    :param launch: Path to the launch file withing package 
+    :type launch: str
+    :param args: Arguments to the launch file
+    :type args: dict
+
+    :return: A tuple to be used as an element in a list passed to e.g.
+        roslaunch.parent.ROSLaunchParent()
+    """
+
     path = roslaunch.rlutil.resolve_launch_arguments([pkg, launch])[0]
     return (path, [f'{k}:={v}' for k, v in args.items()])
 
@@ -60,18 +103,23 @@ def main():
 
     args, _ = parser.parse_known_args()
 
+    # Convert command line arguments to launch file arguments
     wbts_args = {k.replace('_', '-'): str(v) for k, v in vars(args).items()}
+    # Convert boolean values to lower case ("True" -> "true")
     if 'no-gui' in wbts_args:
         wbts_args['no-gui'] = wbts_args['no-gui'].lower()
 
+    # Generate and install robot representations to the protos/ folder
     install_protos()
 
+    # Start Webots
     uuid = roslaunch.rlutil.get_or_generate_uuid(None, False)
     roslaunch.configure_logging(uuid)
     launch_list = [get_launch_entry('webots_ros', 'webots.launch', wbts_args)]
     launch = roslaunch.parent.ROSLaunchParent(uuid, launch_list)
     launch.start()
 
+    # Wait for shutdown
     try:
         launch.spin()
     finally:

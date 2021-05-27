@@ -1,17 +1,27 @@
 <?xml version="1.0"?>
+
+<!--
+    This launch file starts Webots only after first generatning a
+    representation of the Twizy in the Webots PROTO format from the
+    description in twizy_description/robot/twizy.py and copying the
+    result into the protos/ folder of this package. This makes the
+    Twizy available for use in the Webots world.
+-->
+
 <launch>
+    <!-- Define some arguments -->
     <arg name="world" default="flat.wbt" doc="Path to the world to load" />
     <arg name="mode" default="realtime" doc="Startup mode" />
     <arg name="no_gui" default="false" doc="Start Webots with minimal GUI" />
-    <arg name="use_sim_time" default="false" doc="Synchronize ROS time with simulation" />
 
+    <!-- Load parameters neccessary for the Twizy Webots controller -->
     <rosparam command="load" param="physical" file="$(find twizy_description)/config/physical.yaml" />
-    <param name="/use_sim_time" value="$(arg use_sim_time)" />
     <param name="/twizy_webots/piksi/gyro/cov" value="0.01" />
     <param name="/twizy_webots/piksi/gnss/cov" value="0.001" />
     <param name="/twizy_webots/piksi/accelerometer/cov" value="10.0" />
     <param name="/twizy_webots/wheel_encoder/cov" value="0.01" />
     <param name="/twizy_webots/wheel_encoder/ups" value="30.0" />
 
+    <!-- Generate the Twizy PROTO, then start Webots -->
     <node pkg="twizy_webots" type="twizy_webots" name="twizy_webots" args="--world '$(find twizy_webots)/worlds/$(arg world)' --mode $(arg mode) --no-gui $(arg no_gui)" required="true" />
 </launch>

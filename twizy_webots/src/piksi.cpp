@@ -20,6 +20,7 @@ Piksi::Piksi(webots::Supervisor &supervisor, ros::NodeHandle &nh,
 
     std::cout << "Initializing " << position << " Piksi GNSS and IMU\n";
 
+    // Read required ROS parameters
     if (!nh_private.getParam("piksi/gyro/cov", gyro_cov_) ||
         !nh_private.getParam("piksi/accelerometer/cov", accelerometer_cov_) ||
         !nh_private.getParam("piksi/gnss/cov", gnss_cov_)) {
@@ -29,9 +30,11 @@ Piksi::Piksi(webots::Supervisor &supervisor, ros::NodeHandle &nh,
         return;
     }
 
+    // Constant hard coded update rates
     double imu_ups = 100.0;
     double gnss_ups = 10.0;
 
+    // Enable sensors
     gps_->enable(round(1000.0 / gnss_ups));
     accelerometer_->enable(round(1000.0 / imu_ups));
     gyro_->enable(round(1000.0 / imu_ups));
@@ -58,6 +61,8 @@ geodesy::UTMPoint Piksi::llh_to_utm_point(double lat, double lon,
 }
 
 void Piksi::imu_update(const ros::TimerEvent &evt) {
+    // Webots will return NaNs at the beginning of the simulation, don't bother
+    // with those
     if (std::isnan(accelerometer_->getValues()[0]) ||
         std::isnan(accelerometer_->getValues()[1]) ||
         std::isnan(accelerometer_->getValues()[2]) ||
@@ -87,6 +92,8 @@ void Piksi::imu_update(const ros::TimerEvent &evt) {
 }
 
 void Piksi::gnss_update(const ros::TimerEvent &evt) {
+    // Webots will return NaNs at the beginning of the simulation, don't bother
+    // with those
     if (std::isnan(gps_->getValues()[0]) || std::isnan(gps_->getValues()[1]) ||
         std::isnan(gps_->getValues()[2])) {
         return;
@@ -102,10 +109,13 @@ void Piksi::gnss_update(const ros::TimerEvent &evt) {
     fix.position_covariance_type =
         sensor_msgs::NavSatFix::COVARIANCE_TYPE_APPROXIMATED;
     if (gps_->getCoordinateSystem() == webots::GPS::WGS84) {
+        // GPS' in Webots reports LLH values directly (this is controlled via a
+        // Webots world property)
         fix.latitude = gps_->getValues()[0];
         fix.longitude = gps_->getValues()[1];
         fix.altitude = gps_->getValues()[2];
     } else {
+        // GPS' in Webots reports Cartesian coordinates
         geodesy::UTMPoint utm(gps_->getValues()[2] + origin_.easting,
                               gps_->getValues()[0] + origin_.northing,
                               gps_->getValues()[1] + origin_.altitude,

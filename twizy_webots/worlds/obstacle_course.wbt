@@ -1,6 +1,11 @@
 #VRML_SIM R2021a utf8
 WorldInfo {
   coordinateSystem "NUE"
+  contactProperties [
+    ContactProperties {
+      softCFM 0.0001
+    }
+  ]
 }
 Viewpoint {
   orientation 0.9568777985345674 -0.25929381415216546 -0.13096410429603259 5.431837900322576

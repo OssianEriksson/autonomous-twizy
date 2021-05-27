@@ -27,6 +27,9 @@ TwizyController::TwizyController(ros::NodeHandle &nh,
 }
 
 void TwizyController::start() {
+    // Create sensors and motor controllers. These all take care of themselves
+    // and do not need to be stored in variables since they are kept in memory
+    // for as long as this function does not return
     new Motors(*supervisor_, nh_);
     new Realsense(*supervisor_, nh_, "front");
     new Realsense(*supervisor_, nh_, "rear");
@@ -36,6 +39,7 @@ void TwizyController::start() {
     new WheelEncoder(*supervisor_, nh_, nh_private_, "right");
     new Velodyne(*supervisor_, nh_);
 
+    // Fetch the webots supervisor for the Twizy
     webots::Node *robot = supervisor_->getSelf();
 
     geometry_msgs::PointStamped position;
@@ -44,16 +48,19 @@ void TwizyController::start() {
            ros::ok()) {
         ros::spinOnce();
 
+        // If ROS uses simulated time, make sure timestamps are published
         if (use_sim_time_) {
             rosgraph_msgs::Clock clock;
             double time = supervisor_->getTime();
             clock.clock.sec = (int)time;
-            // round prevents precision issues that can cause problems with ROS
-            // timers
+            // round() prevents precision issues that can cause problems with
+            // ROS timers
             clock.clock.nsec = round(1000 * (time - clock.clock.sec)) * 1.0e+6;
             clock_publisher_.publish(clock);
         }
 
+        // Create (and later publish) a ground truth position message for the
+        // Twizy
         const double *wb_position = robot->getPosition();
         position.header.stamp = ros::Time::now();
         position.point.x = wb_position[2];
