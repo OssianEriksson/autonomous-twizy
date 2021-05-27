@@ -3,9 +3,9 @@ authors: Ossian Eriksson <ossiane@student.chalmers.se>
 brief: ''
 bugtracker: https://github.com/OssianEriksson/autonomous-twizy/issues
 depends:
-- sensor_msgs
 - nodelet
 - catkin
+- sensor_msgs
 - roscpp
 description: Cropping of ordered PointCloud2s
 license: Apache 2.0
