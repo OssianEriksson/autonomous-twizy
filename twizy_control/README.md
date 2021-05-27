@@ -2,6 +2,11 @@
 
 Nodes related to control of an autonomous Renault Twizy at the Department of Electrical Engineering, Chalmers University of Technology, Sweden.
 
+This package requires the python package canlib which can be installed with
+```bash
+pip3 install canlib
+```
+
 **Contents**
 
 - [Nodes](#nodes)

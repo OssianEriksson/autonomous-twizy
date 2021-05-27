@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package format="2">
   <name>twizy_webots</name>
-  <version>1.0.0</version>
+  <version>2.0.0</version>
   <description>Simulation of Twizy in webots</description>
 
   <!-- One maintainer tag required, multiple allowed, one person per tag -->
