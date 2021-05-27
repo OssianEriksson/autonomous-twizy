@@ -2,6 +2,11 @@
 
 ROS driver for the Swiftnav Pikis Multi RTK GNSS kit.
 
+This package requires the python package sbp which can be installed with
+```bash
+pip3 install sbp
+```
+
 **Contents**
 
 - [Nodes](#nodes)
