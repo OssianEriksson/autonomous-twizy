@@ -4,8 +4,8 @@
 <area shape="rect" id="node6" href="$motors_8h.html" title="Control of a simulated autonomous Twizy&#39;s motors." alt="" coords="377,87,551,114"/>
 <area shape="rect" id="node9" href="$piksi_8h.html" title="Simulation of an autonomous Twizy&#39;s Piksi Multi kit." alt="" coords="1374,87,1533,114"/>
 <area shape="rect" id="node16" href="$realsense_8h.html" title="Simulation of an autonomous Twizy&#39;s Intel RealSense cameras." alt="" coords="1159,87,1350,114"/>
-<area shape="rect" id="node19" href="$velodyne_8h.html" title=" " alt="" coords="769,87,956,114"/>
-<area shape="rect" id="node21" href="$wheel__encoder_8h.html" title=" " alt="" coords="980,80,1135,121"/>
+<area shape="rect" id="node19" href="$velodyne_8h.html" title="Simulation of an autonomous Twizy&#39;s Velodyne VLP&#45;16 LiDAR." alt="" coords="769,87,956,114"/>
+<area shape="rect" id="node21" href="$wheel__encoder_8h.html" title="Simulation of an autonomous Twizy&#39;s arduino based wheel encoders." alt="" coords="980,80,1135,121"/>
 <area shape="rect" id="node23" title=" " alt="" coords="1557,87,1792,114"/>
 <area shape="rect" id="node24" title=" " alt="" coords="1816,87,1896,114"/>
 <area shape="rect" id="node25" title=" " alt="" coords="1920,87,2093,114"/>
