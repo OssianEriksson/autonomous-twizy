@@ -1,5 +1,5 @@
 /**
- * @file realsense.h
+ * @file wheel_encoder.h
  *
  * @brief Simulation of an autonomous Twizy's arduino based wheel encoders
  *
