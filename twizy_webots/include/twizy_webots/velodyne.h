@@ -1,5 +1,5 @@
 /**
- * @file realsense.h
+ * @file velodyne.h
  *
  * @brief Simulation of an autonomous Twizy's Velodyne VLP-16 LiDAR
  *
