@@ -24,7 +24,7 @@ Extended Kalman filter for robot localization with a physical model based on the
 # State Estimation
 
 The following notation is used in this section, see [Coordinate Frames](#coordinate-frames) for a definition of the different reference frames:
-* _x_, _y_, _z_ are position in global frame
+* _X_, _Y_, _Z_ are position in global frame
 * _ẋ_, _ẏ_, _ż_ are velocity in local farme
 * _ẍ_, _ÿ_, _z̈_ are acceleration in local frame
 * _Roll_, _Pitch_, _Yaw_ are rotation in global frame
