@@ -22,13 +22,13 @@ ROS driver for the Swiftnav Pikis Multi RTK GNSS kit.
 
 ### Published Topics
 
-* `imu/raw` ([sensor_msgs/Imu](http://docs.ros.org/en/noetic/api/sensor_msgs/html/msg/Imu.html)  
+* `imu/raw` ([sensor_msgs/Imu](http://docs.ros.org/en/noetic/api/sensor_msgs/html/msg/Imu.html))  
   Measurement values from the IMU present on the Piksi Multi board.
 
-* `mag/raw` ([sensor_msgs/MagneticField](http://docs.ros.org/en/noetic/api/sensor_msgs/html/msg/MagneticField.html)  
+* `mag/raw` ([sensor_msgs/MagneticField](http://docs.ros.org/en/noetic/api/sensor_msgs/html/msg/MagneticField.html))  
   Measurement values from the magnetometer present on the Piksi Multi board.
 
-* `gnss/fix` ([sensor_msgs/NavSatFix](http://docs.ros.org/en/noetic/api/sensor_msgs/html/msg/NavSatFix.html)  
+* `gnss/fix` ([sensor_msgs/NavSatFix](http://docs.ros.org/en/noetic/api/sensor_msgs/html/msg/NavSatFix.html))  
   Measurement values from from the Piksi Multi RTK GNSS.
 
 ### Parameters
